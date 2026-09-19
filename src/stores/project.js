@@ -82,6 +82,8 @@ export const useProjectStore = defineStore("project", {
 
         async createProject(payload) {
             this.loading = true;
+            this.error = null;
+            this.success = null;
 
             try {
                 const response = await axiosInstance.post('projects', payload);
@@ -96,6 +98,8 @@ export const useProjectStore = defineStore("project", {
 
         async updateProject(id, payload) {
             this.loading = true;
+            this.error = null;
+            this.success = null;
 
             try {
                 const response = await axiosInstance.post(`projects/${id}`, {

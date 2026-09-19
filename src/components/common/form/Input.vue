@@ -25,6 +25,7 @@
         :placeholder="placeholder"
         :required="required"
         :min="min"
+        :max="max"
         :step="step"
         :class="[
           'w-full pl-10 pr-4 border rounded-[16px] transition-all duration-300',
@@ -56,6 +57,7 @@ const props = defineProps({
   modelValue: { type: [String, Number], default: "" },
   error: { type: String, default: "" },
   min: { type: [String, Number], default: undefined },
+  max: { type: [String, Number], default: undefined },
   step: { type: [String, Number], default: undefined },
 });
 const emit = defineEmits(["update:modelValue"]);

@@ -505,14 +505,14 @@ watch(
                 { value: 'mandiri', label: 'Bank Mandiri' },
                 { value: 'bni', label: 'Bank Negara Indonesia (BNI)' },
                 { value: 'bri', label: 'Bank Rakyat Indonesia (BRI)' },
-                { value: 'cimb', label: 'CIMB Niaga' },
+                { value: 'cimb_niaga', label: 'CIMB Niaga' },
                 { value: 'danamon', label: 'Bank Danamon' },
                 { value: 'permata', label: 'Bank Permata' },
-                { value: 'maybank', label: 'Maybank Indonesia' },
-                { value: 'ocbc', label: 'OCBC NISP' },
-                { value: 'panin', label: 'Panin Bank' },
+                { value: 'maybank_indonesia', label: 'Maybank Indonesia' },
+                { value: 'ocbc_nisp', label: 'OCBC NISP' },
+                { value: 'panin_bank', label: 'Panin Bank' },
               ]"
-              :error="errors?.bank_name?.join(', ')"
+              :error="Array.isArray(errors?.bank_name) ? errors?.bank_name?.join(', ') : errors?.bank_name"
               required
             >
               <template #icon>

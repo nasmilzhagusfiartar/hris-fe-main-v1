@@ -29,6 +29,7 @@ import { debounce } from "lodash";
 import { useTeamStore } from "@/stores/team";
 import { useOptionStore } from "@/stores/option";
 import { useEmployeeStore } from "@/stores/employee";
+import { useToastStore } from "@/stores/toast";
 import { storeToRefs } from "pinia";
 import router from "@/router";
 import { useRoute } from "vue-router";
@@ -36,6 +37,7 @@ import { useRoute } from "vue-router";
 const route = useRoute();
 const id = route.params.id;
 
+const toast = useToastStore();
 const teamStore = useTeamStore();
 const { loading, error, success } = storeToRefs(teamStore);
 const { updateTeam, fetchTeam } = teamStore;
@@ -86,7 +88,19 @@ const handleSubmit = async () => {
   await updateTeam(id, form.value);
 
   if (success.value) {
+    toast.success(success.value || "Tim berhasil diperbarui!", "Berhasil");
     router.back();
+  } else if (error.value) {
+    let errorMsg = "Gagal memperbarui tim. Silakan periksa formulir kembali.";
+    if (typeof error.value === "object" && error.value !== null) {
+      const messages = Object.values(error.value).flat();
+      if (messages.length > 0) {
+        errorMsg = messages[0];
+      }
+    } else if (typeof error.value === "string") {
+      errorMsg = error.value;
+    }
+    toast.error(errorMsg, "Gagal Memperbarui Tim");
   }
 };
 
@@ -94,8 +108,26 @@ const handleTeamIconSelect = (e) => {
   const file = e.target.files[0];
 
   if (file) {
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error(
+        "Ukuran icon tidak boleh lebih dari 2048 KB (2 MB).",
+        "Ukuran File Terlalu Besar"
+      );
+      if (teamIconInput.value) {
+        teamIconInput.value.value = "";
+      }
+      return;
+    }
     form.value.icon = file;
     form.value.icon_url = URL.createObjectURL(file);
+  }
+};
+
+const handleRemoveIcon = () => {
+  form.value.icon = "";
+  form.value.icon_url = "";
+  if (teamIconInput.value) {
+    teamIconInput.value.value = "";
   }
 };
 
@@ -234,6 +266,7 @@ watch(
                   <button
                     type="button"
                     class="border border-[#DCDEDD] rounded-[8px] hover:border-[#0C51D9] hover:border-2 hover:bg-gray-50 transition-all duration-300 px-4 py-2 flex items-center gap-2 cursor-pointer"
+                    @click="handleRemoveIcon"
                   >
                     <X class="w-4 h-4 text-gray-600" />
                     <span class="text-brand-dark text-base font-semibold"
@@ -241,7 +274,10 @@ watch(
                     >
                   </button>
                   <p class="text-brand-light text-xs">
-                    SVG, PNG up to 1MB (recommended: icon format)
+                    SVG, PNG up to 2MB (recommended: icon format)
+                  </p>
+                  <p v-if="error?.icon" class="text-red-500 text-xs mt-1 font-medium">
+                    {{ Array.isArray(error.icon) ? error.icon.join(', ') : error.icon }}
                   </p>
                 </div>
               </div>

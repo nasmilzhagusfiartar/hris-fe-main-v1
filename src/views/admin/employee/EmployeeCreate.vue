@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { ref, inject } from "vue";
+import { ref, inject, computed, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useEmployeeStore } from "@/stores/employee";
+import { useToastStore } from "@/stores/toast";
 import { storeToRefs } from "pinia";
-import { ArrowRight, ArrowLeft, UserPlus } from "lucide-vue-next";
+import { ArrowRight, ArrowLeft, UserPlus, RotateCcw } from "lucide-vue-next";
+import { debounce } from "lodash";
 
 import Step1PersonalInfo from "@/components/admin/employee/create/steps/Step1PersonalInfo.vue";
 import Step2JobInfo from "@/components/admin/employee/create/steps/Step2JobInfo.vue";
@@ -12,20 +14,27 @@ import Step4Preview from "@/components/admin/employee/create/steps/Step4Preview.
 import ErrorModal from "@/components/admin/employee/create/ErrorModal.vue";
 
 const router = useRouter();
+const toast = useToastStore();
 const employeeStore = useEmployeeStore();
 const { loading, error } = storeToRefs(employeeStore);
 
+const DRAFT_STORAGE_KEY = "hris_employee_create_draft";
+
 // Modal state
 const showErrorModal = ref(false);
+
+// Client-side validation errors
+const clientErrors = ref<Record<string, string[]>>({});
 
 // Inject step management from layout
 const currentStep = inject<any>("currentStep");
 const totalSteps = inject<any>("totalSteps");
 const nextStep = inject<any>("nextStep");
 const previousStep = inject<any>("previousStep");
+const goToStep = inject<any>("goToStep");
 
-// Form data for Step 1
-const step1Data = ref({
+// Initial form states
+const initialStep1 = () => ({
   name: "",
   email: "",
   password: "",
@@ -43,8 +52,7 @@ const step1Data = ref({
   profile_photo_url: "",
 });
 
-// Form data for Step 2
-const step2Data = ref({
+const initialStep2 = () => ({
   job_title: "",
   team_id: "",
   years_experience: "",
@@ -62,8 +70,7 @@ const step2Data = ref({
   role: "",
 });
 
-// Form data for Step 3
-const step3Data = ref({
+const initialStep3 = () => ({
   emergency_contact_name: "",
   emergency_contact_relationship: "",
   emergency_contact_phone: "",
@@ -72,13 +79,361 @@ const step3Data = ref({
   preferred_language: "",
 });
 
+// Form data for Steps
+const step1Data = ref(initialStep1());
+const step2Data = ref(initialStep2());
+const step3Data = ref(initialStep3());
+
+// Combined errors (merge backend errors and client validation errors)
+const combinedErrors = computed(() => {
+  const res: Record<string, string[]> = {};
+  if (error.value && typeof error.value === "object") {
+    for (const [k, v] of Object.entries(error.value)) {
+      res[k] = Array.isArray(v) ? (v as string[]) : [String(v)];
+    }
+  }
+  for (const [k, v] of Object.entries(clientErrors.value)) {
+    res[k] = v;
+  }
+  return res;
+});
+
 const normalizeRupiah = (value: any) => {
   if (value === null || value === undefined) return "";
   return String(value).replace(/[^0-9]/g, "");
 };
 
+// Step Validation
+const validateStep = (step: number): boolean => {
+  const newErrors: Record<string, string[]> = { ...clientErrors.value };
+
+  if (step === 1) {
+    const step1Keys = [
+      "name",
+      "email",
+      "password",
+      "password_confirmation",
+      "identity_number",
+      "phone",
+      "date_of_birth",
+      "place_of_birth",
+      "gender",
+      "address",
+      "city",
+      "postal_code",
+    ];
+    step1Keys.forEach((k) => delete newErrors[k]);
+
+    const s1 = step1Data.value;
+    if (!s1.name?.trim()) newErrors.name = ["Nama lengkap wajib diisi."];
+
+    if (!s1.email?.trim()) {
+      newErrors.email = ["Email wajib diisi."];
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s1.email.trim())) {
+      newErrors.email = [
+        "Format email tidak valid (contoh: user@company.com).",
+      ];
+    }
+
+    if (!s1.password) {
+      newErrors.password = ["Password wajib diisi."];
+    } else if (s1.password.length < 8) {
+      newErrors.password = ["Password minimal harus 8 karakter."];
+    }
+
+    if (!s1.password_confirmation) {
+      newErrors.password_confirmation = ["Konfirmasi password wajib diisi."];
+    } else if (s1.password !== s1.password_confirmation) {
+      newErrors.password_confirmation = [
+        "Konfirmasi password tidak cocok dengan password.",
+      ];
+    }
+
+    if (!s1.identity_number?.trim()) {
+      newErrors.identity_number = ["Nomor identitas (NIK/KTP) wajib diisi."];
+    }
+
+    if (!s1.phone?.trim()) {
+      newErrors.phone = ["Nomor telepon wajib diisi."];
+    }
+
+    if (!s1.date_of_birth) {
+      newErrors.date_of_birth = ["Tanggal lahir wajib diisi."];
+    } else {
+      const dob = new Date(s1.date_of_birth);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (dob >= today) {
+        newErrors.date_of_birth = ["Tanggal lahir harus sebelum hari ini."];
+      }
+    }
+
+    if (!s1.place_of_birth?.trim()) {
+      newErrors.place_of_birth = ["Tempat lahir wajib diisi."];
+    }
+
+    if (!s1.gender) {
+      newErrors.gender = ["Jenis kelamin wajib dipilih."];
+    }
+
+    if (!s1.address?.trim()) {
+      newErrors.address = ["Alamat wajib diisi."];
+    }
+
+    if (!s1.city?.trim()) {
+      newErrors.city = ["Kota wajib diisi."];
+    }
+
+    if (!s1.postal_code?.trim()) {
+      newErrors.postal_code = ["Kode pos wajib diisi."];
+    }
+  } else if (step === 2) {
+    const step2Keys = [
+      "job_title",
+      "role",
+      "years_experience",
+      "status",
+      "employment_type",
+      "work_location",
+      "start_date",
+      "monthly_salary",
+      "skill_level",
+      "bank_name",
+      "account_number",
+      "account_holder_name",
+      "account_type",
+    ];
+    step2Keys.forEach((k) => delete newErrors[k]);
+
+    const s2 = step2Data.value;
+    if (!s2.job_title?.trim()) newErrors.job_title = ["Job title wajib diisi."];
+    if (!s2.role) newErrors.role = ["Role wajib dipilih."];
+
+    if (
+      s2.years_experience === "" ||
+      s2.years_experience === null ||
+      s2.years_experience === undefined
+    ) {
+      newErrors.years_experience = ["Pengalaman kerja (tahun) wajib diisi."];
+    } else if (Number(s2.years_experience) < 0) {
+      newErrors.years_experience = ["Pengalaman kerja minimal 0 tahun."];
+    }
+
+    if (!s2.status) newErrors.status = ["Status pekerjaan wajib dipilih."];
+    if (!s2.employment_type)
+      newErrors.employment_type = ["Tipe pekerjaan wajib dipilih."];
+    if (!s2.work_location)
+      newErrors.work_location = ["Lokasi kerja wajib dipilih."];
+    if (!s2.start_date)
+      newErrors.start_date = ["Tanggal mulai kerja wajib diisi."];
+
+    const salaryNum = normalizeRupiah(s2.monthly_salary);
+    if (!salaryNum || Number(salaryNum) <= 0) {
+      newErrors.monthly_salary = ["Gaji bulanan wajib diisi lebih dari 0."];
+    }
+
+    if (!s2.skill_level)
+      newErrors.skill_level = ["Skill level wajib dipilih."];
+    if (!s2.bank_name) newErrors.bank_name = ["Nama bank wajib dipilih."];
+    if (!s2.account_number?.trim())
+      newErrors.account_number = ["Nomor rekening wajib diisi."];
+    if (!s2.account_holder_name?.trim())
+      newErrors.account_holder_name = ["Nama pemilik rekening wajib diisi."];
+    if (!s2.account_type)
+      newErrors.account_type = ["Tipe rekening wajib dipilih."];
+  } else if (step === 3) {
+    const step3Keys = [
+      "emergency_contact_name",
+      "emergency_contact_relationship",
+      "emergency_contact_phone",
+      "emergency_contacts.0.full_name",
+      "emergency_contacts.0.relationship",
+      "emergency_contacts.0.phone",
+    ];
+    step3Keys.forEach((k) => delete newErrors[k]);
+
+    const s3 = step3Data.value;
+    if (!s3.emergency_contact_name?.trim()) {
+      newErrors.emergency_contact_name = ["Nama kontak darurat wajib diisi."];
+      newErrors["emergency_contacts.0.full_name"] = [
+        "Nama kontak darurat wajib diisi.",
+      ];
+    }
+    if (!s3.emergency_contact_relationship?.trim()) {
+      newErrors.emergency_contact_relationship = [
+        "Hubungan kontak darurat wajib diisi.",
+      ];
+      newErrors["emergency_contacts.0.relationship"] = [
+        "Hubungan kontak darurat wajib diisi.",
+      ];
+    }
+    if (!s3.emergency_contact_phone?.trim()) {
+      newErrors.emergency_contact_phone = [
+        "Nomor telepon kontak darurat wajib diisi.",
+      ];
+      newErrors["emergency_contacts.0.phone"] = [
+        "Nomor telepon kontak darurat wajib diisi.",
+      ];
+    }
+  }
+
+  clientErrors.value = newErrors;
+
+  let hasError = false;
+  if (step === 1) {
+    hasError = [
+      "name",
+      "email",
+      "password",
+      "password_confirmation",
+      "identity_number",
+      "phone",
+      "date_of_birth",
+      "place_of_birth",
+      "gender",
+      "address",
+      "city",
+      "postal_code",
+    ].some((k) => !!newErrors[k]);
+  } else if (step === 2) {
+    hasError = [
+      "job_title",
+      "role",
+      "years_experience",
+      "status",
+      "employment_type",
+      "work_location",
+      "start_date",
+      "monthly_salary",
+      "skill_level",
+      "bank_name",
+      "account_number",
+      "account_holder_name",
+      "account_type",
+    ].some((k) => !!newErrors[k]);
+  } else if (step === 3) {
+    hasError = [
+      "emergency_contact_name",
+      "emergency_contact_relationship",
+      "emergency_contact_phone",
+    ].some((k) => !!newErrors[k]);
+  }
+
+  if (hasError) {
+    toast.error(
+      `Mohon lengkapi dan periksa kembali data pada Step ${step} sebelum melanjutkan.`,
+      "Validasi Belum Lengkap"
+    );
+    return false;
+  }
+
+  return true;
+};
+
+// Handle Next Step
+const handleNextStep = () => {
+  if (validateStep(currentStep.value)) {
+    nextStep();
+  }
+};
+
+// Jump to step
+const handleGoToStep = (step: number) => {
+  showErrorModal.value = false;
+  if (goToStep) {
+    goToStep(step);
+  } else {
+    currentStep.value = step;
+  }
+};
+
+// Draft Auto-Save & Restore
+const saveDraft = debounce(() => {
+  try {
+    const draftPayload = {
+      currentStep: currentStep.value,
+      step1Data: {
+        ...step1Data.value,
+        profile_photo: null, // File object cannot be serialized
+      },
+      step2Data: step2Data.value,
+      step3Data: step3Data.value,
+      updatedAt: new Date().toISOString(),
+    };
+    localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draftPayload));
+  } catch (err) {
+    console.error("Gagal menyimpan draft employee:", err);
+  }
+}, 400);
+
+const restoreDraft = () => {
+  try {
+    const saved = localStorage.getItem(DRAFT_STORAGE_KEY);
+    if (!saved) return;
+    const parsed = JSON.parse(saved);
+
+    if (parsed.step1Data) {
+      step1Data.value = {
+        ...step1Data.value,
+        ...parsed.step1Data,
+        profile_photo: null,
+      };
+    }
+    if (parsed.step2Data) {
+      step2Data.value = { ...step2Data.value, ...parsed.step2Data };
+    }
+    if (parsed.step3Data) {
+      step3Data.value = { ...step3Data.value, ...parsed.step3Data };
+    }
+    if (parsed.currentStep && parsed.currentStep <= totalSteps) {
+      handleGoToStep(parsed.currentStep);
+    }
+    toast.info("Draft data isian sebelumnya berhasil dipulihkan.", "Draft Dipulihkan");
+  } catch (err) {
+    console.error("Gagal memulihkan draft employee:", err);
+  }
+};
+
+const handleResetForm = () => {
+  if (
+    confirm(
+      "Apakah Anda yakin ingin mengosongkan semua data dan menghapus draft isian?"
+    )
+  ) {
+    localStorage.removeItem(DRAFT_STORAGE_KEY);
+    step1Data.value = initialStep1();
+    step2Data.value = initialStep2();
+    step3Data.value = initialStep3();
+    clientErrors.value = {};
+    if (employeeStore.error) employeeStore.error = null;
+    handleGoToStep(1);
+    toast.success("Draft isian form berhasil direset.", "Form Direset");
+  }
+};
+
+// Watchers for draft saving
+watch(
+  [step1Data, step2Data, step3Data, currentStep],
+  () => {
+    saveDraft();
+  },
+  { deep: true }
+);
+
+onMounted(() => {
+  restoreDraft();
+});
+
 // Form submission
 const handleSubmit = async () => {
+  // Validate all steps before submitting
+  for (let s = 1; s <= 3; s++) {
+    if (!validateStep(s)) {
+      handleGoToStep(s);
+      return;
+    }
+  }
+
   try {
     const formData = new FormData();
 
@@ -102,23 +457,30 @@ const handleSubmit = async () => {
 
     // Step 2 data (Job Information & Bank Information)
     formData.append("job_title", step2Data.value.job_title);
-    formData.append("team_id", step2Data.value.team_id);
+    if (step2Data.value.team_id) {
+      formData.append("team_id", step2Data.value.team_id);
+    }
     formData.append("years_experience", step2Data.value.years_experience);
     formData.append("status", step2Data.value.status);
     formData.append("employment_type", step2Data.value.employment_type);
     formData.append("work_location", step2Data.value.work_location);
     formData.append("start_date", step2Data.value.start_date);
-    formData.append("monthly_salary", normalizeRupiah(step2Data.value.monthly_salary));
+    formData.append(
+      "monthly_salary",
+      normalizeRupiah(step2Data.value.monthly_salary)
+    );
     formData.append("skill_level", step2Data.value.skill_level);
     formData.append("bank_name", step2Data.value.bank_name);
     formData.append("account_number", step2Data.value.account_number);
-    formData.append("account_holder_name", step2Data.value.account_holder_name);
+    formData.append(
+      "account_holder_name",
+      step2Data.value.account_holder_name
+    );
     formData.append("bank_branch", step2Data.value.bank_branch);
     formData.append("account_type", step2Data.value.account_type);
     formData.append("roles[]", step2Data.value.role);
 
     // Step 3 data (Emergency Contacts & Additional Info)
-    // Emergency contacts as array (required format by API)
     formData.append(
       "emergency_contacts[0][full_name]",
       step3Data.value.emergency_contact_name
@@ -143,14 +505,28 @@ const handleSubmit = async () => {
 
     await employeeStore.createEmployee(formData);
 
+    // Clean up draft storage on success
+    localStorage.removeItem(DRAFT_STORAGE_KEY);
+    toast.success("Employee berhasil ditambahkan!", "Berhasil");
+
     // Redirect to success page on success
     router.push({ name: "admin.employees.success" });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Error creating employee:", err);
-    // Show error modal when validation fails
+
+    let errorSummary = "Gagal membuat employee. Mohon periksa detail isian.";
     if (error.value) {
-      showErrorModal.value = true;
+      if (typeof error.value === "object") {
+        const firstMsg = Object.values(error.value).flat()[0];
+        if (firstMsg) errorSummary = String(firstMsg);
+      } else if (typeof error.value === "string") {
+        errorSummary = error.value;
+      }
     }
+    toast.error(errorSummary, "Gagal Menambahkan Employee");
+
+    // Show error modal with detailed list
+    showErrorModal.value = true;
   }
 };
 
@@ -165,21 +541,21 @@ const closeErrorModal = () => {
     <Step1PersonalInfo
       v-if="currentStep === 1"
       v-model="step1Data"
-      :errors="error"
+      :errors="combinedErrors"
     />
 
     <!-- Step 2: Job Information -->
     <Step2JobInfo
       v-if="currentStep === 2"
       v-model="step2Data"
-      :errors="error"
+      :errors="combinedErrors"
     />
 
     <!-- Step 3: Emergency Contact -->
     <Step3EmergencyContact
       v-if="currentStep === 3"
       v-model="step3Data"
-      :errors="error"
+      :errors="combinedErrors"
     />
 
     <!-- Step 4: Preview -->
@@ -192,15 +568,25 @@ const closeErrorModal = () => {
 
     <!-- Form Navigation -->
     <div class="bg-white border border-[#DCDEDD] rounded-[20px] p-6">
-      <div class="flex items-center justify-between">
+      <div
+        class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+      >
         <div>
-          <p class="text-brand-dark text-sm font-medium">
-            {{
-              currentStep === 4
-                ? "Ready to add this employee?"
-                : `Step ${currentStep} of ${totalSteps}`
-            }}
-          </p>
+          <div class="flex items-center gap-3">
+            <p class="text-brand-dark text-sm font-medium">
+              {{
+                currentStep === 4
+                  ? "Ready to add this employee?"
+                  : `Step ${currentStep} of ${totalSteps}`
+              }}
+            </p>
+            <!-- Auto-save Draft indicator -->
+            <span
+              class="text-[11px] bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full font-medium"
+            >
+              Draft tersimpan otomatis
+            </span>
+          </div>
           <p class="text-brand-light text-xs font-normal mt-1">
             {{
               currentStep === 4
@@ -213,7 +599,19 @@ const closeErrorModal = () => {
             }}
           </p>
         </div>
-        <div class="flex items-center gap-3">
+
+        <div class="flex items-center flex-wrap gap-3">
+          <!-- Reset / Clear Draft Button -->
+          <button
+            type="button"
+            @click="handleResetForm"
+            title="Bersihkan form dan hapus draft"
+            class="border border-gray-200 text-gray-600 hover:text-red-600 hover:border-red-200 hover:bg-red-50 rounded-[8px] transition-all duration-300 px-4 py-3 flex items-center gap-1.5 text-sm font-medium"
+          >
+            <RotateCcw class="w-3.5 h-3.5" />
+            <span>Reset Form</span>
+          </button>
+
           <button
             v-if="currentStep > 1"
             type="button"
@@ -237,7 +635,7 @@ const closeErrorModal = () => {
           <button
             v-if="currentStep < totalSteps"
             type="button"
-            @click="nextStep"
+            @click="handleNextStep"
             class="btn-primary rounded-[8px] border border-[#2151A0] hover:brightness-110 focus:ring-2 focus:ring-[#0C51D9] transition-all duration-300 blue-gradient blue-btn-shadow px-6 py-3 flex items-center gap-2"
           >
             <span class="text-brand-white text-base font-semibold">
@@ -269,5 +667,10 @@ const closeErrorModal = () => {
   </form>
 
   <!-- Error Modal -->
-  <ErrorModal :show="showErrorModal" @close="closeErrorModal" />
+  <ErrorModal
+    :show="showErrorModal"
+    :errors="combinedErrors"
+    @close="closeErrorModal"
+    @goToStep="handleGoToStep"
+  />
 </template>

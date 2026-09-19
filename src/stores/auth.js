@@ -6,14 +6,14 @@ import router from "@/router";
 
 export const useAuthStore = defineStore("auth", {
     state: () => ({
+        token: Cookies.get('token') || null,
         user: null,
         loading: false,
         error: null,
         success: null,
     }),
     getters: {
-        token: () => Cookies.get('token'),
-        isAuthenticated: (state) => !!state.user,
+        isAuthenticated: (state) => !!state.user && !!state.token,
     },
     actions: {
         async login(credentials) {
@@ -26,10 +26,13 @@ export const useAuthStore = defineStore("auth", {
                 const token = response.data.data.token
 
                 Cookies.set('token', token)
+                this.token = token
+                this.user = response.data.data
+                axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
                 this.success = response.data.message
 
-                router.push({ name: 'admin.dashboard' })
+                await router.push({ name: 'admin.dashboard' })
             } catch (error) {
                 this.error = handleError(error)
             } finally {
@@ -46,6 +49,7 @@ export const useAuthStore = defineStore("auth", {
             } catch (error) {
                 if (error.response && error.response.status === 401) {
                     Cookies.remove('token');
+                    this.token = null;
                     throw new Error("Unauthorized");
                 }
                 this.error = handleError(error);
@@ -62,8 +66,10 @@ export const useAuthStore = defineStore("auth", {
 
                 Cookies.remove('token')
 
+                this.token = null
                 this.user = null
                 this.error = null
+                delete axiosInstance.defaults.headers.common['Authorization']
 
                 router.push({ name: 'login' })
             } catch (error) {

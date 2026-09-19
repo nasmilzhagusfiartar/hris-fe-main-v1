@@ -46,11 +46,18 @@ const loadEmployee = async () => {
   try {
     const employeeId = route.params.id as string;
     employee.value = await employeeStore.fetchEmployee(employeeId);
-    // Load performance statistics
-    await employeeStore.fetchPerformanceStatistics(employeeId);
   } catch (error) {
     console.error("Error loading employee:", error);
     router.push({ name: "admin.employees" });
+    return;
+  }
+
+  try {
+    const employeeId = route.params.id as string;
+    // Load performance statistics
+    await employeeStore.fetchPerformanceStatistics(employeeId);
+  } catch (error) {
+    console.error("Error loading performance statistics:", error);
   }
 };
 

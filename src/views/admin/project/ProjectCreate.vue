@@ -34,9 +34,11 @@ import { debounce } from "lodash";
 import { useProjectStore } from "@/stores/project";
 import { useTeamStore } from "@/stores/team";
 import { useEmployeeStore } from "@/stores/employee";
+import { useToastStore } from "@/stores/toast";
 import { storeToRefs } from "pinia";
 import router from "@/router";
 
+const toast = useToastStore();
 const projectStore = useProjectStore();
 const { loading, error, success } = storeToRefs(projectStore);
 const { createProject } = projectStore;
@@ -75,24 +77,67 @@ const formatRupiahInput = (value) => {
   return new Intl.NumberFormat("id-ID").format(parseInt(digits));
 };
 
+const formatDepartment = (dept) => {
+  if (!dept) return "";
+  return dept
+    .split(/[_-]/)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(" ");
+};
+
 const formattingBudget = ref(false);
 
 const handleSubmit = async () => {
+  if (form.value.start_date && form.value.end_date) {
+    if (new Date(form.value.end_date) <= new Date(form.value.start_date)) {
+      toast.error(
+        "The End Date field must be a date after Start Date.",
+        "Validasi Tanggal Project"
+      );
+      return;
+    }
+  }
+
   const payload = { ...form.value };
   payload.budget =
     parseInt(String(form.value.budget).replace(/[^0-9]/g, "")) || 0;
   await createProject(payload);
 
   if (success.value) {
+    toast.success(success.value || "Project berhasil dibuat!", "Berhasil");
     router.push({ name: "admin.projects" });
+  } else if (error.value) {
+    let errorMsg = "Gagal membuat project. Silakan periksa kembali isian form.";
+    if (typeof error.value === "object" && error.value !== null) {
+      const messages = Object.values(error.value).flat();
+      if (messages.length > 0) {
+        errorMsg = messages[0];
+      }
+    } else if (typeof error.value === "string") {
+      errorMsg = error.value;
+    }
+    toast.error(errorMsg, "Validasi Gagal");
   }
 };
 
 const handleProjectPhotoSelect = (e) => {
   const file = e.target.files[0];
   if (file) {
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Ukuran file foto project maksimal 2MB.", "Ukuran Terlalu Besar");
+      if (projectPhotoInput.value) projectPhotoInput.value.value = "";
+      return;
+    }
     form.value.photo = file;
     form.value.photo_url = URL.createObjectURL(file);
+  }
+};
+
+const handleRemovePhoto = () => {
+  form.value.photo = "";
+  form.value.photo_url = "";
+  if (projectPhotoInput.value) {
+    projectPhotoInput.value.value = "";
   }
 };
 
@@ -222,6 +267,7 @@ watch(
                   />
                   <button
                     type="button"
+                    @click="projectPhotoInput?.click()"
                     class="border border-[#DCDEDD] rounded-[8px] hover:border-[#0C51D9] hover:border-2 hover:bg-gray-50 transition-all duration-300 px-4 py-2 flex items-center gap-2"
                   >
                     <ImagePlus class="w-4 h-4 text-gray-600" />
@@ -240,6 +286,7 @@ watch(
                   </button>
                   <button
                     type="button"
+                    @click="handleRemovePhoto"
                     class="border border-[#DCDEDD] rounded-[8px] hover:border-[#0C51D9] hover:border-2 hover:bg-gray-50 transition-all duration-300 px-4 py-2 flex items-center gap-2"
                   >
                     <X class="w-4 h-4 text-gray-600" />
@@ -249,6 +296,9 @@ watch(
                   </button>
                   <p class="text-brand-light text-xs">
                     JPG, PNG up to 2MB (recommended: 640x424px)
+                  </p>
+                  <p v-if="error?.photo" class="text-red-500 text-xs mt-1 font-medium">
+                    {{ error?.photo?.join(', ') }}
                   </p>
                 </div>
               </div>
@@ -264,6 +314,7 @@ watch(
                 label="Project Name *"
                 placeholder="Enter project name"
                 :required="true"
+                :error="error?.name?.join(', ')"
               >
                 <template #icon>
                   <Briefcase class="h-5 w-5 text-gray-400" />
@@ -380,6 +431,9 @@ watch(
                   </div>
                 </label>
               </div>
+              <p v-if="error?.priority" class="text-red-500 text-xs mt-1 font-medium">
+                {{ error?.priority?.join(', ') }}
+              </p>
             </div>
 
             <div
@@ -402,6 +456,7 @@ watch(
                     { value: 'infrastructure', label: 'Infrastructure' },
                   ]"
                   :required="true"
+                  :error="error?.type?.join(', ')"
                 >
                   <template #icon>
                     <Tag class="h-5 w-5 text-gray-400" />
@@ -418,6 +473,7 @@ watch(
                   v-model="form.start_date"
                   label="Start Date *"
                   :required="true"
+                  :error="error?.start_date?.join(', ')"
                 >
                   <template #icon>
                     <Calendar class="h-5 w-5 text-gray-400" />
@@ -433,7 +489,9 @@ watch(
                   type="date"
                   v-model="form.end_date"
                   label="End Date *"
+                  :min="form.start_date || undefined"
                   :required="true"
+                  :error="error?.end_date?.join(', ')"
                 >
                   <template #icon>
                     <Calendar class="h-5 w-5 text-gray-400" />
@@ -451,6 +509,7 @@ watch(
                 label="Project Description"
                 placeholder="Describe the project's objectives and scope..."
                 :rows="4"
+                :error="error?.description?.join(', ')"
               >
                 <template #icon>
                   <FileText class="h-5 w-5 text-gray-400" />
@@ -535,6 +594,9 @@ watch(
                   </button>
                 </div>
               </div>
+              <p v-if="error?.project_leader_id" class="text-red-500 text-xs mt-2 font-medium">
+                {{ error?.project_leader_id?.join(', ') }}
+              </p>
             </div>
           </div>
         </div>
@@ -570,21 +632,28 @@ watch(
                 >
                   <div class="flex items-center gap-3">
                     <div
-                      class="w-12 h-12 relative flex items-center justify-center rounded-[12px] overflow-hidden"
+                      class="w-12 h-12 relative flex items-center justify-center rounded-[12px] overflow-hidden shrink-0"
                     >
                       <!-- Main blue background -->
                       <div
                         class="w-full h-full absolute bg-gradient-to-br from-primary-500 to-primary-600 rounded-[12px]"
                       ></div>
-                      <!-- Lucide icon -->
-                      <Code class="w-5 h-5 text-white relative z-10" />
+                      <!-- Team Logo / Icon -->
+                      <img
+                        v-if="team.icon"
+                        :src="team.icon"
+                        :alt="team.name"
+                        class="w-6 h-6 object-contain relative z-10"
+                      />
+                      <!-- Fallback Lucide icon -->
+                      <Code v-else class="w-5 h-5 text-white relative z-10" />
                     </div>
                     <div class="flex flex-col">
                       <p class="text-brand-dark text-base font-semibold">
                         {{ team.name }}
                       </p>
                       <p class="text-brand-light text-sm">
-                        {{ team.members_count }} members • Active
+                        {{ team.members_count || 0 }} members • Active<template v-if="team.department"> • {{ formatDepartment(team.department) }}</template>
                       </p>
                     </div>
                   </div>
@@ -611,6 +680,9 @@ watch(
                   </div>
                 </label>
               </div>
+              <p v-if="error?.teams" class="text-red-500 text-xs mt-2 font-medium">
+                {{ error?.teams?.join(', ') }}
+              </p>
             </div>
 
             <!-- Selected Teams Summary -->
@@ -662,6 +734,7 @@ watch(
                 v-model="form.budget"
                 label="Budget"
                 placeholder="100.000.000"
+                :error="error?.budget?.join(', ')"
               >
                 <template #icon> Rp </template>
               </Input>
@@ -813,6 +886,9 @@ watch(
                   </div>
                 </label>
               </div>
+              <p v-if="error?.status" class="text-red-500 text-xs mt-2 font-medium">
+                {{ error?.status?.join(', ') }}
+              </p>
             </div>
           </div>
         </div>

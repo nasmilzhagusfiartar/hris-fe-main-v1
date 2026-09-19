@@ -60,7 +60,9 @@ const form = computed({
               label="Full Name *"
               placeholder="Emergency contact name"
               :error="
-                props.errors?.['emergency_contacts.0.full_name']?.join(', ')
+                props.errors?.['emergency_contacts.0.full_name']?.join?.(', ') ||
+                props.errors?.emergency_contact_name?.join?.(', ') ||
+                props.errors?.emergency_contact_name
               "
               required
             >
@@ -77,7 +79,9 @@ const form = computed({
               label="Relationship *"
               placeholder="e.g., Spouse, Parent, Sibling"
               :error="
-                props.errors?.['emergency_contacts.0.relationship']?.join(', ')
+                props.errors?.['emergency_contacts.0.relationship']?.join?.(', ') ||
+                props.errors?.emergency_contact_relationship?.join?.(', ') ||
+                props.errors?.emergency_contact_relationship
               "
               required
             >
@@ -93,7 +97,11 @@ const form = computed({
               v-model="form.emergency_contact_phone"
               label="Phone Number *"
               placeholder="+1 (555) 123-4567"
-              :error="props.errors?.['emergency_contacts.0.phone']?.join(', ')"
+              :error="
+                props.errors?.['emergency_contacts.0.phone']?.join?.(', ') ||
+                props.errors?.emergency_contact_phone?.join?.(', ') ||
+                props.errors?.emergency_contact_phone
+              "
               required
             >
               <template #icon>
@@ -109,7 +117,11 @@ const form = computed({
               label="Email Address"
               placeholder="emergency@email.com"
               type="email"
-              :error="props.errors?.['emergency_contacts.0.email']?.join(', ')"
+              :error="
+                props.errors?.['emergency_contacts.0.email']?.join?.(', ') ||
+                props.errors?.emergency_contact_email?.join?.(', ') ||
+                props.errors?.emergency_contact_email
+              "
             >
               <template #icon>
                 <Mail class="w-5 h-5 text-gray-400" />

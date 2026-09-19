@@ -14,13 +14,22 @@ import {
   Loader2,
   AlertCircle,
   UserCheck,
+  X,
 } from "lucide-vue-next";
 import { useAttendanceStore } from "@/stores/attendance";
+import { useAuthStore } from "@/stores/auth";
 import { storeToRefs } from "pinia";
 
+const authStore = useAuthStore();
 const attendanceStore = useAttendanceStore();
 const { loading, todayAttendance } = storeToRefs(attendanceStore);
 const { checkIn, checkOut, fetchTodayAttendance } = attendanceStore;
+
+// Role check
+const isEmployee = computed(() => {
+  const roles = authStore.user?.roles || [];
+  return roles.map(r => typeof r === "string" ? r : r.name).includes("employee");
+});
 
 // State
 const currentTime = ref("");
@@ -34,31 +43,39 @@ const locationAddress = ref("Click 'Get Location' to detect your current positio
 const locationCoords = ref("");
 const isGettingLocation = ref(false);
 
-// Computed
-const isCheckedIn = computed(() => {
-  return todayAttendance.value?.check_in && !todayAttendance.value?.check_out;
+// Notification feedback state
+const feedbackMessage = ref({
+  type: "", // 'success' | 'error' | 'warning'
+  title: "",
+  message: "",
 });
 
-const workingHours = computed(() => {
-  if (!todayAttendance.value?.check_in) {
-    return "0h 0m";
+const showFeedback = (type, title, message) => {
+  feedbackMessage.value = { type, title, message };
+  if (type === "success") {
+    setTimeout(() => {
+      if (feedbackMessage.value.type === "success") {
+        feedbackMessage.value = { type: "", title: "", message: "" };
+      }
+    }, 6000);
   }
+};
 
-  const checkInTime = new Date(todayAttendance.value.check_in);
-  const endTime = todayAttendance.value.check_out
-    ? new Date(todayAttendance.value.check_out)
-    : new Date(); // Use current time if still checked in
+// Computed Attendance Lifecycle
+const isAlreadyCheckedIn = computed(() => {
+  return !!todayAttendance.value?.check_in;
+});
 
-  const diffMs = endTime - checkInTime;
-  const diffMins = Math.floor(diffMs / (1000 * 60));
-  const hours = Math.floor(diffMins / 60);
-  const minutes = diffMins % 60;
+const isCheckedIn = computed(() => {
+  return !!todayAttendance.value?.check_in && !todayAttendance.value?.check_out;
+});
 
-  return `${hours}h ${minutes}m`;
+const isCompleted = computed(() => {
+  return !!todayAttendance.value?.check_in && !!todayAttendance.value?.check_out;
 });
 
 const canCheckIn = computed(() => {
-  return currentLocation.value && !isCheckedIn.value;
+  return currentLocation.value && !isAlreadyCheckedIn.value;
 });
 
 const canCheckOut = computed(() => {
@@ -262,8 +279,21 @@ const retakePhoto = () => {
 
 // Attendance actions
 const handleCheckIn = async () => {
+  if (isAlreadyCheckedIn.value) {
+    showFeedback(
+      "warning",
+      "Presensi Sudah Tercatat",
+      "Anda sudah melakukan check-in hari ini. Presensi harian hanya dapat dilakukan satu kali per hari."
+    );
+    return;
+  }
+
   if (!currentLocation.value) {
-    alert("Please get your current location first!");
+    showFeedback(
+      "warning",
+      "Location Required",
+      "Please click 'Get Location' first to detect your GPS position."
+    );
     return;
   }
 
@@ -273,18 +303,42 @@ const handleCheckIn = async () => {
       check_in_long: currentLocation.value.longitude,
     });
 
-    alert("Successfully clocked in!");
+    showFeedback(
+      "success",
+      "Check-In Successful",
+      "You have successfully clocked in! Have a productive workday."
+    );
     resetForNextAction();
     await fetchTodayAttendance();
   } catch (error) {
     console.error("Check in failed:", error);
-    alert("Failed to check in. Please try again.");
+    let errorMsg = "Failed to clock in. Please try again.";
+    const rawMsg = (typeof attendanceStore.error === "string" ? attendanceStore.error : error.response?.data?.message) || error.message || "";
+    if (rawMsg.includes("sudah check in")) {
+      errorMsg = "Presensi Sudah Tercatat: Anda sudah melakukan check-in untuk hari ini. Presensi baru dapat dilakukan kembali besok.";
+    } else if (rawMsg) {
+      errorMsg = rawMsg;
+    }
+    showFeedback("error", "Clock In Failed", errorMsg);
   }
 };
 
 const handleCheckOut = async () => {
+  if (isCompleted.value) {
+    showFeedback(
+      "warning",
+      "Presensi Selesai",
+      "Anda sudah menyelesaikan presensi masuk dan keluar untuk hari ini."
+    );
+    return;
+  }
+
   if (!currentLocation.value) {
-    alert("Please get your current location first!");
+    showFeedback(
+      "warning",
+      "Location Required",
+      "Please click 'Get Location' first to detect your GPS position."
+    );
     return;
   }
 
@@ -294,12 +348,21 @@ const handleCheckOut = async () => {
       check_out_long: currentLocation.value.longitude,
     });
 
-    alert("Successfully clocked out!");
+    showFeedback(
+      "success",
+      "Check-Out Successful",
+      "You have successfully clocked out! Have a great evening."
+    );
     resetForNextAction();
     await fetchTodayAttendance();
   } catch (error) {
     console.error("Check out failed:", error);
-    alert("Failed to check out. Please try again.");
+    let errorMsg = "Failed to clock out. Please try again.";
+    const rawMsg = (typeof attendanceStore.error === "string" ? attendanceStore.error : error.response?.data?.message) || error.message || "";
+    if (rawMsg) {
+      errorMsg = rawMsg;
+    }
+    showFeedback("error", "Clock Out Failed", errorMsg);
   }
 };
 
@@ -333,6 +396,56 @@ onUnmounted(() => {
 
 <template>
   <div class="p-5">
+    <!-- Non-Employee Notice Banner -->
+    <div
+      v-if="!isEmployee"
+      class="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 flex items-start gap-3 shadow-sm"
+    >
+      <Info class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+      <div>
+        <h4 class="font-bold text-sm">Mode Preview (Akun Non-Karyawan)</h4>
+        <p class="text-xs text-amber-700 mt-1 leading-relaxed">
+          Anda saat ini login sebagai akun Administrator/Manager (<strong>{{ authStore.user?.name || authStore.user?.email }}</strong>). Fitur presensi harian ini diproteksi khusus untuk akun dengan profil karyawan (misalnya: <code class="bg-amber-100 px-1 py-0.5 rounded font-semibold text-amber-900">employee@gmail.com</code> / password: <code class="bg-amber-100 px-1 py-0.5 rounded font-semibold text-amber-900">password</code>).
+        </p>
+      </div>
+    </div>
+
+    <!-- Live Feedback Notification Banner -->
+    <div v-if="feedbackMessage.type" class="mb-6 animate-fade-in">
+      <div
+        :class="{
+          'bg-green-50 border-green-200 text-green-900':
+            feedbackMessage.type === 'success',
+          'bg-red-50 border-red-200 text-red-900':
+            feedbackMessage.type === 'error',
+          'bg-amber-50 border-amber-200 text-amber-900':
+            feedbackMessage.type === 'warning',
+        }"
+        class="p-4 rounded-xl border flex items-start justify-between gap-3 shadow-sm"
+      >
+        <div class="flex items-start gap-3">
+          <AlertCircle
+            v-if="feedbackMessage.type === 'error'"
+            class="w-5 h-5 text-red-600 shrink-0 mt-0.5"
+          />
+          <UserCheck
+            v-else-if="feedbackMessage.type === 'success'"
+            class="w-5 h-5 text-green-600 shrink-0 mt-0.5"
+          />
+          <Info v-else class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <div>
+            <h4 class="font-bold text-sm">{{ feedbackMessage.title }}</h4>
+            <p class="text-xs mt-1 leading-relaxed">{{ feedbackMessage.message }}</p>
+          </div>
+        </div>
+        <button
+          @click="feedbackMessage.type = ''"
+          class="text-gray-400 hover:text-gray-600 p-1"
+        >
+          <X class="w-4 h-4" />
+        </button>
+      </div>
+    </div>
     <!-- Current Time and Status Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
       <!-- Clock Section -->
@@ -587,37 +700,49 @@ onUnmounted(() => {
       >
         <div class="mb-6">
           <div
-            class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4"
+            class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"
+            :class="{
+              'bg-green-50 text-green-600': isCompleted,
+              'bg-amber-50 text-amber-600': isCheckedIn,
+              'bg-blue-50 text-blue-600': !isAlreadyCheckedIn,
+            }"
           >
-            <LogIn v-if="!isCheckedIn" class="w-10 h-10 text-blue-600" />
-            <LogOut v-else class="w-10 h-10 text-blue-600" />
+            <UserCheck v-if="isCompleted" class="w-10 h-10 text-green-600" />
+            <LogOut v-else-if="isCheckedIn" class="w-10 h-10 text-amber-600" />
+            <LogIn v-else class="w-10 h-10 text-blue-600" />
           </div>
+
           <h3 class="text-brand-dark text-2xl font-bold mb-2">
-            {{ isCheckedIn ? "Ready to Clock Out?" : "Ready to Clock In?" }}
+            <template v-if="isCompleted">Presensi Hari Ini Selesai</template>
+            <template v-else-if="isCheckedIn">Siap untuk Clock Out?</template>
+            <template v-else>Siap untuk Clock In?</template>
           </h3>
+
           <p class="text-brand-light text-base">
-            {{
-              isCheckedIn
-                ? "Mark your departure with location"
-                : "Mark your attendance with location"
-            }}
+            <template v-if="isCompleted">
+              Anda telah menyelesaikan presensi masuk dan keluar hari ini. Terima kasih atas kerja keras Anda!
+            </template>
+            <template v-else-if="isCheckedIn">
+              Catat jam kepulangan kerja Anda beserta lokasi terkini.
+            </template>
+            <template v-else>
+              Catat kehadiran kerja Anda hari ini beserta lokasi terkini.
+            </template>
           </p>
         </div>
 
-        <button
-          v-if="!isCheckedIn"
-          @click="handleCheckIn"
-          :disabled="!canCheckIn || loading"
-          class="w-full btn-primary rounded-[12px] border border-[#2151A0] hover:brightness-110 focus:ring-2 focus:ring-[#0C51D9] transition-all duration-300 blue-gradient blue-btn-shadow px-8 py-4 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+        <!-- 1. Completed State -->
+        <div
+          v-if="isCompleted"
+          class="w-full p-4 rounded-[12px] bg-green-50 border border-green-200 text-green-800 flex items-center justify-center gap-3 font-semibold text-base shadow-sm"
         >
-          <LogIn class="w-6 h-6 text-white" />
-          <span class="text-white text-lg font-bold">
-            {{ loading ? "Processing..." : "Clock In" }}
-          </span>
-        </button>
+          <UserCheck class="w-5 h-5 text-green-600" />
+          <span>Presensi Hari Ini Sudah Selesai</span>
+        </div>
 
+        <!-- 2. Clocked In State -> Clock Out Button -->
         <button
-          v-else
+          v-else-if="isCheckedIn"
           @click="handleCheckOut"
           :disabled="!canCheckOut || loading"
           class="w-full btn-primary rounded-[12px] border border-[#2151A0] hover:brightness-110 focus:ring-2 focus:ring-[#0C51D9] transition-all duration-300 blue-gradient blue-btn-shadow px-8 py-4 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -628,9 +753,27 @@ onUnmounted(() => {
           </span>
         </button>
 
+        <!-- 3. Not Clocked In Yet -> Clock In Button -->
+        <button
+          v-else
+          @click="handleCheckIn"
+          :disabled="!canCheckIn || loading"
+          class="w-full btn-primary rounded-[12px] border border-[#2151A0] hover:brightness-110 focus:ring-2 focus:ring-[#0C51D9] transition-all duration-300 blue-gradient blue-btn-shadow px-8 py-4 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <LogIn class="w-6 h-6 text-white" />
+          <span class="text-white text-lg font-bold">
+            {{ loading ? "Processing..." : "Clock In" }}
+          </span>
+        </button>
+
         <p class="text-brand-light text-sm mt-4">
           <Info class="w-4 h-4 inline mr-1" />
-          Please get your location before clocking in/out
+          <template v-if="isCompleted">
+            Satu hari kerja hanya memerlukan 1x presensi masuk dan 1x presensi keluar.
+          </template>
+          <template v-else>
+            Pastikan koordinat lokasi sudah terdeteksi sebelum melakukan presensi.
+          </template>
         </p>
       </div>
     </div>

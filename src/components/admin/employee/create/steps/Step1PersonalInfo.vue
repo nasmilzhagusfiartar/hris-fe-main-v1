@@ -32,11 +32,24 @@ const form = computed({
 // Profile photo handling
 const profilePhotoInput = ref<HTMLInputElement | null>(null);
 
+const maxDateOfBirth = computed(() => {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d.toISOString().split("T")[0];
+});
+
 const handlePhotoSelect = (e: Event) => {
   const target = e.target as HTMLInputElement;
   const file = target.files?.[0];
 
   if (file) {
+    if (file.size > 2 * 1024 * 1024) {
+      alert("Ukuran foto profil maksimal 2MB (2048 KB).");
+      if (profilePhotoInput.value) {
+        profilePhotoInput.value.value = "";
+      }
+      return;
+    }
     form.value.profile_photo = file;
     form.value.profile_photo_url = URL.createObjectURL(file);
   }
@@ -49,7 +62,6 @@ const deletePhoto = () => {
     profilePhotoInput.value.value = "";
   }
 };
-
 </script>
 
 <template>
@@ -114,6 +126,9 @@ const deletePhoto = () => {
             </button>
             <p class="text-brand-light text-xs text-center">
               JPG, PNG up to 2MB<br />Recommended: 400x400px
+            </p>
+            <p v-if="errors?.profile_photo" class="text-red-500 text-xs text-center font-medium mt-1">
+              {{ Array.isArray(errors.profile_photo) ? errors.profile_photo.join(', ') : errors.profile_photo }}
             </p>
           </div>
         </div>
@@ -264,6 +279,7 @@ const deletePhoto = () => {
               id="date_of_birth"
               name="date_of_birth"
               type="date"
+              :max="maxDateOfBirth"
               v-model="form.date_of_birth"
               label="Date of Birth *"
               :error="errors?.date_of_birth?.join(', ')"
@@ -376,6 +392,9 @@ const deletePhoto = () => {
                 </div>
               </label>
             </div>
+            <p v-if="errors?.gender" class="text-red-500 text-xs mt-2 font-medium">
+              {{ Array.isArray(errors.gender) ? errors.gender.join(', ') : errors.gender }}
+            </p>
           </div>
 
           <!-- Address -->

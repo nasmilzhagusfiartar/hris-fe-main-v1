@@ -33,6 +33,7 @@ import { debounce } from "lodash";
 import { useProjectStore } from "@/stores/project";
 import { useTeamStore } from "@/stores/team";
 import { useEmployeeStore } from "@/stores/employee";
+import { useToastStore } from "@/stores/toast";
 import { storeToRefs } from "pinia";
 import router from "@/router";
 import { useRoute } from "vue-router";
@@ -40,6 +41,7 @@ import { useRoute } from "vue-router";
 const route = useRoute();
 const id = route.params.id;
 
+const toast = useToastStore();
 const projectStore = useProjectStore();
 const { loading, error, success } = storeToRefs(projectStore);
 const { updateProject, fetchProject } = projectStore;
@@ -96,13 +98,35 @@ const handleFetchProject = async () => {
 };
 
 const handleSubmit = async () => {
+  if (form.value.start_date && form.value.end_date) {
+    if (new Date(form.value.end_date) <= new Date(form.value.start_date)) {
+      toast.error(
+        "The End Date field must be a date after Start Date.",
+        "Validasi Tanggal Project"
+      );
+      return;
+    }
+  }
+
   const payload = { ...form.value };
   payload.budget =
     parseInt(String(form.value.budget).replace(/[^0-9]/g, "")) || 0;
   await updateProject(id, payload);
 
   if (success.value) {
+    toast.success(success.value || "Project berhasil diperbarui!", "Berhasil");
     router.back();
+  } else if (error.value) {
+    let errorMsg = "Gagal memperbarui project. Silakan periksa kembali isian form.";
+    if (typeof error.value === "object" && error.value !== null) {
+      const messages = Object.values(error.value).flat();
+      if (messages.length > 0) {
+        errorMsg = messages[0];
+      }
+    } else if (typeof error.value === "string") {
+      errorMsg = error.value;
+    }
+    toast.error(errorMsg, "Validasi Gagal");
   }
 };
 
@@ -137,6 +161,14 @@ const formatRupiahInput = (value) => {
   const digits = String(value ?? "").replace(/[^0-9]/g, "");
   if (!digits) return "";
   return new Intl.NumberFormat("id-ID").format(parseInt(digits));
+};
+
+const formatDepartment = (dept) => {
+  if (!dept) return "";
+  return dept
+    .split(/[_-]/)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(" ");
 };
 
 const formattingBudget = ref(false);
@@ -460,6 +492,7 @@ watch(
                   type="date"
                   v-model="form.end_date"
                   label="End Date *"
+                  :min="form.start_date || undefined"
                   :required="true"
                   :error="error?.end_date?.join(', ')"
                 >
@@ -599,21 +632,28 @@ watch(
                 >
                   <div class="flex items-center gap-3">
                     <div
-                      class="w-12 h-12 relative flex items-center justify-center rounded-[12px] overflow-hidden"
+                      class="w-12 h-12 relative flex items-center justify-center rounded-[12px] overflow-hidden shrink-0"
                     >
                       <!-- Main blue background -->
                       <div
                         class="w-full h-full absolute bg-gradient-to-br from-primary-500 to-primary-600 rounded-[12px]"
                       ></div>
-                      <!-- Lucide icon -->
-                      <Code class="w-5 h-5 text-white relative z-10" />
+                      <!-- Team Logo / Icon -->
+                      <img
+                        v-if="team.icon"
+                        :src="team.icon"
+                        :alt="team.name"
+                        class="w-6 h-6 object-contain relative z-10"
+                      />
+                      <!-- Fallback Lucide icon -->
+                      <Code v-else class="w-5 h-5 text-white relative z-10" />
                     </div>
                     <div class="flex flex-col">
                       <p class="text-brand-dark text-base font-semibold">
                         {{ team.name }}
                       </p>
                       <p class="text-brand-light text-sm">
-                        {{ team.members_count }} members • Active
+                        {{ team.members_count || 0 }} members • Active<template v-if="team.department"> • {{ formatDepartment(team.department) }}</template>
                       </p>
                     </div>
                   </div>

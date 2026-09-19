@@ -18,6 +18,11 @@ export default defineConfig({
     },
   },
   server: {
+    host: '0.0.0.0',
+    port: 3000,
+    watch: {
+      usePolling: true,
+    },
     proxy: {
       '/api/vt': {
         target: 'https://www.virustotal.com/api/v3',

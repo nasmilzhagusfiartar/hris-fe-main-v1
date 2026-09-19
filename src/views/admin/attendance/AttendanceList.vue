@@ -186,7 +186,7 @@ onMounted(async () => {
             >
               <TrendingUp class="w-3 h-3 text-white" />
               <span class="text-brand-white text-xs font-semibold"
-                >+{{ statistics.present_change || 0 }} from yesterday</span
+                >{{ statistics.present_change >= 0 ? "+" : "" }}{{ statistics.present_change || 0 }} from yesterday</span
               >
             </div>
           </div>

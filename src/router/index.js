@@ -18,6 +18,7 @@ import payrollRoutes from './payroll';
 import reportRoutes from './report';
 import settingsRoutes from './settings';
 import ctiRoutes from './cti';
+import rbacRoutes from './rbac';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -59,6 +60,7 @@ const router = createRouter({
         ...reportRoutes,
         ...settingsRoutes,
         ...ctiRoutes,
+        ...rbacRoutes,
         {
           path: 'my-profile',
           name: 'employee.profile',
@@ -126,6 +128,9 @@ const router = createRouter({
           path: 'login',
           name: 'login',
           component: Login,
+          meta: {
+            requiresUnauth: true,
+          },
         },
       ],
     },
@@ -151,7 +156,7 @@ router.beforeEach(async (to, from, next) => {
       next({ name: 'login' })
     }
   } else if (to.meta.requiresUnauth && authStore.token) {
-    next({ name: 'dashboard' })
+    next({ name: 'admin.dashboard' })
   } else {
     next()
   }

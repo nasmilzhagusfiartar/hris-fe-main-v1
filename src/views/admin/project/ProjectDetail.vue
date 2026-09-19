@@ -1,5 +1,7 @@
 <script setup>
 import { useProjectStore } from "@/stores/project";
+import { useTaskStore } from "@/stores/task";
+import { storeToRefs } from "pinia";
 import {
   Briefcase,
   Crown,
@@ -14,7 +16,7 @@ import { useRoute } from "vue-router";
 import router from "@/router";
 import { onMounted, ref, computed } from "vue";
 import { formatDate, calculateDuration } from "@/utils/dateUtils";
-import { formatRupiah } from "@/utils/formatUtils";
+import { formatRupiah, capitalize } from "@/utils/formatUtils";
 import {
   getPriorityColor,
   getProjectStatusColor,
@@ -28,6 +30,9 @@ const id = route.params.id;
 
 const projectStore = useProjectStore();
 const { fetchProject } = projectStore;
+
+const taskStore = useTaskStore();
+const { tasks } = storeToRefs(taskStore);
 
 const project = ref({});
 
@@ -52,18 +57,33 @@ const aboutParagraphs = computed(() => {
 });
 
 const projectProgress = computed(() => {
-  if (!project.value.tasks || project.value.tasks.length === 0) {
-    console.log("No tasks found:", project.value.tasks);
-    return 0;
+  // If tasks exist in the task store, compute real-time progress
+  if (tasks.value && tasks.value.length > 0) {
+    const totalTasks = tasks.value.length;
+    const completedTasks = tasks.value.filter(
+      (task) => task.status === "done"
+    ).length;
+    return Math.round((completedTasks / totalTasks) * 100);
   }
-  const totalTasks = project.value.tasks.length;
-  const completedTasks = project.value.tasks.filter(
-    (task) => task.status === "done"
-  ).length;
 
-  const progress = Math.round((completedTasks / totalTasks) * 100);
+  // If tasks exist in project response
+  if (project.value?.tasks && project.value.tasks.length > 0) {
+    const totalTasks = project.value.tasks.length;
+    const completedTasks = project.value.tasks.filter(
+      (task) => task.status === "done"
+    ).length;
+    return Math.round((completedTasks / totalTasks) * 100);
+  }
 
-  return progress;
+  // Use progress value returned directly by backend API
+  if (
+    project.value?.progress !== undefined &&
+    project.value?.progress !== null
+  ) {
+    return Number(project.value.progress);
+  }
+
+  return 0;
 });
 
 onMounted(async () => {
@@ -165,7 +185,14 @@ onMounted(async () => {
                   <div
                     class="w-full h-full absolute bg-gradient-to-br from-primary-500 to-primary-600 rounded-[12px]"
                   ></div>
+                  <img
+                    v-if="team.icon"
+                    :src="team.icon"
+                    :alt="team.name"
+                    class="w-6 h-6 object-contain relative z-10"
+                  />
                   <component
+                    v-else
                     :is="Briefcase"
                     class="w-5 h-5 text-white relative z-10"
                   />
@@ -177,7 +204,7 @@ onMounted(async () => {
                   <div class="flex items-center gap-2">
                     <User class="w-3.5 h-3.5 text-brand-light" />
                     <p class="text-brand-light text-sm">
-                      {{ team.members_count }} Members
+                      {{ team.members_count }} Members<template v-if="team.department"> • {{ capitalize(team.department) }}</template>
                     </p>
                   </div>
                 </div>

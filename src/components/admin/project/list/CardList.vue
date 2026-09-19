@@ -1,6 +1,7 @@
 <script setup>
 import { formatToClientTimezone } from "@/helpers/format";
 import { can } from "@/helpers/permissionHelper";
+import { getProgressColor } from "@/utils/badgeUtils";
 import _ from "lodash";
 import { Calendar, Crown, Edit, Eye, FileText, User } from "lucide-vue-next";
 
@@ -108,7 +109,11 @@ const getStatusColor = (status) => {
         <span class="text-brand-dark font-semibold">{{ data.progress }}%</span>
       </div>
       <div class="w-full bg-gray-200 rounded-full h-2">
-        <div class="h-2 rounded-full ${getProgressColor(data.progress)}"></div>
+        <div
+          class="h-2 rounded-full transition-all duration-300"
+          :class="getProgressColor(data.progress)"
+          :style="{ width: `${data.progress || 0}%` }"
+        ></div>
       </div>
     </div>
 
