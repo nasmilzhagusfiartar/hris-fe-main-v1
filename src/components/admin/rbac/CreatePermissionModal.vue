@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch } from "vue";
-import { X, KeyRound, Loader2, Sparkles, Plus, Layers } from "lucide-vue-next";
+import { X, KeyRound, Loader2, Sparkles, Pencil } from "lucide-vue-next";
 
 const props = defineProps({
   show: {
@@ -15,11 +15,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  // Edit mode props
+  editPermission: {
+    type: Object,
+    default: null, // { id, name, action, module }
+  },
 });
 
 const emit = defineEmits(["close", "submit"]);
-
-const inputMode = ref("builder"); // 'builder' or 'manual'
 
 // Builder State
 const selectedModule = ref("");
@@ -30,8 +33,6 @@ const selectedAction = ref("");
 const customAction = ref("");
 const isCustomAction = ref(false);
 
-// Manual State
-const manualName = ref("");
 const errorMessage = ref("");
 
 // Common action suggestions
@@ -49,22 +50,79 @@ const commonActions = [
   "menu",
 ];
 
+// Determine if we are in edit mode
+const isEditMode = computed(() => !!props.editPermission);
+
 // Reset state on open
 watch(
   () => props.show,
   (val) => {
     if (val) {
-      inputMode.value = "builder";
-      selectedModule.value = props.existingModules[0] || "employee";
-      customModule.value = "";
-      isCustomModule.value = false;
-
-      selectedAction.value = "view";
-      customAction.value = "";
-      isCustomAction.value = false;
-
-      manualName.value = "";
       errorMessage.value = "";
+
+      if (props.editPermission) {
+        // Edit mode: parse existing permission name
+        const perm = props.editPermission;
+        const permModule = perm.module || "";
+        const permAction = perm.action || "";
+
+        // Set module
+        if (props.existingModules.includes(permModule)) {
+          selectedModule.value = permModule;
+          isCustomModule.value = false;
+          customModule.value = "";
+        } else if (permModule) {
+          isCustomModule.value = true;
+          customModule.value = permModule;
+          selectedModule.value = "";
+        } else {
+          // Try to parse from name
+          const parts = perm.name.split("-");
+          if (parts.length >= 2) {
+            const mod = parts[0];
+            if (props.existingModules.includes(mod)) {
+              selectedModule.value = mod;
+              isCustomModule.value = false;
+            } else {
+              isCustomModule.value = true;
+              customModule.value = mod;
+            }
+          }
+        }
+
+        // Set action
+        if (permAction && commonActions.includes(permAction)) {
+          selectedAction.value = permAction;
+          isCustomAction.value = false;
+          customAction.value = "";
+        } else if (permAction) {
+          isCustomAction.value = true;
+          customAction.value = permAction;
+          selectedAction.value = "";
+        } else {
+          // Try to parse from name
+          const parts = perm.name.split("-");
+          if (parts.length >= 2) {
+            const act = parts.slice(1).join("-");
+            if (commonActions.includes(act)) {
+              selectedAction.value = act;
+              isCustomAction.value = false;
+            } else {
+              isCustomAction.value = true;
+              customAction.value = act;
+            }
+          }
+        }
+      } else {
+        // Create mode: reset to defaults
+        selectedModule.value = props.existingModules[0] || "employee";
+        customModule.value = "";
+        isCustomModule.value = false;
+
+        selectedAction.value = "view";
+        customAction.value = "";
+        isCustomAction.value = false;
+      }
     }
   },
   { immediate: true }
@@ -88,9 +146,6 @@ const effectiveAction = computed(() => {
 
 // Full generated permission name
 const generatedPermissionName = computed(() => {
-  if (inputMode.value === "manual") {
-    return manualName.value.trim().toLowerCase().replace(/\s+/g, "-");
-  }
   if (!effectiveModule.value || !effectiveAction.value) return "";
   return `${effectiveModule.value}-${effectiveAction.value}`;
 });
@@ -110,12 +165,17 @@ const handleSubmit = () => {
 
   if (!permName.includes("-")) {
     errorMessage.value =
-      "Nama permission disarankan menggunakan format modul-aksi (contoh: report-export).";
+      "Nama permission harus menggunakan format modul-aksi (contoh: report-export).";
     return;
   }
 
   errorMessage.value = "";
-  emit("submit", permName);
+
+  if (isEditMode.value) {
+    emit("submit", { id: props.editPermission.id, name: permName });
+  } else {
+    emit("submit", permName);
+  }
 };
 </script>
 
@@ -134,24 +194,34 @@ const handleSubmit = () => {
       @click.self="emit('close')"
     >
       <div
-        class="bg-white rounded-[24px] shadow-2xl w-full max-w-lg overflow-hidden border border-[#DCDEDD] animate-in fade-in zoom-in-95 duration-200"
+        class="bg-white rounded-[24px] shadow-2xl w-full max-w-xl overflow-hidden border border-[#DCDEDD]"
       >
         <!-- Header -->
         <div
-          class="px-6 py-5 border-b border-[#DCDEDD] flex items-center justify-between bg-white"
+          class="px-8 py-4 border-b border-[#E5E7EB] flex items-center justify-between"
         >
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-4">
             <div
-              class="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center font-bold"
+              class="w-12 h-12 rounded-2xl flex items-center justify-center font-bold shrink-0"
+              :class="
+                isEditMode
+                  ? 'bg-amber-50 text-amber-600'
+                  : 'bg-purple-50 text-purple-700'
+              "
             >
-              <KeyRound class="w-5 h-5" />
+              <Pencil v-if="isEditMode" class="w-5 h-5" />
+              <KeyRound v-else class="w-5 h-5" />
             </div>
             <div>
-              <h3 class="text-brand-dark text-lg font-bold">
-                Tambah Permission Baru
+              <h3 class="text-brand-dark text-lg font-bold leading-tight">
+                {{ isEditMode ? "Edit Permission" : "Tambah Permission Baru" }}
               </h3>
-              <p class="text-brand-light text-xs mt-0.5">
-                Daftarkan permission baru ke dalam sistem untuk dipasang pada role.
+              <p class="text-brand-light text-[13px] mt-1 leading-snug">
+                {{
+                  isEditMode
+                    ? "Ubah konfigurasi permission yang sudah ada."
+                    : "Daftarkan permission baru untuk dipasang pada role."
+                }}
               </p>
             </div>
           </div>
@@ -159,190 +229,154 @@ const handleSubmit = () => {
           <button
             type="button"
             @click="emit('close')"
-            class="w-8 h-8 rounded-full border border-[#DCDEDD] flex items-center justify-center text-gray-400 hover:text-brand-dark hover:border-gray-400 transition-colors"
+            class="w-9 h-9 rounded-xl border border-[#DCDEDD] flex items-center justify-center text-gray-400 hover:text-brand-dark hover:border-gray-400 hover:bg-gray-50 transition-all duration-200 cursor-pointer shrink-0"
           >
             <X class="w-4 h-4" />
           </button>
         </div>
 
-        <!-- Mode Tabs -->
-        <div class="px-6 pt-4 bg-gray-50/50 border-b border-[#E9EBEA]">
-          <div class="flex items-center gap-2">
-            <button
-              type="button"
-              @click="inputMode = 'builder'"
-              class="px-3 py-2 text-xs font-semibold rounded-t-xl border-b-2 transition-all flex items-center gap-1.5"
-              :class="
-                inputMode === 'builder'
-                  ? 'border-[#0C51D9] text-[#0C51D9] bg-white'
-                  : 'border-transparent text-gray-500 hover:text-brand-dark'
-              "
-            >
-              <Sparkles class="w-3.5 h-3.5" />
-              <span>Permission Builder (Direkomendasikan)</span>
-            </button>
-            <button
-              type="button"
-              @click="inputMode = 'manual'"
-              class="px-3 py-2 text-xs font-semibold rounded-t-xl border-b-2 transition-all flex items-center gap-1.5"
-              :class="
-                inputMode === 'manual'
-                  ? 'border-[#0C51D9] text-[#0C51D9] bg-white'
-                  : 'border-transparent text-gray-500 hover:text-brand-dark'
-              "
-            >
-              <Layers class="w-3.5 h-3.5" />
-              <span>Input Langsung</span>
-            </button>
-          </div>
-        </div>
-
         <!-- Form Body -->
-        <form @submit.prevent="handleSubmit" class="p-6 space-y-5">
-          <!-- BUILDER MODE -->
-          <div v-if="inputMode === 'builder'" class="space-y-4">
-            <!-- Module / Group -->
-            <div>
-              <div class="flex items-center justify-between mb-1.5">
-                <label class="text-brand-dark text-xs font-semibold">
-                  1. Modul / Grup Fitur
-                </label>
-                <button
-                  type="button"
-                  @click="isCustomModule = !isCustomModule"
-                  class="text-[11px] text-[#0C51D9] font-medium hover:underline cursor-pointer"
-                >
-                  {{ isCustomModule ? "Pilih modul yang ada" : "+ Ketik modul baru" }}
-                </button>
-              </div>
-
-              <div v-if="!isCustomModule">
-                <select
-                  v-model="selectedModule"
-                  class="w-full px-3.5 py-2.5 text-sm bg-white border border-[#DCDEDD] rounded-xl focus:outline-none focus:border-[#0C51D9] focus:ring-1 focus:ring-[#0C51D9]"
-                >
-                  <option
-                    v-for="mod in existingModules"
-                    :key="mod"
-                    :value="mod"
-                  >
-                    {{ mod }}
-                  </option>
-                </select>
-              </div>
-
-              <div v-else>
-                <input
-                  type="text"
-                  v-model="customModule"
-                  placeholder="Contoh: audit-log, recruitment, asset"
-                  class="w-full px-3.5 py-2.5 text-sm bg-white border border-[#DCDEDD] rounded-xl focus:outline-none focus:border-[#0C51D9] focus:ring-1 focus:ring-[#0C51D9]"
-                  autofocus
-                />
-              </div>
+        <form @submit.prevent="handleSubmit" class="px-8 py-4 space-y-6">
+          <!-- Module / Group -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-brand-dark text-[13px] font-semibold">
+                Modul / Grup Fitur
+              </label>
+              <button
+                type="button"
+                @click="isCustomModule = !isCustomModule"
+                class="text-[12px] text-[#0C51D9] font-medium hover:underline cursor-pointer transition-colors"
+              >
+                {{ isCustomModule ? "Pilih modul yang ada" : "+ Modul baru" }}
+              </button>
             </div>
 
-            <!-- Action Name -->
-            <div>
-              <div class="flex items-center justify-between mb-1.5">
-                <label class="text-brand-dark text-xs font-semibold">
-                  2. Aksi (Action)
-                </label>
-                <button
-                  type="button"
-                  @click="isCustomAction = !isCustomAction"
-                  class="text-[11px] text-[#0C51D9] font-medium hover:underline cursor-pointer"
+            <div v-if="!isCustomModule">
+              <select
+                v-model="selectedModule"
+                class="w-full px-4 py-3 text-sm font-medium bg-white border border-[#DCDEDD] rounded-2xl focus:outline-none focus:border-[#0C51D9] focus:ring-2 focus:ring-[#0C51D9]/10 transition-all duration-200 appearance-none capitalize"
+              >
+                <option
+                  v-for="mod in existingModules"
+                  :key="mod"
+                  :value="mod"
                 >
-                  {{ isCustomAction ? "Pilih aksi umum" : "+ Ketik aksi custom" }}
-                </button>
-              </div>
+                  {{ mod }}
+                </option>
+              </select>
+            </div>
 
-              <div v-if="!isCustomAction">
-                <select
-                  v-model="selectedAction"
-                  class="w-full px-3.5 py-2.5 text-sm bg-white border border-[#DCDEDD] rounded-xl focus:outline-none focus:border-[#0C51D9] focus:ring-1 focus:ring-[#0C51D9]"
-                >
-                  <option
-                    v-for="act in commonActions"
-                    :key="act"
-                    :value="act"
-                  >
-                    {{ act }}
-                  </option>
-                </select>
-              </div>
-
-              <div v-else>
-                <input
-                  type="text"
-                  v-model="customAction"
-                  placeholder="Contoh: download-pdf, verify, sync"
-                  class="w-full px-3.5 py-2.5 text-sm bg-white border border-[#DCDEDD] rounded-xl focus:outline-none focus:border-[#0C51D9] focus:ring-1 focus:ring-[#0C51D9]"
-                />
-              </div>
+            <div v-else>
+              <input
+                type="text"
+                v-model="customModule"
+                placeholder="Contoh: audit-log, recruitment, asset"
+                class="w-full px-4 py-3 text-sm font-medium bg-white border border-[#DCDEDD] rounded-2xl focus:outline-none focus:border-[#0C51D9] focus:ring-2 focus:ring-[#0C51D9]/10 placeholder:text-gray-400 transition-all duration-200"
+                autofocus
+              />
             </div>
           </div>
 
-          <!-- MANUAL MODE -->
-          <div v-else class="space-y-2">
-            <label class="block text-brand-dark text-xs font-semibold">
-              Nama Permission Lengkap
-            </label>
-            <input
-              type="text"
-              v-model="manualName"
-              placeholder="Contoh: report-export, audit-log-view"
-              class="w-full px-3.5 py-2.5 text-sm bg-white border border-[#DCDEDD] rounded-xl focus:outline-none focus:border-[#0C51D9] focus:ring-1 focus:ring-[#0C51D9]"
-              autofocus
-            />
-            <p class="text-[11px] text-gray-400">
-              Gunakan tanda strip sebagai pemisah (contoh:
-              <span class="font-mono text-gray-600">inventory-manage</span>).
-            </p>
+          <!-- Action Name -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-brand-dark text-[13px] font-semibold">
+                Aksi (Action)
+              </label>
+              <button
+                type="button"
+                @click="isCustomAction = !isCustomAction"
+                class="text-[12px] text-[#0C51D9] font-medium hover:underline cursor-pointer transition-colors"
+              >
+                {{ isCustomAction ? "Pilih aksi umum" : "+ Aksi custom" }}
+              </button>
+            </div>
+
+            <div v-if="!isCustomAction">
+              <select
+                v-model="selectedAction"
+                class="w-full px-4 py-3 text-sm font-medium bg-white border border-[#DCDEDD] rounded-2xl focus:outline-none focus:border-[#0C51D9] focus:ring-2 focus:ring-[#0C51D9]/10 transition-all duration-200 appearance-none capitalize"
+              >
+                <option
+                  v-for="act in commonActions"
+                  :key="act"
+                  :value="act"
+                >
+                  {{ act }}
+                </option>
+              </select>
+            </div>
+
+            <div v-else>
+              <input
+                type="text"
+                v-model="customAction"
+                placeholder="Contoh: download-pdf, verify, sync"
+                class="w-full px-4 py-3 text-sm font-medium bg-white border border-[#DCDEDD] rounded-2xl focus:outline-none focus:border-[#0C51D9] focus:ring-2 focus:ring-[#0C51D9]/10 placeholder:text-gray-400 transition-all duration-200"
+              />
+            </div>
           </div>
 
           <!-- Live Preview Box -->
           <div
-            class="bg-blue-50/60 border border-blue-200/80 rounded-2xl p-4 flex items-center justify-between"
+            class="bg-gradient-to-r from-blue-50/80 to-indigo-50/60 border border-blue-200/60 rounded-2xl px-5 py-4 flex items-center justify-between gap-3"
           >
-            <div>
-              <p class="text-[11px] font-semibold text-blue-900/70 uppercase tracking-wider">
-                Hasil Nama Permission:
+            <div class="min-w-0">
+              <p class="text-[11px] font-semibold text-blue-800/60 uppercase tracking-wider mb-1">
+                Hasil Permission Key
               </p>
-              <p class="text-sm font-bold text-blue-900 font-mono mt-0.5">
-                {{ generatedPermissionName || "(Lengkapi input terlebih dahulu)" }}
+              <p class="text-[15px] font-bold text-blue-900 font-mono truncate">
+                {{ generatedPermissionName || "—" }}
               </p>
             </div>
             <span
               v-if="generatedPermissionName"
-              class="px-2.5 py-1 rounded-full text-xs font-bold bg-[#0C51D9] text-white"
+              class="px-3 py-1.5 rounded-full text-[11px] font-bold shrink-0"
+              :class="
+                isEditMode
+                  ? 'bg-amber-100 text-amber-700 border border-amber-200'
+                  : 'bg-[#0C51D9] text-white'
+              "
             >
-              Ready
+              {{ isEditMode ? "Modified" : "Ready" }}
             </span>
           </div>
 
           <!-- Error Alert -->
-          <p v-if="errorMessage" class="text-red-500 text-xs font-medium">
-            {{ errorMessage }}
-          </p>
+          <div
+            v-if="errorMessage"
+            class="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-start gap-2.5"
+          >
+            <span class="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 shrink-0"></span>
+            <p class="text-red-600 text-[13px] font-medium">{{ errorMessage }}</p>
+          </div>
 
           <!-- Footer Actions -->
-          <div class="flex items-center justify-end gap-3 pt-3 border-t border-[#F0F2F1]">
+          <div class="flex items-center justify-end gap-3 pt-4 border-t border-[#F0F2F1]">
             <button
               type="button"
               @click="emit('close')"
               :disabled="saving"
-              class="px-5 py-2.5 rounded-[8px] border border-[#DCDEDD] hover:bg-gray-50 text-sm font-semibold text-brand-dark transition-all duration-200 cursor-pointer disabled:opacity-50"
+              class="px-6 py-3 rounded-2xl border border-[#DCDEDD] hover:bg-gray-50 text-sm font-semibold text-brand-dark transition-all duration-200 cursor-pointer disabled:opacity-50"
             >
               Batal
             </button>
             <button
               type="submit"
               :disabled="saving || !generatedPermissionName"
-              class="btn-primary px-5 py-2.5 rounded-[8px] border border-[#2151A0] blue-gradient blue-btn-shadow hover:brightness-110 focus:ring-2 focus:ring-[#0C51D9] text-white text-sm font-semibold transition-all duration-200 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              class="btn-primary px-6 py-3 rounded-2xl border border-[#2151A0] blue-gradient blue-btn-shadow hover:brightness-110 focus:ring-2 focus:ring-[#0C51D9] text-white text-sm font-semibold transition-all duration-200 flex items-center gap-2.5 cursor-pointer disabled:opacity-50"
             >
               <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
-              <span>{{ saving ? "Menyimpan..." : "Tambah Permission" }}</span>
+              <Sparkles v-else-if="!isEditMode" class="w-4 h-4" />
+              <Pencil v-else class="w-4 h-4" />
+              <span>{{
+                saving
+                  ? "Menyimpan..."
+                  : isEditMode
+                  ? "Simpan Perubahan"
+                  : "Tambah Permission"
+              }}</span>
             </button>
           </div>
         </form>

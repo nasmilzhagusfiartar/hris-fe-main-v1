@@ -1,5 +1,20 @@
 <script setup>
-import { ShieldCheck, Shield, Key, Edit, Trash2, Layers } from "lucide-vue-next";
+import {
+  ShieldCheck,
+  Shield,
+  Key,
+  Edit,
+  Trash2,
+  Layers,
+  UserCog,
+  Coins,
+  User,
+  Crown,
+  Briefcase,
+  Headphones,
+  Database,
+  Users,
+} from "lucide-vue-next";
 import { capitalize } from "@/utils/formatUtils";
 
 const props = defineProps({
@@ -15,14 +30,31 @@ const props = defineProps({
 
 const emit = defineEmits(["managePermissions", "editRole", "deleteRole"]);
 
+const getRoleIcon = (roleName) => {
+  const name = (roleName || "").toLowerCase();
+  if (name.includes("admin") || name.includes("superadmin")) return Crown;
+  if (name.includes("manager") || name.includes("lead") || name.includes("supervisor")) return Briefcase;
+  if (name.includes("hr") || name.includes("human")) return UserCog;
+  if (name.includes("finance") || name.includes("accounting")) return Coins;
+  if (name.includes("employee") || name.includes("staff")) return User;
+  if (name.includes("support") || name.includes("helpdesk")) return Headphones;
+  if (name.includes("it") || name.includes("dev")) return Database;
+  if (name.includes("team")) return Users;
+  return Shield;
+};
+
 const getRoleGradient = (roleName) => {
-  const map = {
-    manager: "from-blue-600 to-indigo-700",
-    hr: "from-emerald-600 to-teal-700",
-    finance: "from-amber-500 to-orange-600",
-    employee: "from-purple-600 to-violet-700",
-  };
-  return map[roleName?.toLowerCase()] || "from-primary-500 to-primary-600";
+  const name = (roleName || "").toLowerCase();
+  if (name.includes("admin") || name.includes("superadmin")) return "linear-gradient(135deg, #ef4444, #be123c)";
+  if (name.includes("manager")) return "linear-gradient(135deg, #2563eb, #4338ca)";
+  if (name.includes("hr") || name.includes("human")) return "linear-gradient(135deg, #059669, #0f766e)";
+  if (name.includes("finance") || name.includes("accounting")) return "linear-gradient(135deg, #f59e0b, #ea580c)";
+  if (name.includes("employee") || name.includes("staff")) return "linear-gradient(135deg, #9333ea, #7c3aed)";
+  if (name.includes("supervisor") || name.includes("lead")) return "linear-gradient(135deg, #06b6d4, #2563eb)";
+  if (name.includes("support") || name.includes("helpdesk")) return "linear-gradient(135deg, #ec4899, #c026d3)";
+  if (name.includes("it") || name.includes("dev")) return "linear-gradient(135deg, #475569, #1f2937)";
+  if (name.includes("team")) return "linear-gradient(135deg, #14b8a6, #059669)";
+  return "linear-gradient(135deg, #6b7280, #374151)";
 };
 </script>
 
@@ -33,19 +65,18 @@ const getRoleGradient = (roleName) => {
     <div>
       <!-- Card Top: Avatar, Name & Badge -->
       <div class="flex items-start justify-between gap-3">
-        <div class="flex items-center gap-3.5">
+        <div class="flex items-center gap-4">
           <div
             class="w-14 h-14 relative flex items-center justify-center rounded-[12px] overflow-hidden shrink-0"
           >
             <div
-              class="w-full h-full absolute bg-gradient-to-br rounded-[12px]"
-              :class="getRoleGradient(role.name)"
+              class="w-full h-full absolute rounded-[12px]"
+              :style="{ background: getRoleGradient(role.name) }"
             ></div>
-            <ShieldCheck
-              v-if="role.is_system_role"
+            <component
+              :is="getRoleIcon(role.name)"
               class="w-6 h-6 text-white relative z-10"
             />
-            <Shield v-else class="w-6 h-6 text-white relative z-10" />
           </div>
           <div>
             <h4 class="text-brand-dark text-base font-bold capitalize">

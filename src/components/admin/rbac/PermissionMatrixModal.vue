@@ -157,40 +157,41 @@ const handleSave = () => {
   >
     <div
       v-if="show"
-      class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6"
+      class="fixed inset-0 z-50 overflow-y-auto bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
       @click.self="emit('close')"
     >
       <div
-        class="bg-white rounded-[24px] shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden border border-[#DCDEDD] animate-in fade-in zoom-in-95 duration-200"
+        class="bg-white rounded-[24px] shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden border border-[#DCDEDD]"
       >
         <!-- Modal Header -->
         <div
-          class="px-6 py-5 border-b border-[#DCDEDD] flex items-center justify-between bg-white shrink-0"
+          class="px-6 py-4 border-b border-[#DCDEDD] flex items-center justify-between bg-white shrink-0"
         >
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-4">
             <div
-              class="w-11 h-11 rounded-xl bg-blue-50 text-[#0C51D9] flex items-center justify-center font-bold"
+              class="w-12 h-12 rounded-2xl flex items-center justify-center"
+              style="background: linear-gradient(135deg, #0C51D9, #4338ca)"
             >
-              <Shield class="w-6 h-6" />
+              <Shield class="w-6 h-6 text-white" />
             </div>
             <div>
               <div class="flex items-center gap-2">
-                <h2 class="text-brand-dark text-xl font-bold">
+                <h2 class="text-brand-dark text-lg font-bold">
                   Kelola Permission
                 </h2>
                 <span
-                  class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-[#0C51D9]"
+                  class="px-2 py-1 rounded-md text-xs font-semibold bg-blue-100 text-[#0C51D9]"
                 >
                   {{ capitalize(role?.name) }}
                 </span>
                 <span
                   v-if="role?.is_system_role"
-                  class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-600"
+                  class="px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-600"
                 >
                   System
                 </span>
               </div>
-              <p class="text-brand-light text-xs mt-0.5">
+              <p class="text-brand-light text-xs mt-1">
                 Pilih hak akses (permission) yang diizinkan untuk role ini.
               </p>
             </div>
@@ -199,33 +200,33 @@ const handleSave = () => {
           <button
             type="button"
             @click="emit('close')"
-            class="w-9 h-9 rounded-full border border-[#DCDEDD] flex items-center justify-center text-gray-400 hover:text-brand-dark hover:border-gray-400 transition-colors"
+            class="w-9 h-9 rounded-xl border border-[#DCDEDD] flex items-center justify-center text-gray-400 hover:text-brand-dark hover:border-gray-400 hover:bg-gray-50 transition-all cursor-pointer shrink-0"
           >
-            <X class="w-5 h-5" />
+            <X class="w-4 h-4" />
           </button>
         </div>
 
         <!-- Filter & Global Controls Bar -->
         <div
-          class="px-6 py-3.5 bg-gray-50 border-b border-[#DCDEDD] flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0"
+          class="px-6 py-3 bg-gray-50 border-b border-[#DCDEDD] flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0"
         >
           <!-- Search Input -->
           <div class="relative w-full sm:w-80">
-            <Search
-              class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2"
-            />
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search class="w-4 h-4 text-gray-400" />
+            </div>
             <input
               type="text"
               v-model="searchQuery"
               placeholder="Cari permission atau modul..."
-              class="w-full pl-9 pr-3.5 py-2 text-sm bg-white border border-[#DCDEDD] rounded-xl focus:outline-none focus:border-[#0C51D9] focus:ring-1 focus:ring-[#0C51D9] transition-all"
+              class="w-full pl-10 pr-4 py-3 text-sm bg-white border border-[#DCDEDD] rounded-xl focus:outline-none focus:border-[#0C51D9] transition-all"
             />
             <button
               v-if="searchQuery"
               @click="searchQuery = ''"
-              class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 cursor-pointer"
             >
-              <X class="w-3.5 h-3.5" />
+              <X class="w-4 h-4" />
             </button>
           </div>
 
@@ -241,21 +242,21 @@ const handleSave = () => {
               <span class="text-gray-400 font-normal"> / {{ totalAvailable }}</span>
             </div>
 
-            <div class="flex items-center gap-1.5 border-l border-gray-300 pl-3">
+            <div class="flex items-center gap-1 border-l border-gray-300 pl-3">
               <button
                 type="button"
                 @click="handleSelectAllGlobal"
-                class="px-2.5 py-1.5 text-xs font-medium text-[#0C51D9] hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                class="px-3 py-1 text-xs font-medium text-[#0C51D9] hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
               >
-                <CheckSquare class="w-3.5 h-3.5" />
+                <CheckSquare class="w-4 h-4" />
                 <span>Pilih Semua</span>
               </button>
               <button
                 type="button"
                 @click="handleDeselectAllGlobal"
-                class="px-2.5 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-200 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+                class="px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-200 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
               >
-                <Square class="w-3.5 h-3.5" />
+                <Square class="w-4 h-4" />
                 <span>Kosongkan</span>
               </button>
             </div>
@@ -280,22 +281,22 @@ const handleSave = () => {
           <div
             v-for="(permissions, groupName) in filteredGroupedPermissions"
             :key="groupName"
-            class="border border-[#DCDEDD] rounded-[18px] overflow-hidden bg-white hover:border-gray-300 transition-colors"
+            class="border border-[#DCDEDD] rounded-[16px] overflow-hidden bg-white"
           >
             <!-- Module Group Header -->
             <div
-              class="bg-gray-50/80 px-4 py-3 border-b border-[#E9EBEA] flex items-center justify-between flex-wrap gap-2"
+              class="bg-gray-50/80 px-5 py-3 border-b border-[#E9EBEA] flex items-center justify-between flex-wrap gap-2"
             >
               <div class="flex items-center gap-2">
                 <span
-                  class="w-2.5 h-2.5 rounded-full"
-                  :class="
-                    isGroupFullySelected(permissions)
-                      ? 'bg-[#0C51D9]'
+                  class="w-2 h-2 rounded-full"
+                  :style="{
+                    backgroundColor: isGroupFullySelected(permissions)
+                      ? '#0C51D9'
                       : getGroupSelectedCount(permissions) > 0
-                      ? 'bg-amber-500'
-                      : 'bg-gray-300'
-                  "
+                      ? '#f59e0b'
+                      : '#d1d5db'
+                  }"
                 ></span>
                 <h4 class="text-brand-dark text-sm font-bold capitalize">
                   Modul {{ groupName }}
@@ -311,7 +312,7 @@ const handleSave = () => {
                 <button
                   type="button"
                   @click="handleSelectAllInGroup(permissions)"
-                  class="text-[11px] font-semibold text-[#0C51D9] hover:bg-blue-50 px-2 py-1 rounded transition-colors"
+                  class="text-[11px] font-semibold text-[#0C51D9] hover:bg-blue-50 px-2 py-1 rounded transition-colors cursor-pointer"
                 >
                   Pilih Semua
                 </button>
@@ -319,7 +320,7 @@ const handleSave = () => {
                 <button
                   type="button"
                   @click="handleDeselectAllInGroup(permissions)"
-                  class="text-[11px] font-semibold text-gray-500 hover:bg-gray-200 px-2 py-1 rounded transition-colors"
+                  class="text-[11px] font-semibold text-gray-500 hover:bg-gray-200 px-2 py-1 rounded transition-colors cursor-pointer"
                 >
                   Kosongkan
                 </button>
@@ -327,14 +328,14 @@ const handleSave = () => {
             </div>
 
             <!-- Permission Checkbox Grid -->
-            <div class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+            <div class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               <label
                 v-for="perm in permissions"
                 :key="perm.id"
-                class="flex items-center gap-3 p-2.5 rounded-xl border transition-all duration-200 cursor-pointer select-none text-left"
+                class="flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 cursor-pointer select-none text-left"
                 :class="
                   selectedPermissions.includes(perm.name)
-                    ? 'border-[#0C51D9] bg-blue-50/40 shadow-xs'
+                    ? 'border-[#0C51D9] bg-blue-50/40'
                     : 'border-[#E9EBEA] hover:border-gray-300 hover:bg-gray-50/60'
                 "
               >
@@ -345,17 +346,19 @@ const handleSave = () => {
                   :checked="selectedPermissions.includes(perm.name)"
                   @change="togglePermission(perm.name)"
                 />
+                <!-- Custom Checkbox -->
                 <div
-                  class="w-4.5 h-4.5 rounded-md border flex items-center justify-center transition-colors shrink-0"
-                  :class="
+                  class="w-5 h-5 rounded-md border flex items-center justify-center transition-colors shrink-0"
+                  :style="
                     selectedPermissions.includes(perm.name)
-                      ? 'bg-[#0C51D9] border-[#0C51D9]'
-                      : 'border-gray-300 bg-white'
+                      ? 'background-color: #0C51D9; border-color: #0C51D9;'
+                      : 'border-color: #d1d5db; background-color: #fff;'
                   "
                 >
                   <Check
                     v-if="selectedPermissions.includes(perm.name)"
-                    class="w-3 h-3 text-white stroke-[3]"
+                    class="w-3 h-3 text-white"
+                    style="stroke-width: 3"
                   />
                 </div>
                 <div class="flex-1 min-w-0">
@@ -369,7 +372,7 @@ const handleSave = () => {
                   >
                     {{ perm.name }}
                   </p>
-                  <p v-if="perm.action" class="text-[10px] text-gray-500 capitalize">
+                  <p v-if="perm.action" class="text-[10px] text-gray-500 capitalize mt-1">
                     Aksi: {{ perm.action }}
                   </p>
                 </div>
@@ -391,7 +394,7 @@ const handleSave = () => {
               type="button"
               @click="emit('close')"
               :disabled="saving"
-              class="px-5 py-2.5 rounded-[8px] border border-[#DCDEDD] hover:bg-gray-50 text-sm font-semibold text-brand-dark transition-all duration-200 cursor-pointer disabled:opacity-50"
+              class="px-5 py-3 rounded-2xl border border-[#DCDEDD] hover:bg-gray-50 text-sm font-semibold text-brand-dark transition-all duration-200 cursor-pointer disabled:opacity-50"
             >
               Batal
             </button>
@@ -399,7 +402,7 @@ const handleSave = () => {
               type="button"
               @click="handleSave"
               :disabled="saving"
-              class="btn-primary px-6 py-2.5 rounded-[8px] border border-[#2151A0] blue-gradient blue-btn-shadow hover:brightness-110 focus:ring-2 focus:ring-[#0C51D9] text-white text-sm font-semibold transition-all duration-200 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              class="btn-primary px-6 py-3 rounded-2xl border border-[#2151A0] blue-gradient blue-btn-shadow hover:brightness-110 focus:ring-2 focus:ring-[#0C51D9] text-white text-sm font-semibold transition-all duration-200 flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
               <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
               <span>{{ saving ? "Menyimpan..." : "Simpan Perubahan" }}</span>

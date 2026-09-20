@@ -22,8 +22,7 @@ import {
   User,
   Copy,
   Check,
-  LayoutGrid,
-  List,
+
   Pencil,
   Trash2,
   Eye,
@@ -47,8 +46,9 @@ const filters = ref({
   module: "all",
 });
 
-const viewMode = ref("grid"); // 'grid' | 'table'
+
 const isCreateModalOpen = ref(false);
+const editingPermission = ref(null);
 const copiedPermission = ref(null);
 const collapsedModules = ref({});
 
@@ -311,18 +311,38 @@ const getModuleIcon = (moduleName) => {
   return map[moduleName?.toLowerCase()] || Layers;
 };
 
-// Create permission flow
-const handleSavePermission = async (permissionName) => {
+// Open edit modal
+const openEditModal = (permission, moduleName) => {
+  editingPermission.value = {
+    ...permission,
+    module: moduleName,
+  };
+  isCreateModalOpen.value = true;
+};
+
+// Create or Update permission flow
+const handleSavePermission = async (payload) => {
   try {
-    await rbacStore.createPermission(permissionName);
-    toast.success(
-      `Permission "${permissionName}" berhasil ditambahkan.`,
-      "Permission Baru Dibuat"
-    );
+    if (typeof payload === 'object' && payload.id) {
+      // Edit mode
+      await rbacStore.updatePermission(payload.id, payload.name);
+      toast.success(
+        `Permission berhasil diperbarui menjadi "${payload.name}".`,
+        "Permission Diperbarui"
+      );
+    } else {
+      // Create mode
+      await rbacStore.createPermission(payload);
+      toast.success(
+        `Permission "${payload}" berhasil ditambahkan.`,
+        "Permission Baru Dibuat"
+      );
+    }
     isCreateModalOpen.value = false;
+    editingPermission.value = null;
   } catch (error) {
     toast.error(
-      rbacStore.error?.message || "Gagal menambahkan permission.",
+      rbacStore.error?.message || "Gagal menyimpan permission.",
       "Error"
     );
   }
@@ -469,27 +489,7 @@ const handleSavePermission = async (permissionName) => {
             </div>
           </div>
 
-          <!-- View Mode Toggle (Grid / Table) -->
-          <div class="flex items-center border border-[#DCDEDD] rounded-[14px] p-1 bg-gray-50 shrink-0">
-            <button
-              type="button"
-              @click="viewMode = 'grid'"
-              :class="viewMode === 'grid' ? 'bg-white shadow-xs text-[#0C51D9] font-bold' : 'text-gray-400 hover:text-gray-600'"
-              class="p-2 rounded-[10px] transition-all cursor-pointer"
-              title="Grid View"
-            >
-              <LayoutGrid class="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              @click="viewMode = 'table'"
-              :class="viewMode === 'table' ? 'bg-white shadow-xs text-[#0C51D9] font-bold' : 'text-gray-400 hover:text-gray-600'"
-              class="p-2 rounded-[10px] transition-all cursor-pointer"
-              title="Table View"
-            >
-              <List class="w-4 h-4" />
-            </button>
-          </div>
+
 
           <!-- Refresh Button -->
           <button
@@ -520,7 +520,7 @@ const handleSavePermission = async (permissionName) => {
 
         <button
           type="button"
-          @click="isCreateModalOpen = true"
+          @click="editingPermission = null; isCreateModalOpen = true"
           class="btn-primary rounded-[8px] border border-[#2151A0] hover:brightness-110 focus:ring-2 focus:ring-[#0C51D9] transition-all duration-300 blue-gradient blue-btn-shadow px-4 py-3 flex items-center gap-2 cursor-pointer w-full sm:w-auto justify-center"
         >
           <Plus class="w-4 h-4 text-white" />
@@ -555,29 +555,29 @@ const handleSavePermission = async (permissionName) => {
       </div>
 
       <!-- Grouped Module Cards -->
-      <div v-else class="space-y-5">
+      <div v-else class="space-y-6">
         <div
           v-for="(perms, moduleName) in filteredGroupedPermissions"
           :key="moduleName"
-          class="border border-[#E5E7EB] rounded-[16px] overflow-hidden transition-all duration-200"
+          class="border border-[#E5E7EB] rounded-[20px] overflow-hidden transition-all duration-300 hover:shadow-sm"
         >
           <!-- Module Header -->
           <div
-            class="bg-gray-50/75 hover:bg-gray-100/60 px-5 py-3.5 border-b border-[#E5E7EB] flex items-center justify-between gap-3 cursor-pointer select-none transition-colors"
+            class="bg-gray-50/80 hover:bg-gray-100/70 px-6 py-4 border-b border-[#E5E7EB] flex items-center justify-between gap-4 cursor-pointer select-none transition-colors duration-200"
             @click="toggleModuleCollapse(moduleName)"
           >
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3.5">
               <div
-                class="w-8 h-8 rounded-[8px] bg-blue-50 text-[#0C51D9] flex items-center justify-center shrink-0"
+                class="w-10 h-10 rounded-[10px] bg-blue-50 text-[#0C51D9] flex items-center justify-center shrink-0"
               >
-                <component :is="getModuleIcon(moduleName)" class="w-4 h-4" />
+                <component :is="getModuleIcon(moduleName)" class="w-5 h-5" />
               </div>
-              <div class="flex items-center gap-2.5">
-                <h4 class="text-brand-dark text-sm font-bold capitalize">
+              <div class="flex items-center gap-3">
+                <h4 class="text-brand-dark text-[15px] font-bold capitalize tracking-tight">
                   {{ moduleName }}
                 </h4>
                 <span
-                  class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-white border border-[#DCDEDD] text-gray-600"
+                  class="px-3 py-1 rounded-full text-[11px] font-semibold bg-white border border-[#DCDEDD] text-gray-500 shadow-xs"
                 >
                   {{ perms.length }} permissions
                 </span>
@@ -586,11 +586,11 @@ const handleSavePermission = async (permissionName) => {
 
             <button
               type="button"
-              class="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-200/50 transition-colors cursor-pointer"
+              class="p-2 rounded-[10px] text-gray-400 hover:text-gray-600 hover:bg-gray-200/60 transition-all duration-200 cursor-pointer"
               :title="collapsedModules[moduleName] ? 'Buka modul' : 'Tutup modul'"
             >
               <ChevronDown
-                class="w-4 h-4 transition-transform duration-200"
+                class="w-5 h-5 transition-transform duration-200"
                 :class="{ 'rotate-180': !collapsedModules[moduleName] }"
               />
             </button>
@@ -598,26 +598,35 @@ const handleSavePermission = async (permissionName) => {
 
           <!-- Module Content (Collapsible) -->
           <div v-show="!collapsedModules[moduleName]">
-            <!-- 1. Grid / Card View Mode (Redesigned Compact Cards) -->
+            <!-- Card View -->
             <div
-              v-if="viewMode === 'grid'"
-              class="p-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+              class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
             >
               <div
                 v-for="p in perms"
                 :key="p.id"
-                class="bg-white border border-[#E5E7EB] hover:border-[#0C51D9] hover:shadow-xs rounded-[16px] p-5 transition-all duration-200 flex flex-col justify-between gap-3.5 group"
+                class="bg-white border border-[#E5E7EB] hover:border-[#0C51D9]/50 hover:shadow-md rounded-[16px] p-5 transition-all duration-300 flex flex-col justify-between gap-4 group relative"
               >
+                <!-- Edit Button (top-right, visible on hover) -->
+                <button
+                  type="button"
+                  @click="openEditModal(p, moduleName)"
+                  class="absolute top-3 right-3 p-1.5 rounded-lg text-gray-300 opacity-0 group-hover:opacity-100 hover:text-amber-600 hover:bg-amber-50 transition-all duration-200 cursor-pointer"
+                  title="Edit permission"
+                >
+                  <Pencil class="w-3.5 h-3.5" />
+                </button>
+
                 <!-- Top Section: Icon + Title + Key -->
-                <div class="flex items-start gap-3.5">
-                  <!-- Action Micro Icon -->
+                <div class="flex items-start gap-4">
+                  <!-- Action Icon -->
                   <div
-                    class="w-8 h-8 rounded-[10px] flex items-center justify-center shrink-0 mt-0.5"
+                    class="w-10 h-10 rounded-[12px] flex items-center justify-center shrink-0 mt-0.5"
                     :class="getActionIconBgClass(p.action, p.name)"
                   >
                     <component
                       :is="getActionIcon(p.action, p.name)"
-                      class="w-4 h-4"
+                      class="w-[18px] h-[18px]"
                       :class="getActionIconColorClass(p.action, p.name)"
                     />
                   </div>
@@ -625,14 +634,14 @@ const handleSavePermission = async (permissionName) => {
                   <!-- Title and Slug Key -->
                   <div class="min-w-0 flex-1">
                     <h5
-                      class="text-xs font-bold text-[#0C1C3C] truncate leading-tight"
+                      class="text-[13px] font-bold text-[#0C1C3C] truncate leading-snug"
                       :title="formatPermissionTitle(p.name, moduleName)"
                     >
                       {{ formatPermissionTitle(p.name, moduleName) }}
                     </h5>
-                    <div class="flex items-center gap-2 mt-1.5">
+                    <div class="flex items-center gap-2 mt-2">
                       <span
-                        class="text-[10px] font-mono text-gray-500 bg-gray-50 px-2 py-0.5 rounded border border-gray-200/60 truncate max-w-[200px]"
+                        class="text-[11px] font-mono text-gray-500 bg-gray-50 px-2.5 py-1 rounded-md border border-gray-200/60 truncate max-w-[200px]"
                         :title="p.name"
                       >
                         {{ p.name }}
@@ -640,7 +649,7 @@ const handleSavePermission = async (permissionName) => {
                       <button
                         type="button"
                         @click="copyToClipboard(p.name)"
-                        class="text-gray-400 hover:text-[#0C51D9] transition-colors p-0.5 cursor-pointer shrink-0"
+                        class="text-gray-400 hover:text-[#0C51D9] transition-colors p-1 cursor-pointer shrink-0 rounded-md hover:bg-blue-50"
                         title="Salin permission key"
                       >
                         <Check
@@ -653,16 +662,16 @@ const handleSavePermission = async (permissionName) => {
                   </div>
                 </div>
 
-                <!-- Bottom Section: Roles with Access (Left-aligned, small, rounded badges) -->
-                <div class="pt-3 border-t border-gray-100 flex items-center justify-start">
-                  <div class="flex flex-wrap items-center justify-start gap-1.5">
+                <!-- Bottom Section: Roles with Access -->
+                <div class="pt-3.5 border-t border-gray-100/80 flex items-center justify-start">
+                  <div class="flex flex-wrap items-center justify-start gap-2">
                     <template
                       v-if="getRolesWithPermission(p.name).length > 0"
                     >
                       <span
                         v-for="r in getRolesWithPermission(p.name)"
                         :key="r.id"
-                        class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-medium border"
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-medium border"
                         :class="getRoleBadgeClass(r.name, r.is_system_role)"
                       >
                         <span
@@ -678,7 +687,7 @@ const handleSavePermission = async (permissionName) => {
                         {{ r.name }}
                       </span>
                     </template>
-                    <span v-else class="text-[10px] text-gray-400 italic">
+                    <span v-else class="text-[11px] text-gray-400 italic">
                       Belum ada role
                     </span>
                   </div>
@@ -686,118 +695,19 @@ const handleSavePermission = async (permissionName) => {
               </div>
             </div>
 
-            <!-- 2. Table View Mode -->
-            <div v-else class="overflow-x-auto">
-              <table class="w-full text-left border-collapse">
-                <thead>
-                  <tr
-                    class="border-b border-gray-100 bg-gray-50/40 text-[10px] font-semibold text-gray-400 uppercase tracking-wider"
-                  >
-                    <th class="py-2.5 px-4">Permission Name & Key</th>
-                    <th class="py-2.5 px-4">Action</th>
-                    <th class="py-2.5 px-4">Assigned Roles</th>
-                    <th class="py-2.5 px-4 text-right">Copy</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100 text-xs">
-                  <tr
-                    v-for="p in perms"
-                    :key="p.id"
-                    class="hover:bg-blue-50/20 transition-colors"
-                  >
-                    <td class="py-2.5 px-4">
-                      <div class="flex items-center gap-2.5">
-                        <div
-                          class="w-7 h-7 rounded-[8px] flex items-center justify-center shrink-0"
-                          :class="getActionIconBgClass(p.action, p.name)"
-                        >
-                          <component
-                            :is="getActionIcon(p.action, p.name)"
-                            class="w-3.5 h-3.5"
-                            :class="getActionIconColorClass(p.action, p.name)"
-                          />
-                        </div>
-                        <div>
-                          <span class="font-bold text-[#0C1C3C] text-xs block">
-                            {{ formatPermissionTitle(p.name, moduleName) }}
-                          </span>
-                          <code
-                            class="text-[11px] font-mono text-gray-500 bg-gray-50 px-1 py-0.5 rounded border border-gray-200/60 inline-block mt-0.5"
-                          >
-                            {{ p.name }}
-                          </code>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="py-2.5 px-4">
-                      <span
-                        v-if="p.action"
-                        class="px-2 py-0.5 rounded-full text-[10px] font-semibold border inline-block"
-                        :class="getActionIconBgClass(p.action, p.name)"
-                      >
-                        <span :class="getActionIconColorClass(p.action, p.name)">
-                          {{ formatAction(p.action) }}
-                        </span>
-                      </span>
-                    </td>
-                    <td class="py-2.5 px-4">
-                      <div class="flex flex-wrap items-center gap-1">
-                        <template
-                          v-if="getRolesWithPermission(p.name).length > 0"
-                        >
-                          <span
-                            v-for="r in getRolesWithPermission(p.name)"
-                            :key="r.id"
-                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border"
-                            :class="getRoleBadgeClass(r.name, r.is_system_role)"
-                          >
-                            <span
-                              class="w-1.5 h-1.5 rounded-full"
-                              :class="{
-                                'bg-[#0C51D9]': r.name.toLowerCase().includes('manager') || r.is_system_role,
-                                'bg-emerald-600': r.name.toLowerCase().includes('employee'),
-                                'bg-amber-600': r.name.toLowerCase().includes('hr'),
-                                'bg-purple-600': r.name.toLowerCase().includes('finance'),
-                                'bg-slate-500': !['manager', 'employee', 'hr', 'finance'].some(k => r.name.toLowerCase().includes(k))
-                              }"
-                            ></span>
-                            {{ r.name }}
-                          </span>
-                        </template>
-                        <span v-else class="text-[10px] text-gray-400 italic">
-                          Belum ditugaskan
-                        </span>
-                      </div>
-                    </td>
-                    <td class="py-2.5 px-4 text-right">
-                      <button
-                        type="button"
-                        @click="copyToClipboard(p.name)"
-                        class="text-gray-400 hover:text-[#0C51D9] p-1 rounded hover:bg-gray-100 transition-colors cursor-pointer"
-                        title="Copy permission key"
-                      >
-                        <Check
-                          v-if="copiedPermission === p.name"
-                          class="w-3.5 h-3.5 text-emerald-600"
-                        />
-                        <Copy v-else class="w-3.5 h-3.5" />
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Create Custom Permission Modal -->
+    <!-- Create/Edit Permission Modal -->
     <CreatePermissionModal
       :show="isCreateModalOpen"
       :existingModules="availableModules"
       :saving="saving"
-      @close="isCreateModalOpen = false"
+      :editPermission="editingPermission"
+      @close="isCreateModalOpen = false; editingPermission = null"
       @submit="handleSavePermission"
     />
   </div>

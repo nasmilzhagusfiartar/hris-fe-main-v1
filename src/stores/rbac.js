@@ -120,6 +120,21 @@ export const useRbacStore = defineStore("rbac", {
       }
     },
 
+    async updatePermission(id, name) {
+      this.saving = true;
+      this.error = null;
+      try {
+        const response = await axiosInstance.put(`/permissions/${id}`, { name });
+        await this.fetchGroupedPermissions();
+        return response.data.data;
+      } catch (error) {
+        this.error = handleError(error);
+        throw error;
+      } finally {
+        this.saving = false;
+      }
+    },
+
     async deletePermission(id) {
       this.saving = true;
       this.error = null;
