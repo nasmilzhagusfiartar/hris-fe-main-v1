@@ -8,6 +8,7 @@ import {
   formatRupiah as formatCurrency,
   capitalize,
 } from "@/utils/formatUtils.js";
+import { getImageUrl, handleImageError } from "@/helpers/imageHelper";
 import {
   Edit,
   CheckCircle,
@@ -116,10 +117,13 @@ onMounted(() => {
         <div class="relative">
           <img
             :src="
-              profile?.user?.profile_photo ||
-              'https://ui-avatars.com/api/?name=' + profile?.user?.name
+              getImageUrl(
+                profile?.user?.profile_photo,
+                profile?.user?.name || 'Employee'
+              )
             "
             :alt="profile?.user?.name"
+            @error="handleImageError($event, profile?.user?.name || 'Employee')"
             class="w-32 h-32 rounded-full object-cover"
           />
           <span

@@ -17,7 +17,12 @@ export default [
     {
         path: '/admin/projects/create',
         name: 'admin.projects.create',
-        component: ProjectCreate
+        component: ProjectCreate,
+        meta: {
+            requiresAuth: true,
+            roles: ['manager', 'admin', 'hr'],
+            permission: 'project-create',
+        }
     },
     {
         path: '/admin/projects/:id',

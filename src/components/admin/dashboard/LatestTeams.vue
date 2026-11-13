@@ -12,6 +12,7 @@ import { useTeamStore } from "@/stores/team";
 import { useRouter } from "vue-router";
 import { getTimeAgo } from "@/utils/dateUtils";
 import { getStatusBadgeClass } from "@/utils/badgeUtils";
+import { getImageUrl, handleImageError } from "@/helpers/imageHelper";
 import { storeToRefs } from "pinia";
 
 const teamStore = useTeamStore();
@@ -27,7 +28,7 @@ onMounted(() => {
 });
 
 const goToTeamDetail = (id: number) => {
-  router.push({ name: "team-detail", params: { id } });
+  router.push({ name: "admin.team.detail", params: { id } });
 };
 </script>
 
@@ -78,7 +79,14 @@ const goToTeamDetail = (id: number) => {
             class="w-full h-full absolute bg-gradient-to-br from-primary-500 to-primary-600 rounded-[8px]"
           ></div>
           <!-- Lucide icon -->
-          <img :src="team.icon" class="w-6 h-6 relative z-10" />
+          <img
+            v-if="team.icon"
+            :src="getImageUrl(team.icon, team.name)"
+            :alt="team.name"
+            class="w-6 h-6 object-contain relative z-10"
+            @error="(e) => handleImageError(e, team.name)"
+          />
+          <UsersIcon v-else class="w-6 h-6 text-white relative z-10" />
         </div>
 
         <!-- Team Info -->

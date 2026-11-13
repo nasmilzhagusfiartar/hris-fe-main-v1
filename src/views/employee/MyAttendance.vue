@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
+import { useRoute } from "vue-router";
 import {
   CalendarCheck,
   CalendarDays,
@@ -161,8 +162,13 @@ const updateEndDateMin = () => {
   }
 };
 
+const route = useRoute();
+
 // Lifecycle
 onMounted(async () => {
+  if (route.query.action === "request-leave") {
+    openLeaveRequestModal();
+  }
   await Promise.all([
     fetchAttendances(),
     fetchStatistics(),

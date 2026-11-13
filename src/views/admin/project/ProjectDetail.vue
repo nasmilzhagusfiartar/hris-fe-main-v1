@@ -24,6 +24,7 @@ import {
 } from "@/utils/badgeUtils";
 import _ from "lodash";
 import TaskBoard from "@/components/admin/project/detail/TaskBoard.vue";
+import { getImageUrl, handleImageError } from "@/helpers/imageHelper";
 
 const route = useRoute();
 const id = route.params.id;
@@ -135,8 +136,9 @@ onMounted(async () => {
         class="w-full bg-gradient-to-br from-blue-100 to-purple-100 relative overflow-hidden rounded-[12px] mb-6"
       >
         <img
-          :src="project.photo"
-          alt="Project Image"
+          :src="getImageUrl(project.photo, project.name || 'Project')"
+          :alt="project.name || 'Project Image'"
+          @error="handleImageError($event, project.name || 'Project')"
           class="w-full h-full object-cover rounded-[12px]"
         />
       </div>
@@ -187,8 +189,9 @@ onMounted(async () => {
                   ></div>
                   <img
                     v-if="team.icon"
-                    :src="team.icon"
+                    :src="getImageUrl(team.icon, team.name || 'Team')"
                     :alt="team.name"
+                    @error="handleImageError($event, team.name || 'Team')"
                     class="w-6 h-6 object-contain relative z-10"
                   />
                   <component
@@ -213,17 +216,11 @@ onMounted(async () => {
               <div class="mt-4 pt-4 border-t border-[#DCDEDD]">
                 <div v-if="team.leader" class="flex items-center gap-3">
                   <img
-                    v-if="team.leader.profile_photo"
-                    :src="team.leader.profile_photo"
+                    :src="getImageUrl(team.leader.profile_photo, team.leader.name || 'Leader')"
                     :alt="team.leader.name"
+                    @error="handleImageError($event, team.leader.name || 'Leader')"
                     class="w-9 h-9 rounded-full object-cover"
                   />
-                  <div
-                    v-else
-                    class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center"
-                  >
-                    <User class="w-4 h-4 text-gray-400" />
-                  </div>
                   <div class="flex-1">
                     <p class="text-brand-dark text-sm font-semibold">
                       {{ team.leader.name }}
@@ -264,17 +261,11 @@ onMounted(async () => {
 
         <div v-if="project.leader" class="flex items-center gap-4">
           <img
-            :src="project.leader.user.profile_photo"
-            :alt="project.leader.user.name"
+            :src="getImageUrl(project.leader.user?.profile_photo, project.leader.user?.name || 'Leader')"
+            :alt="project.leader.user?.name"
+            @error="handleImageError($event, project.leader.user?.name || 'Leader')"
             class="w-16 h-16 rounded-full object-cover"
-            v-if="project.leader.user.profile_photo"
           />
-          <div
-            class="w-12 h-12 rounded-[12px] flex items-center justify-center bg-gray-100"
-            v-else
-          >
-            <User class="w-5 h-5 text-gray-400" />
-          </div>
           <div class="flex-1">
             <h4 class="text-brand-dark text-md font-bold mb-1">
               {{ project.leader?.user?.name }}

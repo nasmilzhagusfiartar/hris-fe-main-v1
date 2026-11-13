@@ -6,8 +6,6 @@ import {
   FileTextIcon,
   UsersIcon,
   SettingsIcon,
-  CrownIcon,
-  ArrowRightIcon,
   ClockIcon,
   UserIcon,
   CalendarIcon,
@@ -108,7 +106,7 @@ const portalSubtitle = computed(() => {
           <BuildingIcon class="w-5 h-5 text-white relative z-10" />
         </div>
         <div>
-          <h1 class="text-brand-dark text-lg font-bold">SenjaHRIS</h1>
+          <h1 class="text-brand-dark text-lg font-bold">HIP HRIS</h1>
           <p class="text-brand-dark text-xs font-normal">
             {{ portalSubtitle }}
           </p>
@@ -593,48 +591,5 @@ const portalSubtitle = computed(() => {
         </div>
       </div>
     </nav>
-
-    <!-- Upgrade to Pro Box (Optional / Bottom) -->
-    <div class="px-6 pb-6 mt-auto shrink-0">
-      <div
-        class="upgrade-card bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-[16px] relative overflow-hidden p-5"
-      >
-        <div class="absolute inset-0 opacity-5">
-          <div
-            class="absolute top-2 right-4 w-8 h-8 bg-blue-500 rounded-full"
-          ></div>
-          <div
-            class="absolute bottom-4 left-2 w-6 h-6 bg-blue-400 rounded-full"
-          ></div>
-          <div
-            class="absolute top-1/2 left-1/2 w-4 h-4 bg-blue-600 rounded-full"
-          ></div>
-        </div>
-
-        <div class="relative z-10">
-          <div
-            class="w-10 h-10 bg-gradient-to-r from-primary-500 to-primary-600 rounded-[12px] flex items-center justify-center mb-3"
-          >
-            <CrownIcon class="w-5 h-5 text-white" />
-          </div>
-
-          <h4 class="text-brand-dark text-base font-bold mb-1">
-            Upgrade to Pro
-          </h4>
-          <p class="text-brand-dark text-sm font-normal leading-5 mb-4">
-            Unlock advanced features and insights
-          </p>
-
-          <button
-            class="btn-primary w-full rounded-[8px] border border-[#2151A0] hover:brightness-110 focus:ring-2 focus:ring-[#0C51D9] transition-all duration-300 blue-gradient blue-btn-shadow px-4 py-3"
-          >
-            <span class="text-brand-white text-sm font-semibold"
-              >Upgrade Now</span
-            >
-            <ArrowRightIcon class="w-4 h-4 text-white" />
-          </button>
-        </div>
-      </div>
-    </div>
   </aside>
 </template>

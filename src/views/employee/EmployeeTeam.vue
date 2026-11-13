@@ -14,6 +14,7 @@ import {
 import { useEmployeeStore } from "@/stores/employee";
 import CardList from "@/components/admin/project/list/CardList.vue";
 import { formatDate as formatDateUtil } from "@/utils/dateUtils.js";
+import { getImageUrl, handleImageError } from "@/helpers/imageHelper";
 
 const employeeStore = useEmployeeStore();
 const team = ref(null);
@@ -309,10 +310,18 @@ onMounted(() => {
               <div class="relative">
                 <img
                   :src="
-                    member.employee?.user?.profile_photo ||
-                    'https://via.placeholder.com/100'
+                    getImageUrl(
+                      member.employee?.user?.profile_photo,
+                      member.employee?.user?.name || 'Member'
+                    )
                   "
                   :alt="member.employee?.user?.name"
+                  @error="
+                    handleImageError(
+                      $event,
+                      member.employee?.user?.name || 'Member'
+                    )
+                  "
                   class="w-[100px] h-[100px] rounded-full object-cover mb-3"
                 />
                 <span

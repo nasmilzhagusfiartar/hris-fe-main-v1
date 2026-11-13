@@ -30,6 +30,12 @@
         class="px-6 py-2.5 rounded-full font-semibold transition-colors shadow-sm flex items-center gap-2">
         Email Breach <ShieldAlertIcon class="w-4 h-4" />
       </button>
+      <button 
+        @click="currentTab = 'typosquatting'" 
+        :class="currentTab === 'typosquatting' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'" 
+        class="px-6 py-2.5 rounded-full font-semibold transition-colors shadow-sm flex items-center gap-2">
+        Typosquatting <GlobeIcon class="w-4 h-4" />
+      </button>
     </div>
 
     <!-- TAB 1: DOMAIN INTELLIGENCE -->
@@ -184,27 +190,379 @@
       </div>
     </div>
 
-    <!-- TAB 4: EMAIL Breach -->
-    <div v-show="currentTab === 'email'" class="space-y-6 max-w-3xl mx-auto text-center py-12">
-      <h3 class="text-3xl font-bold text-gray-900 mb-2">Identity & Access Breach</h3>
-      <p class="text-gray-500 mb-8 text-lg">Check your email for data breach</p>
-      
-      <div class="bg-white border border-gray-300 rounded-2xl shadow-sm p-8">
-        <div class="flex flex-col sm:flex-row items-center gap-4">
-          <input 
-            v-model="searchEmail" 
-            @keyup.enter="searchHibp"
-            type="email" 
-            placeholder="Masukkan email (contoh: admin@herointiputra.com)" 
-            class="w-full sm:flex-1 border border-gray-300 rounded-xl py-4 px-5 text-lg focus:ring-blue-500 focus:border-blue-500 shadow-sm"
-          >
+    <!-- TAB 4: EMAIL BREACH -->
+    <div v-show="currentTab === 'email'" class="space-y-8">
+      <!-- Section Pengecekan Email -->
+      <div class="bg-white border border-gray-300 rounded-2xl shadow-sm p-6 sm:p-8 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-100 pb-4">
+          <div>
+            <h3 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <ShieldAlertIcon class="w-6 h-6 text-blue-600" />
+              Identity & Access Breach
+            </h3>
+            <p class="text-gray-500 text-sm mt-1">
+              Periksa kebocoran data (Data Breach) pada email perusahaan atau lakukan pengecekan massal seluruh karyawan.
+            </p>
+          </div>
           <button 
-            @click="searchHibp"
-            :disabled="!searchEmail"
-            class="w-full sm:w-auto bg-blue-600 text-white font-bold rounded-xl px-8 py-4 text-lg hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2 shadow-sm"
+            v-if="can('cti-breach-check')"
+            @click="handleCheckAllEmployees"
+            :disabled="loadingCheckAll"
+            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 transition-colors shadow-sm disabled:opacity-50"
           >
-            Search <ExternalLinkIcon class="w-5 h-5"/>
+            <RefreshCwIcon class="w-4 h-4" :class="{'animate-spin': loadingCheckAll}" />
+            <span>{{ loadingCheckAll ? 'Mengantrikan...' : 'Cek Semua Karyawan' }}</span>
           </button>
+        </div>
+
+        <!-- Input Single Email Check -->
+        <div class="flex flex-col sm:flex-row items-center gap-3">
+          <div class="relative w-full sm:flex-1">
+            <input 
+              v-model="breachEmailInput" 
+              @keyup.enter="handleCheckSingleEmail"
+              type="email" 
+              placeholder="Masukkan email (contoh: karyawan@herointiputra.com)" 
+              class="w-full border border-gray-300 rounded-xl py-3 px-4 text-base focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+            >
+          </div>
+          <button 
+            v-if="can('cti-breach-check')"
+            @click="handleCheckSingleEmail"
+            :disabled="!breachEmailInput || loadingBreachCheck"
+            class="w-full sm:w-auto bg-blue-600 text-white font-bold rounded-xl px-6 py-3 text-base hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2 shadow-sm"
+          >
+            <RefreshCwIcon class="w-4 h-4" :class="{'animate-spin': loadingBreachCheck}" />
+            <span>{{ loadingBreachCheck ? 'Memeriksa...' : 'Cek Email' }}</span>
+          </button>
+        </div>
+
+        <!-- Info Antrean Massal jika ada -->
+        <div v-if="queuedCount !== null" class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 flex items-center gap-3 text-indigo-900">
+          <UsersIcon class="w-5 h-5 text-indigo-600 flex-shrink-0" />
+          <div class="text-sm font-medium">
+            Pengecekan masal berhasil diantrikan untuk <span class="font-bold">{{ queuedCount }}</span> email karyawan.
+          </div>
+        </div>
+
+        <!-- Hasil Pengecekan Single Email -->
+        <div v-if="currentBreachResult" class="border rounded-xl p-5 transition-all"
+          :class="currentBreachResult.is_breached ? 'bg-red-50/50 border-red-200' : 'bg-green-50/50 border-green-200'">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+            <div class="flex items-center gap-3">
+              <span v-if="currentBreachResult.is_breached" class="flex items-center gap-1.5 bg-red-600 text-white font-bold text-xs px-3 py-1.5 rounded-full shadow-sm">
+                <ShieldAlertIcon class="w-4 h-4" /> BOCOR
+              </span>
+              <span v-else class="flex items-center gap-1.5 bg-green-600 text-white font-bold text-xs px-3 py-1.5 rounded-full shadow-sm">
+                <CheckCircleIcon class="w-4 h-4" /> AMAN
+              </span>
+              <span class="font-bold text-gray-900 text-lg">{{ currentBreachResult.email }}</span>
+            </div>
+            <div class="text-xs text-gray-500 font-medium">
+              Terakhir diperiksa: {{ formatDateTime(currentBreachResult.checked_at) }}
+            </div>
+          </div>
+
+          <div v-if="currentBreachResult.is_breached" class="space-y-2">
+            <p class="text-xs font-bold text-red-800 uppercase tracking-wider">Terdeteksi pada kebocoran data berikut:</p>
+            <div class="flex flex-wrap gap-2">
+              <span 
+                v-for="(breach, bIdx) in currentBreachResult.breaches" 
+                :key="bIdx"
+                class="bg-white border border-red-200 text-red-700 text-xs px-3 py-1 rounded-full font-semibold shadow-2xs"
+              >
+                {{ breach }}
+              </span>
+              <span v-if="!currentBreachResult.breaches || currentBreachResult.breaches.length === 0" class="text-xs text-red-600 italic">
+                Terdeteksi breach (detail nama insiden tidak tersedia).
+              </span>
+            </div>
+          </div>
+          <div v-else class="text-sm text-green-800 font-medium flex items-center gap-2">
+            <CheckCircleIcon class="w-4 h-4 text-green-600" />
+            Tidak ditemukan catatan kebocoran data untuk email ini.
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabel Riwayat Pengecekan Kebocoran -->
+      <div class="bg-white border border-gray-300 rounded-2xl shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-gray-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h4 class="text-lg font-bold text-gray-900">Riwayat Pengecekan Email</h4>
+            <p class="text-xs text-gray-500 mt-0.5">Daftar seluruh riwayat audit kebocoran email yang pernah dilakukan.</p>
+          </div>
+          <div class="w-full md:w-72">
+            <SearchInput
+              v-model="breachSearchQuery"
+              placeholder="Cari email..."
+              input-class="py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 bg-gray-50 focus:bg-white transition-colors"
+              @input="onBreachSearchChange"
+              @clear="onBreachSearchChange"
+            />
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-gray-100 text-gray-700 text-xs uppercase tracking-wider">
+                <th class="p-4 border-b border-gray-300 font-bold w-12 text-center">No</th>
+                <th class="p-4 border-b border-gray-300 font-bold">Email</th>
+                <th class="p-4 border-b border-gray-300 font-bold">Status Kebocoran</th>
+                <th class="p-4 border-b border-gray-300 font-bold">Daftar Breach</th>
+                <th class="p-4 border-b border-gray-300 font-bold">Waktu Cek</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 text-sm">
+              <tr v-if="loadingBreachHistory">
+                <td colspan="5" class="p-8 text-center text-gray-500">
+                  <div class="flex items-center justify-center gap-2">
+                    <RefreshCwIcon class="w-5 h-5 animate-spin text-blue-600" />
+                    <span>Memuat data riwayat...</span>
+                  </div>
+                </td>
+              </tr>
+              <tr v-else-if="breachChecks.length === 0">
+                <td colspan="5" class="p-8 text-center text-gray-500 font-medium">
+                  Belum ada riwayat pengecekan kebocoran email.
+                </td>
+              </tr>
+              <tr v-else v-for="(item, idx) in breachChecks" :key="item.id || idx" class="hover:bg-blue-50/40 transition-colors">
+                <td class="p-4 text-center text-gray-500 font-mono text-xs">
+                  {{ (breachMeta.current_page - 1) * breachMeta.per_page + idx + 1 }}
+                </td>
+                <td class="p-4 font-semibold text-gray-900">{{ item.email }}</td>
+                <td class="p-4">
+                  <span v-if="item.is_breached" class="bg-red-100 text-red-800 text-xs px-2.5 py-1 rounded-md font-bold inline-flex items-center gap-1">
+                    <ShieldAlertIcon class="w-3.5 h-3.5" /> BOCOR
+                  </span>
+                  <span v-else class="bg-green-100 text-green-800 text-xs px-2.5 py-1 rounded-md font-bold inline-flex items-center gap-1">
+                    <CheckCircleIcon class="w-3.5 h-3.5" /> AMAN
+                  </span>
+                </td>
+                <td class="p-4">
+                  <div v-if="item.breaches && item.breaches.length > 0" class="flex flex-wrap gap-1.5">
+                    <span 
+                      v-for="(bName, bIdx) in item.breaches" 
+                      :key="bIdx"
+                      class="bg-gray-100 text-gray-800 text-xs px-2 py-0.5 rounded font-medium border border-gray-200"
+                    >
+                      {{ bName }}
+                    </span>
+                  </div>
+                  <span v-else class="text-gray-400 text-xs italic">-</span>
+                </td>
+                <td class="p-4 text-gray-600 text-xs font-medium">{{ formatDateTime(item.checked_at) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div v-if="breachMeta && breachMeta.total > 0" class="p-4 border-t border-gray-200">
+          <Pagination
+            :meta="breachMeta"
+            :loading="loadingBreachHistory"
+            @page-change="handleBreachPageChange"
+            @per-page-change="handleBreachPerPageChange"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: TYPOSQUATTING -->
+    <div v-show="currentTab === 'typosquatting'" class="space-y-6">
+      <div class="bg-white border border-gray-300 rounded-2xl shadow-sm p-6 sm:p-8 space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 pb-4">
+          <div>
+            <h3 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <GlobeIcon class="w-6 h-6 text-blue-600" />
+              Typosquatting & Impersonation Scanner
+            </h3>
+            <p class="text-gray-500 text-sm mt-1">
+              Deteksi domain tiruan (combosquatting, bitsquatting, homoglyphs) dan analisis reputasi web via urlscan.io.
+            </p>
+          </div>
+        </div>
+
+        <!-- Scan Controller -->
+        <div class="flex flex-col sm:flex-row items-center gap-4">
+          <div class="w-full sm:w-72">
+            <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Pilih Domain Target</label>
+            <select 
+              v-model="selectedBrandDomain" 
+              :disabled="isScanningBrand"
+              class="w-full border border-gray-300 rounded-xl py-3 px-4 text-base font-medium bg-white focus:ring-blue-500 focus:border-blue-500 shadow-sm disabled:bg-gray-100"
+            >
+              <option v-for="d in domainsList" :key="d" :value="d">{{ d }}</option>
+            </select>
+          </div>
+          <div class="sm:pt-5 w-full sm:w-auto">
+            <button 
+              v-if="can('cti-brand-scan')"
+              @click="startBrandScan"
+              :disabled="isScanningBrand || !selectedBrandDomain"
+              class="w-full sm:w-auto bg-blue-600 text-white font-bold rounded-xl px-8 py-3 text-base hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2 shadow-sm"
+            >
+              <RefreshCwIcon class="w-5 h-5" :class="{'animate-spin': isScanningBrand}" />
+              <span>{{ isScanningBrand ? 'Memproses Scan...' : 'Jalankan Scan' }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Progress Indicator saat pending / running -->
+        <div v-if="isScanningBrand || (brandScanStatus && (brandScanStatus.status === 'pending' || brandScanStatus.status === 'running'))" 
+          class="bg-blue-50 border border-blue-200 rounded-xl p-5 flex items-center gap-4">
+          <RefreshCwIcon class="w-6 h-6 text-blue-600 animate-spin flex-shrink-0" />
+          <div>
+            <p class="text-sm font-bold text-blue-900">Scan typosquatting sedang berjalan...</p>
+            <p class="text-xs text-blue-700 mt-0.5">
+              Domain: <span class="font-mono font-semibold">{{ brandScanStatus?.domain || selectedBrandDomain }}</span> | Status: <span class="uppercase font-semibold">{{ brandScanStatus?.status || 'running' }}</span>. Sistem sedang melakukan polling otomatis tiap 5 detik.
+            </p>
+          </div>
+        </div>
+
+        <!-- Error Banner jika scan failed -->
+        <div v-if="brandScanStatus && brandScanStatus.status === 'failed'" 
+          class="bg-red-50 border border-red-200 rounded-xl p-5 flex items-center gap-4">
+          <ShieldAlertIcon class="w-6 h-6 text-red-600 flex-shrink-0" />
+          <div>
+            <p class="text-sm font-bold text-red-900">Scan Typosquatting Gagal</p>
+            <p class="text-xs text-red-700 mt-0.5 font-medium">
+              {{ brandScanStatus.error || 'Terjadi kesalahan pada backend saat menjalankan scan.' }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hasil Scan -->
+      <div v-if="brandScanStatus && brandScanStatus.status === 'done'" class="space-y-4">
+        <!-- Kasus 1: Results Kosong -->
+        <div v-if="!brandScanStatus.results || brandScanStatus.results.length === 0" 
+          class="bg-white border border-gray-300 rounded-2xl shadow-sm p-12 text-center space-y-3">
+          <div class="w-16 h-16 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto border border-green-200">
+            <CheckCircleIcon class="w-8 h-8" />
+          </div>
+          <h4 class="text-xl font-bold text-gray-900">Tidak ditemukan domain tiruan yang aktif</h4>
+          <p class="text-sm text-gray-500 max-w-md mx-auto">
+            Pemeriksaan typosquatting untuk domain <span class="font-bold text-gray-800">{{ brandScanStatus.domain }}</span> tidak mendeteksi adanya domain permutasi yang aktif.
+          </p>
+        </div>
+
+        <!-- Kasus 2: Results Ada -->
+        <div v-else class="bg-white border border-gray-300 rounded-2xl shadow-sm overflow-hidden">
+          <div class="p-5 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gray-50/50">
+            <div>
+              <h4 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                Hasil Scan Domain: {{ brandScanStatus.domain }}
+                <span class="bg-blue-100 text-blue-800 text-xs px-2.5 py-0.5 rounded-full font-bold">
+                  {{ brandScanStatus.total_found ?? brandScanStatus.results.length }} Ditemukan
+                </span>
+              </h4>
+              <p class="text-xs text-gray-500 mt-1">Waktu scan: {{ formatDateTime(brandScanStatus.created_at) }}</p>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-gray-100 text-gray-700 text-xs uppercase tracking-wider">
+                  <th class="p-4 border-b border-gray-300 font-bold">Domain</th>
+                  <th class="p-4 border-b border-gray-300 font-bold">Fuzzer</th>
+                  <th class="p-4 border-b border-gray-300 font-bold">DNS A (IP)</th>
+                  <th class="p-4 border-b border-gray-300 font-bold">DNS MX</th>
+                  <th class="p-4 border-b border-gray-300 font-bold">Analisis urlscan</th>
+                  <th class="p-4 border-b border-gray-300 font-bold text-center w-36">Aksi</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200 text-sm">
+                <tr v-for="res in brandScanStatus.results" :key="res.id" class="hover:bg-blue-50/40 transition-colors">
+                  <td class="p-4">
+                    <div class="font-mono font-bold text-gray-900">{{ res.domain }}</div>
+                  </td>
+                  <td class="p-4">
+                    <span class="bg-gray-100 text-gray-700 text-xs font-semibold px-2 py-1 rounded">
+                      {{ res.fuzzer || '-' }}
+                    </span>
+                  </td>
+                  <td class="p-4 font-mono text-xs text-gray-700">
+                    {{ formatDnsList(res.dns_a) }}
+                  </td>
+                  <td class="p-4 font-mono text-xs text-gray-700">
+                    {{ formatDnsList(res.dns_mx) }}
+                  </td>
+                  <td class="p-4">
+                    <!-- Status Pending -->
+                    <div v-if="res.urlscan_status === 'pending'" class="flex items-center gap-2 text-xs font-medium text-amber-700 bg-amber-50 px-2.5 py-1.5 rounded-lg border border-amber-200">
+                      <RefreshCwIcon class="w-3.5 h-3.5 animate-spin" />
+                      <span>Scanning urlscan... ({{ urlscanAttempts[res.id] || 1 }}/24)</span>
+                    </div>
+
+                    <!-- Status Timeout -->
+                    <div v-else-if="res.urlscan_status === 'timeout'" class="flex items-center gap-2 text-xs font-bold text-amber-800 bg-amber-100 px-2.5 py-1 rounded-md border border-amber-300">
+                      <ClockIcon class="w-3.5 h-3.5" />
+                      <span>Timeout</span>
+                    </div>
+
+                    <!-- Status Failed -->
+                    <div v-else-if="res.urlscan_status === 'failed'" class="text-xs font-bold text-red-800 bg-red-100 px-2.5 py-1 rounded-md inline-block">
+                      Failed
+                    </div>
+
+                    <!-- Status Done -->
+                    <div v-else-if="res.urlscan_status === 'done'" class="space-y-1.5">
+                      <div class="flex items-center gap-2">
+                        <span v-if="res.urlscan_malicious" class="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded font-black">
+                          MALICIOUS
+                        </span>
+                        <span v-else class="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded font-bold">
+                          CLEAN
+                        </span>
+                        <span class="text-xs text-gray-600 font-semibold">Skor: {{ res.urlscan_score ?? 0 }}</span>
+                      </div>
+                      <div class="text-xs text-gray-500">
+                        IP: <span class="font-mono">{{ res.urlscan_ip || '-' }}</span> ({{ res.urlscan_country || '-' }})
+                      </div>
+                      <div class="flex items-center gap-3 pt-1">
+                        <img 
+                          v-if="res.urlscan_screenshot" 
+                          :src="res.urlscan_screenshot" 
+                          alt="Screenshot" 
+                          class="w-16 h-10 object-cover rounded border border-gray-300 cursor-pointer hover:opacity-80 transition-opacity shadow-2xs"
+                          @click="openScreenshotModal(res.urlscan_screenshot, res.domain)"
+                        />
+                        <a 
+                          v-if="res.urlscan_report_url" 
+                          :href="res.urlscan_report_url" 
+                          target="_blank" 
+                          class="text-xs font-bold text-blue-600 hover:text-blue-800 inline-flex items-center gap-1 bg-blue-50 px-2 py-1 rounded hover:bg-blue-100 transition-colors"
+                        >
+                          <ExternalLinkIcon class="w-3.5 h-3.5" /> Report
+                        </a>
+                      </div>
+                    </div>
+
+                    <!-- Status Kosong -->
+                    <div v-else class="text-xs text-gray-400 italic">
+                      Belum di-scan
+                    </div>
+                  </td>
+                  <td class="p-4 text-center">
+                    <button 
+                      v-if="can('cti-urlscan')"
+                      @click="runUrlscan(res)"
+                      :disabled="res.urlscan_status === 'pending' || loadingUrlscanMap[res.id]"
+                      class="px-3 py-1.5 text-xs font-bold rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition-colors disabled:opacity-50 shadow-2xs inline-flex items-center gap-1.5"
+                    >
+                      <RefreshCwIcon class="w-3.5 h-3.5" :class="{'animate-spin': res.urlscan_status === 'pending' || loadingUrlscanMap[res.id]}" />
+                      <span>Scan urlscan</span>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -347,33 +705,279 @@
         </div>
       </div>
     </div>
+
+    <!-- SCREENSHOT PREVIEW MODAL -->
+    <div v-if="previewScreenshotUrl" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/70">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full border border-gray-300 overflow-hidden flex flex-col max-h-[90vh]">
+        <div class="flex items-center justify-between bg-gray-100 border-b border-gray-300 px-6 py-4">
+          <h3 class="text-base font-bold text-gray-900">Screenshot: {{ previewScreenshotDomain }}</h3>
+          <button @click="previewScreenshotUrl = null" class="text-gray-500 hover:text-red-600 p-1 rounded">
+            <XIcon class="w-6 h-6" />
+          </button>
+        </div>
+        <div class="p-4 bg-gray-900 flex items-center justify-center overflow-auto max-h-[75vh]">
+          <img :src="previewScreenshotUrl" alt="Screenshot Full" class="max-w-full max-h-full object-contain rounded shadow" />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { EyeIcon, ExternalLinkIcon, XIcon, ShieldAlertIcon, FlameIcon, GlobeIcon, LockIcon, RefreshCwIcon, ServerIcon } from 'lucide-vue-next';
+import { 
+  EyeIcon, ExternalLinkIcon, XIcon, ShieldAlertIcon, FlameIcon, 
+  GlobeIcon, LockIcon, RefreshCwIcon, SearchIcon, 
+  CheckCircleIcon, UsersIcon, ClockIcon 
+} from 'lucide-vue-next';
+import { debounce } from 'lodash';
+import { storeToRefs } from 'pinia';
 import ctiService from '@/services/ctiService';
+import { useCtiStore } from '@/stores/cti';
+import { useToastStore } from '@/stores/toast';
+import { can } from '@/helpers/permissionHelper';
+import Pagination from '@/components/admin/team/Pagination.vue';
+import SearchInput from '@/components/common/SearchInput.vue';
 
 const tabs = [
   { id: 'domain', name: 'Domain Intelligence' },
   { id: 'ssl', name: 'SSL Monitor' },
   { id: 'dns', name: 'DNS Monitor' },
-  { id: 'email', name: 'Email Breach' }
+  { id: 'email', name: 'Email Breach' },
+  { id: 'typosquatting', name: 'Typosquatting' },
 ];
 
 const currentTab = ref('domain');
 const filterCategory = ref('');
-const searchEmail = ref('');
 
-const searchHibp = () => {
-  if (!searchEmail.value) return;
-  const url = `https://haveibeenpwned.com/account/${encodeURIComponent(searchEmail.value)}`;
-  window.open(url, '_blank');
+// CTI Store & Toast
+const ctiStore = useCtiStore();
+const toast = useToastStore();
+const { 
+  breachChecks, 
+  meta: breachMeta, 
+  currentBreachResult, 
+  loadingBreachCheck, 
+  loadingCheckAll, 
+  loadingBreachHistory,
+  loadingUrlscan: loadingUrlscanMap,
+} = storeToRefs(ctiStore);
+
+// Helper Date Time Format
+const formatDateTime = (dateStr) => {
+  if (!dateStr) return '-';
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleString('id-ID', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  } catch (e) {
+    return dateStr;
+  }
 };
 
-const domainsList = ['herointiputra.com', 'hip.co.id', 'toyscity.id'];
+const formatDnsList = (val) => {
+  if (!val) return '-';
+  if (Array.isArray(val)) {
+    return val.length > 0 ? val.join(', ') : '-';
+  }
+  return val || '-';
+};
 
+// === TAB 4: EMAIL BREACH STATE & HANDLERS ===
+const breachEmailInput = ref('');
+const breachSearchQuery = ref('');
+const queuedCount = ref(null);
+const breachServerOptions = ref({
+  page: 1,
+  row_per_page: 10,
+});
+
+const fetchBreachHistory = async () => {
+  if (!can('cti-breach-check')) return;
+  try {
+    await ctiStore.fetchBreachChecks({
+      page: breachServerOptions.value.page,
+      row_per_page: breachServerOptions.value.row_per_page,
+      search: breachSearchQuery.value || undefined,
+    });
+  } catch (err) {
+    console.error('Failed to fetch breach history', err);
+  }
+};
+
+const onBreachSearchChange = debounce(() => {
+  breachServerOptions.value.page = 1;
+  fetchBreachHistory();
+}, 400);
+
+const handleBreachPageChange = (page) => {
+  breachServerOptions.value.page = page;
+  fetchBreachHistory();
+};
+
+const handleBreachPerPageChange = (perPage) => {
+  breachServerOptions.value.row_per_page = perPage;
+  breachServerOptions.value.page = 1;
+  fetchBreachHistory();
+};
+
+const handleCheckSingleEmail = async () => {
+  if (!breachEmailInput.value) return;
+  try {
+    const res = await ctiStore.checkEmailBreach(breachEmailInput.value);
+    if (res.is_breached) {
+      toast.warning(`Email ${res.email} terdeteksi pernah mengalami kebocoran data!`);
+    } else {
+      toast.success(`Email ${res.email} aman dari kebocoran data.`);
+    }
+    fetchBreachHistory();
+  } catch (err) {
+    toast.error(typeof err === 'string' ? err : (err?.response?.data?.message || 'Gagal memeriksa email.'));
+  }
+};
+
+const handleCheckAllEmployees = async () => {
+  try {
+    const res = await ctiStore.checkAllEmployeesBreach();
+    queuedCount.value = res?.queued ?? 0;
+    toast.success(`Pengecekan masal berhasil diantrikan untuk ${queuedCount.value} email karyawan.`);
+    fetchBreachHistory();
+  } catch (err) {
+    toast.error(typeof err === 'string' ? err : (err?.response?.data?.message || 'Gagal mengantrikan pengecekan semua karyawan.'));
+  }
+};
+
+// === TAB 5: TYPOSQUATTING STATE & HANDLERS ===
+const domainsList = ['herointiputra.com', 'hip.co.id', 'toyscity.id'];
+const selectedBrandDomain = ref(domainsList[0]);
+const brandScanStatus = ref(null);
+const isScanningBrand = ref(false);
+let brandScanPollInterval = null;
+
+const urlscanIntervals = {};
+const urlscanAttempts = ref({});
+
+const previewScreenshotUrl = ref(null);
+const previewScreenshotDomain = ref('');
+
+const openScreenshotModal = (url, domain) => {
+  previewScreenshotUrl.value = url;
+  previewScreenshotDomain.value = domain;
+};
+
+const startBrandScan = async () => {
+  if (!selectedBrandDomain.value || isScanningBrand.value) return;
+
+  if (brandScanPollInterval) {
+    clearInterval(brandScanPollInterval);
+    brandScanPollInterval = null;
+  }
+
+  isScanningBrand.value = true;
+
+  try {
+    const scan = await ctiStore.createBrandScan(selectedBrandDomain.value);
+    brandScanStatus.value = scan;
+    toast.success(`Scan untuk domain ${selectedBrandDomain.value} berhasil diantrikan.`);
+
+    if (scan.status === 'pending' || scan.status === 'running') {
+      pollBrandScan(scan.id);
+    } else {
+      isScanningBrand.value = false;
+    }
+  } catch (err) {
+    isScanningBrand.value = false;
+    toast.error(typeof err === 'string' ? err : (err?.response?.data?.message || 'Gagal memulai brand scan.'));
+  }
+};
+
+const pollBrandScan = (scanId) => {
+  brandScanPollInterval = setInterval(async () => {
+    try {
+      const updated = await ctiStore.getBrandScan(scanId);
+      brandScanStatus.value = updated;
+      if (updated.status === 'done' || updated.status === 'failed') {
+        clearInterval(brandScanPollInterval);
+        brandScanPollInterval = null;
+        isScanningBrand.value = false;
+
+        if (updated.status === 'done') {
+          const count = updated.total_found ?? (updated.results?.length || 0);
+          if (count === 0) {
+            toast.info(`Scan selesai. Tidak ditemukan domain tiruan yang aktif.`);
+          } else {
+            toast.success(`Scan selesai. Ditemukan ${count} domain tiruan.`);
+          }
+        } else {
+          toast.error(updated.error || 'Scan gagal diselesaikan.');
+        }
+      }
+    } catch (err) {
+      clearInterval(brandScanPollInterval);
+      brandScanPollInterval = null;
+      isScanningBrand.value = false;
+      toast.error('Gagal mengambil status scan.');
+    }
+  }, 5000);
+};
+
+const runUrlscan = async (result) => {
+  if (!result || !result.id) return;
+  const resultId = result.id;
+
+  if (urlscanIntervals[resultId]) {
+    clearInterval(urlscanIntervals[resultId]);
+    delete urlscanIntervals[resultId];
+  }
+
+  try {
+    const updated = await ctiStore.triggerUrlscan(resultId);
+    result.urlscan_status = updated.urlscan_status || 'pending';
+    toast.success(`Urlscan untuk domain ${result.domain} berhasil dimulai.`);
+
+    urlscanAttempts.value[resultId] = 0;
+    urlscanIntervals[resultId] = setInterval(async () => {
+      urlscanAttempts.value[resultId] = (urlscanAttempts.value[resultId] || 0) + 1;
+
+      // Maksimal 24 kali percobaan (~2 menit dengan polling interval 5 detik)
+      if (urlscanAttempts.value[resultId] >= 24) {
+        clearInterval(urlscanIntervals[resultId]);
+        delete urlscanIntervals[resultId];
+        result.urlscan_status = 'timeout';
+        toast.warning(`Pemeriksaan urlscan untuk ${result.domain} timeout setelah 2 menit.`);
+        return;
+      }
+
+      try {
+        const resData = await ctiStore.getUrlscanResult(resultId);
+        if (resData) {
+          Object.assign(result, resData);
+          if (resData.urlscan_status === 'done' || resData.urlscan_status === 'failed') {
+            clearInterval(urlscanIntervals[resultId]);
+            delete urlscanIntervals[resultId];
+            if (resData.urlscan_status === 'done') {
+              toast.success(`Urlscan selesai untuk ${result.domain}`);
+            } else {
+              toast.error(`Urlscan gagal untuk ${result.domain}`);
+            }
+          }
+        }
+      } catch (e) {
+        // Abaikan error jaringan sementara, polling berlanjut hingga timeout
+      }
+    }, 5000);
+  } catch (err) {
+    toast.error(typeof err === 'string' ? err : (err?.response?.data?.message || 'Gagal memulai urlscan.'));
+  }
+};
+
+// === EXISTING DOMAIN / SSL / DNS LOGIC (UNTOUCHED) ===
 const ownedDomains = ref(domainsList.map(d => ({
   name: d, category: 'Owned', source: 'Internal', status: 'ACTIVE', found: 'System'
 })));
@@ -487,7 +1091,6 @@ const loadSslData = async () => {
     try {
       const res = await ctiService.searchCrtSh(d);
       if (res && res.length > 0) {
-        
         let issuerStr = res[0].issuer_name;
         if (issuerStr.includes('O=')) {
            issuerStr = issuerStr.split(',').find(s => s.trim().startsWith('O='))?.replace('O=', '') || issuerStr;
@@ -547,9 +1150,12 @@ const triggerAutomatedCrawl = () => {
 onMounted(() => {
   triggerAutomatedCrawl();
   crawlInterval = setInterval(triggerAutomatedCrawl, 3600000);
+  fetchBreachHistory();
 });
 
 onUnmounted(() => {
   if (crawlInterval) clearInterval(crawlInterval);
+  if (brandScanPollInterval) clearInterval(brandScanPollInterval);
+  Object.values(urlscanIntervals).forEach(interval => clearInterval(interval));
 });
 </script>

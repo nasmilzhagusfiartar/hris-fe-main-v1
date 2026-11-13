@@ -37,6 +37,8 @@ import Statistic from "@/components/admin/team/detail/Statistic.vue";
 import Chart from "@/components/admin/team/detail/Chart.vue";
 import { useEmployeeStore } from "@/stores/employee";
 import { Search, SearchX, ChevronDown } from "lucide-vue-next";
+import SearchInput from "@/components/common/SearchInput.vue";
+import { getImageUrl, handleImageError } from "@/helpers/imageHelper";
 
 const route = useRoute();
 const router = useRouter();
@@ -190,17 +192,11 @@ watch(
             <div class="flex items-center gap-4">
               <div class="relative">
                 <img
-                  :src="team.leader.profile_photo"
-                  alt="Team Lead"
+                  :src="getImageUrl(team.leader.profile_photo, team.leader?.name || 'Team Lead')"
+                  :alt="team.leader?.name || 'Team Lead'"
+                  @error="handleImageError($event, team.leader?.name || 'Team Lead')"
                   class="w-16 h-16 rounded-full object-cover"
-                  v-if="team.leader.profile_photo"
                 />
-                <div
-                  class="w-12 h-12 rounded-[12px] flex items-center justify-center bg-gray-100"
-                  v-else
-                >
-                  <User class="w-5 h-5 text-gray-400" />
-                </div>
                 <div
                   class="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-2 border-white rounded-full"
                 ></div>
@@ -423,17 +419,11 @@ watch(
         <div class="flex flex-col items-center mb-3">
           <div class="relative">
             <img
-              :src="member.employee.user?.profile_photo"
-              alt="Team Member"
+              :src="getImageUrl(member.employee.user?.profile_photo, member.employee.user?.name || 'Team Member')"
+              :alt="member.employee.user?.name || 'Team Member'"
+              @error="handleImageError($event, member.employee.user?.name || 'Team Member')"
               class="w-[100px] h-[100px] rounded-full object-cover mb-3"
-              v-if="member.employee.user?.profile_photo"
             />
-            <div
-              class="w-12 h-12 rounded-[12px] flex items-center justify-center bg-gray-100"
-              v-else
-            >
-              <User class="w-5 h-5 text-gray-400" />
-            </div>
           </div>
         </div>
         <div class="text-center mb-3">
@@ -695,19 +685,11 @@ watch(
 
       <!-- Search Bar -->
       <div class="p-6 border-b border-[#DCDEDD]">
-        <div class="relative">
-          <div
-            class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"
-          >
-            <Search class="h-5 w-5 text-gray-400" />
-          </div>
-          <input
-            type="text"
-            class="w-full pl-12 pr-4 py-3 border border-[#DCDEDD] rounded-[16px] hover:border-[#0C51D9] hover:border-2 focus:border-[#0C51D9] focus:border-2 focus:bg-white transition-all duration-300 font-semibold"
-            placeholder="Search employees..."
-            v-model="searchMember"
-          />
-        </div>
+        <SearchInput
+          v-model="searchMember"
+          placeholder="Search employees..."
+          size="lg"
+        />
       </div>
 
       <!-- Employees List -->
@@ -725,18 +707,11 @@ watch(
                 class="w-14 h-14 relative flex items-center justify-center rounded-[12px] overflow-hidden"
               >
                 <img
-                  :src="employee.user?.profile_photo"
+                  :src="getImageUrl(employee.user?.profile_photo, employee.user?.name || 'Employee')"
                   :alt="employee.user?.name"
+                  @error="handleImageError($event, employee.user?.name || 'Employee')"
                   class="w-14 h-14 rounded-[12px] object-cover"
-                  v-if="employee.user?.profile_photo"
                 />
-
-                <div
-                  class="w-14 h-14 rounded-[12px] flex items-center justify-center bg-gray-100"
-                  v-else
-                >
-                  <User class="w-5 h-5 text-gray-400" />
-                </div>
               </div>
               <div class="flex-1">
                 <h4 class="text-brand-dark text-base font-bold">

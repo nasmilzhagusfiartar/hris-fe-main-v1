@@ -16,6 +16,7 @@ import { storeToRefs } from "pinia";
 import { ref, computed } from "vue";
 import { useRoute, RouterLink } from "vue-router";
 import _ from "lodash";
+import { getImageUrl, handleImageError } from "@/helpers/imageHelper";
 
 const authStore = useAuthStore();
 const { user } = storeToRefs(authStore);
@@ -190,17 +191,11 @@ const handleLogout = async () => {
             @click="isOpen = !isOpen"
           >
             <img
-              :src="user?.profile_photo"
-              alt="User Avatar"
+              :src="getImageUrl(user?.profile_photo, user?.name)"
+              :alt="user?.name || 'User Avatar'"
               class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover"
-              v-if="user?.profile_photo"
+              @error="(e) => handleImageError(e, user?.name)"
             />
-            <div
-              class="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center bg-gray-100"
-              v-else
-            >
-              <UserIcon class="w-5 h-5 text-gray-400" />
-            </div>
             <div class="hidden md:block text-left">
               <p class="text-brand-dark text-sm sm:text-base font-semibold">
                 {{ user?.name }}

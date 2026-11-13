@@ -18,7 +18,12 @@ export default [
     {
         path: '/admin/teams/create',
         name: 'admin.team.create',
-        component: TeamCreate
+        component: TeamCreate,
+        meta: {
+            requiresAuth: true,
+            roles: ['manager', 'admin', 'hr'],
+            permission: 'team-create',
+        }
     },
     {
         path: '/admin/teams/edit/:id',

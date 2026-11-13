@@ -168,7 +168,7 @@ const exportPdf = async () => {
 
     const doc = new jsPDF();
     doc.setFontSize(16);
-    doc.text(`HRIS Report - ${activeTab.value.toUpperCase()}`, 14, 18);
+    doc.text(`HIP HRIS Report - ${activeTab.value.toUpperCase()}`, 14, 18);
     doc.setFontSize(10);
     doc.text(`Generated on ${new Date().toLocaleDateString("id-ID")}`, 14, 25);
 

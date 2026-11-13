@@ -5,5 +5,9 @@ export default [
         path: 'reports',
         name: 'admin.reports',
         component: ReportsDashboard,
+        meta: {
+            roles: ['manager', 'admin', 'hr', 'finance'],
+            permission: 'report-view',
+        },
     },
 ];

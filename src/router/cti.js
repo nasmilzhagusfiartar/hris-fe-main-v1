@@ -9,6 +9,11 @@ export default [
         path: 'brand-protection',
         name: 'admin.cti.brand-protection',
         component: () => import('@/views/admin/cti/BrandProtection.vue'),
+        meta: {
+          requiresAuth: true,
+          roles: ['manager', 'admin', 'hr'],
+          permission: 'cti-menu',
+        },
       },
       {
         path: 'audit-user',

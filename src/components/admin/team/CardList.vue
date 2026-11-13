@@ -1,6 +1,7 @@
 <script setup>
 import { CheckCircle, Eye, Edit, User } from "lucide-vue-next";
 import { getStatusColor } from "@/utils/styleHelpers";
+import { getImageUrl, handleImageError } from "@/helpers/imageHelper";
 
 const props = defineProps({
   data: {
@@ -24,9 +25,10 @@ const props = defineProps({
           ></div>
           <!-- Lucide icon -->
           <img
-            :src="data.icon"
-            alt="Team Icon"
-            class="w-6 h-6 text-white relative z-10"
+            :src="getImageUrl(data.icon, data.name)"
+            :alt="data.name || 'Team Icon'"
+            class="w-6 h-6 text-white relative z-10 object-contain"
+            @error="(e) => handleImageError(e, data.name)"
           />
         </div>
         <div>
@@ -51,18 +53,11 @@ const props = defineProps({
     <div class="mb-4" v-if="data.leader">
       <div class="flex items-center gap-3">
         <img
-          :src="data.leader.profile_photo"
-          alt="Team Lead"
+          :src="getImageUrl(data.leader.profile_photo, data.leader.name)"
+          :alt="data.leader.name || 'Team Lead'"
           class="w-12 h-12 rounded-full object-cover"
-          v-if="data.leader.profile_photo"
+          @error="(e) => handleImageError(e, data.leader.name)"
         />
-
-        <div
-          class="w-12 h-12 rounded-[12px] flex items-center justify-center bg-gray-100"
-          v-else
-        >
-          <User class="w-5 h-5 text-gray-400" />
-        </div>
         <div class="flex-1">
           <h5 class="text-brand-dark text-sm font-semibold">
             {{ data.leader.name }}

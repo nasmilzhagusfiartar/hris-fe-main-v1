@@ -16,7 +16,9 @@ import {
 } from "lucide-vue-next";
 import { debounce } from "lodash";
 import Pagination from "@/components/admin/payroll/Pagination.vue";
+import SearchInput from "@/components/common/SearchInput.vue";
 import { formatRupiah, formatRupiahCompact } from "@/utils/formatUtils";
+import { getImageUrl, handleImageError } from "@/helpers/imageHelper";
 
 const route = useRoute();
 const router = useRouter();
@@ -324,13 +326,12 @@ const handleMarkAsPaid = async () => {
 
         <!-- Search and Filter -->
         <div class="flex items-center gap-3">
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search class="h-4 w-4 text-gray-400" />
-            </div>
-            <input type="text" v-model="searchQuery" placeholder="Search employees..."
-              class="pl-10 pr-4 py-2 border border-[#DCDEDD] rounded-[12px] hover:border-[#0C51D9] focus:border-[#0C51D9] focus:ring-2 focus:ring-blue-100 transition-all duration-300 text-sm" />
-          </div>
+          <SearchInput
+            v-model="searchQuery"
+            placeholder="Search employees..."
+            size="sm"
+            class="w-64"
+          />
 
           <select v-model="departmentFilter"
             class="px-3 py-2 border border-[#DCDEDD] rounded-[12px] hover:border-[#0C51D9] focus:border-[#0C51D9] focus:ring-2 focus:ring-blue-100 transition-all duration-300 text-sm">
@@ -380,8 +381,12 @@ const handleMarkAsPaid = async () => {
               class="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-200">
               <td class="py-4 px-4">
                 <div class="flex items-center gap-3">
-                  <img :src="emp.profile_photo || 'https://via.placeholder.com/150'
-                    " :alt="emp.name" class="w-10 h-10 rounded-full object-cover" />
+                  <img
+                    :src="getImageUrl(emp.profile_photo, emp.name || 'Employee')"
+                    :alt="emp.name"
+                    @error="handleImageError($event, emp.name || 'Employee')"
+                    class="w-10 h-10 rounded-full object-cover"
+                  />
                   <div>
                     <p class="text-brand-dark text-sm font-semibold">
                       {{ emp.name }}

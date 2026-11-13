@@ -2,6 +2,7 @@
 import { Clock, User } from "lucide-vue-next";
 import { getPriorityColor } from "@/utils/styleHelpers";
 import { formatDate } from "@/utils/dateUtils";
+import { getImageUrl, handleImageError } from "@/helpers/imageHelper";
 
 defineProps({
   task: {
@@ -47,20 +48,12 @@ const handleClick = () => {
       <div class="flex items-center gap-2">
         <template v-if="task.assignee">
           <img
-            :src="task.assignee.user.profile_photo"
-            :alt="task.assignee.user.name"
+            :src="getImageUrl(task.assignee.user?.profile_photo, task.assignee.user?.name || 'Assignee')"
+            :alt="task.assignee.user?.name"
+            @error="handleImageError($event, task.assignee.user?.name || 'Assignee')"
             class="w-7 h-7 rounded-full object-cover ring-2 ring-white"
-            :title="task.assignee.name"
-            v-if="task.assignee.user.profile_photo"
+            :title="task.assignee.user?.name || task.assignee.name"
           />
-
-          <div
-            class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center"
-            title="Unassigned"
-            v-else
-          >
-            <User class="w-3.5 h-3.5 text-gray-400" />
-          </div>
         </template>
         <template v-else>
           <div

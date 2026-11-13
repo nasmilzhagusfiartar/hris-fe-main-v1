@@ -26,7 +26,16 @@ export const useDashboardStore = defineStore("dashboard", {
                 new_projects: 0,
             },
         },
+        quickActionCounts: {
+            pending_leave_requests: 0,
+            pending_payrolls: 0,
+            brand_threats_count: 0,
+            breached_emails_count: 0,
+            my_pending_leaves: 0,
+            my_pending_tasks: 0,
+        },
         loading: false,
+        loadingCounts: false,
         error: null,
     }),
 
@@ -43,6 +52,26 @@ export const useDashboardStore = defineStore("dashboard", {
                 this.error = handleError(error);
             } finally {
                 this.loading = false;
+            }
+        },
+
+        async fetchQuickActionCounts() {
+            this.loadingCounts = true;
+
+            try {
+                const response = await axiosInstance.get('/dashboard/quick-action-counts');
+                if (response.data?.data) {
+                    this.quickActionCounts = {
+                        ...this.quickActionCounts,
+                        ...response.data.data,
+                    };
+                }
+                return this.quickActionCounts;
+            } catch (error) {
+                // Silent fallback if endpoint is unreachable
+                return this.quickActionCounts;
+            } finally {
+                this.loadingCounts = false;
             }
         },
     }

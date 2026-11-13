@@ -27,6 +27,7 @@ import {
 } from "@/utils/dateUtils.js";
 import { capitalize } from "@/utils/formatUtils.js";
 import { can } from "@/helpers/permissionHelper";
+import { getImageUrl, handleImageError } from "@/helpers/imageHelper";
 
 const attendanceStore = useAttendanceStore();
 const leaveRequestStore = useLeaveRequestStore();
@@ -424,10 +425,18 @@ onMounted(async () => {
           >
             <img
               :src="
-                request.employee?.user?.profile_photo ||
-                'https://via.placeholder.com/100'
+                getImageUrl(
+                  request.employee?.user?.profile_photo,
+                  request.employee?.user?.name || 'Employee'
+                )
               "
               :alt="request.employee?.user?.name"
+              @error="
+                handleImageError(
+                  $event,
+                  request.employee?.user?.name || 'Employee'
+                )
+              "
               class="w-12 h-12 rounded-full object-cover"
             />
             <div class="flex-1">
@@ -532,10 +541,18 @@ onMounted(async () => {
           >
             <img
               :src="
-                attendance.employee?.user?.profile_photo ||
-                'https://via.placeholder.com/100'
+                getImageUrl(
+                  attendance.employee?.user?.profile_photo,
+                  attendance.employee?.user?.name || 'Employee'
+                )
               "
               :alt="attendance.employee?.user?.name"
+              @error="
+                handleImageError(
+                  $event,
+                  attendance.employee?.user?.name || 'Employee'
+                )
+              "
               class="w-12 h-12 rounded-full object-cover"
             />
             <div class="flex-1">

@@ -7,6 +7,10 @@ export default [
         path: 'attendances',
         name: 'admin.attendances',
         component: AttendanceList,
+        meta: {
+            roles: ['manager', 'admin', 'hr', 'finance'],
+            permission: 'attendance-list',
+        },
     },
     {
         path: 'attendance/my-attendances',

@@ -3,6 +3,7 @@ import { Building, Calendar, Edit, Share, Users } from "lucide-vue-next";
 import { RouterLink } from "vue-router";
 import _ from "lodash";
 import { formatToClientTimezone } from "@/helpers/format";
+import { getImageUrl, handleImageError } from "@/helpers/imageHelper";
 
 const props = defineProps({
   team: {
@@ -24,9 +25,10 @@ const props = defineProps({
           ></div>
           <!-- Lucide icon -->
           <img
-            class="w-16 h-16 text-white relative z-10"
-            :src="team.icon"
-            alt="Team Icon"
+            class="w-16 h-16 text-white relative z-10 object-contain"
+            :src="getImageUrl(team.icon, team.name)"
+            :alt="team.name || 'Team Icon'"
+            @error="(e) => handleImageError(e, team.name)"
           />
         </div>
       </div>

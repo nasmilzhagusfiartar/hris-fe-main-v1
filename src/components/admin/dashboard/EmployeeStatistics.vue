@@ -195,10 +195,10 @@ onMounted(() => {
       </p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
       <!-- My Attendance Card (spans 2 rows on the left) -->
       <div
-        class="main-card lg:row-span-2 rounded-[20px] border border-[#0B1042] relative overflow-hidden p-4 sm:p-5"
+        class="main-card md:col-span-2 lg:col-span-1 lg:row-span-2 rounded-[20px] border border-[#0B1042] relative overflow-hidden p-4 sm:p-5"
       >
         <div class="flex flex-col justify-center h-full relative z-10">
           <!-- Trending Badge -->
@@ -303,9 +303,6 @@ onMounted(() => {
         </div>
       </div>
 
-      <!-- Quick Actions Card (spans 2 rows on the right) -->
-      <QuickActions />
-
       <!-- Row 2 Stats Cards -->
       <!-- Tasks Done -->
       <div
@@ -356,6 +353,9 @@ onMounted(() => {
         </div>
       </div>
     </div>
+
+    <!-- Quick Actions Section (Dedicated Full-Width Section) -->
+    <QuickActions />
   </div>
 
   <!-- Additional Sections -->

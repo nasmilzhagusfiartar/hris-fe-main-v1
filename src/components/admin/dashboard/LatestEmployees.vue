@@ -5,6 +5,7 @@ import { useRouter } from "vue-router";
 import { User } from "lucide-vue-next";
 import { getTimeAgo } from "@/utils/dateUtils";
 import { getSkillLevelBadgeClass } from "@/utils/badgeUtils";
+import { getImageUrl, handleImageError } from "@/helpers/imageHelper";
 import { storeToRefs } from "pinia";
 
 const employeeStore = useEmployeeStore();
@@ -20,7 +21,7 @@ onMounted(() => {
 });
 
 const goToEmployeeDetail = (id: number) => {
-  router.push({ name: "employee-detail", params: { id } });
+  router.push({ name: "admin.employees.detail", params: { id } });
 };
 </script>
 
@@ -63,17 +64,11 @@ const goToEmployeeDetail = (id: number) => {
         class="flex flex-col sm:flex-row sm:items-center gap-3"
       >
         <img
-          :src="employee.user?.profile_photo"
-          :alt="employee.user?.name"
-          class="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover"
-          v-if="employee?.user?.profile_photo"
+          :src="getImageUrl(employee.user?.profile_photo, employee.user?.name)"
+          :alt="employee.user?.name || 'Employee'"
+          class="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover shrink-0"
+          @error="(e) => handleImageError(e, employee.user?.name)"
         />
-        <div
-          class="w-12 h-12 sm:w-20 sm:h-20 rounded-full flex items-center justify-center bg-gray-100"
-          v-else
-        >
-          <User class="w-5 h-5 text-gray-400" />
-        </div>
         <div class="flex-1">
           <div class="flex items-center gap-2 flex-wrap">
             <p class="text-brand-dark text-base sm:text-lg font-bold">

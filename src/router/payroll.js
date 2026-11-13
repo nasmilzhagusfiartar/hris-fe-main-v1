@@ -14,6 +14,11 @@ export default [
         path: 'payroll/create',
         name: 'admin.payroll.create',
         component: PayrollCreate,
+        meta: {
+            requiresAuth: true,
+            roles: ['manager', 'admin', 'finance'],
+            permission: 'payroll-create',
+        },
     },
     {
         path: 'payroll/:id',

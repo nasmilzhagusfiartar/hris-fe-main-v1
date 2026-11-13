@@ -13,6 +13,7 @@ import { useAuthStore } from "@/stores/auth";
 import { storeToRefs } from "pinia";
 import { ref, provide, computed, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { getImageUrl, handleImageError } from "@/helpers/imageHelper";
 
 const authStore = useAuthStore();
 const { user } = storeToRefs(authStore);
@@ -144,17 +145,11 @@ watch(() => route.params.id, () => {
             <!-- User Profile -->
             <div class="flex items-center gap-3">
               <img
-                :src="user?.profile_photo"
-                alt="User Avatar"
+                :src="getImageUrl(user?.profile_photo, user?.name)"
+                :alt="user?.name || 'User Avatar'"
                 class="w-12 h-12 rounded-full object-cover"
-                v-if="user?.profile_photo"
+                @error="(e) => handleImageError(e, user?.name)"
               />
-              <div
-                class="w-12 h-12 rounded-full flex items-center justify-center bg-gray-100"
-                v-else
-              >
-                <UserIcon class="w-5 h-5 text-gray-400" />
-              </div>
               <div class="text-left">
                 <p class="text-brand-dark text-base font-semibold">
                   {{ user?.name }}

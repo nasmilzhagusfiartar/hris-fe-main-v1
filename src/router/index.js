@@ -83,6 +83,8 @@ const router = createRouter({
       component: EmployeeCreateLayout,
       meta: {
         requiresAuth: true,
+        roles: ['manager', 'admin', 'hr'],
+        permission: 'employee-create',
       },
       children: [
         {
@@ -146,6 +148,25 @@ router.beforeEach(async (to, from, next) => {
       try {
         if (!authStore.user) {
           await authStore.checkAuth()
+        }
+
+        const userRoles = (authStore.user?.roles || []).map(r =>
+          typeof r === 'string' ? r.toLowerCase() : (r?.name || '').toLowerCase()
+        )
+        const userPermissions = (authStore.user?.permissions || []).map(p =>
+          typeof p === 'string' ? p : (p?.name || '')
+        )
+
+        if (to.meta.role && !userRoles.includes(to.meta.role.toLowerCase())) {
+          return next({ name: 'admin.dashboard' })
+        }
+
+        if (Array.isArray(to.meta.roles) && to.meta.roles.length > 0) {
+          const hasRole = to.meta.roles.some(role => userRoles.includes(role.toLowerCase()))
+          const hasPerm = to.meta.permission ? userPermissions.includes(to.meta.permission) : false
+          if (!hasRole && !hasPerm) {
+            return next({ name: 'admin.dashboard' })
+          }
         }
 
         next()

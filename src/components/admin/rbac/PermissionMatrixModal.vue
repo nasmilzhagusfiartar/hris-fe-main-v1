@@ -11,6 +11,7 @@ import {
   Filter,
 } from "lucide-vue-next";
 import { capitalize } from "@/utils/formatUtils";
+import SearchInput from "@/components/common/SearchInput.vue";
 
 const props = defineProps({
   show: {
@@ -211,23 +212,12 @@ const handleSave = () => {
           class="px-6 py-3 bg-gray-50 border-b border-[#DCDEDD] flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0"
         >
           <!-- Search Input -->
-          <div class="relative w-full sm:w-80">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search class="w-4 h-4 text-gray-400" />
-            </div>
-            <input
-              type="text"
+          <div class="w-full sm:w-80">
+            <SearchInput
               v-model="searchQuery"
               placeholder="Cari permission atau modul..."
-              class="w-full pl-10 pr-4 py-3 text-sm bg-white border border-[#DCDEDD] rounded-xl focus:outline-none focus:border-[#0C51D9] transition-all"
+              input-class="py-2 text-sm bg-white border border-[#DCDEDD] rounded-xl focus:outline-none focus:border-[#0C51D9] focus:ring-1 focus:ring-[#0C51D9] transition-all"
             />
-            <button
-              v-if="searchQuery"
-              @click="searchQuery = ''"
-              class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 cursor-pointer"
-            >
-              <X class="w-4 h-4" />
-            </button>
           </div>
 
           <!-- Total Counter & Master Buttons -->

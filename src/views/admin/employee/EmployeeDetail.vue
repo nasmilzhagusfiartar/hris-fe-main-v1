@@ -8,6 +8,7 @@ import {
   getJobStatusText,
 } from "@/utils/formatUtils.js";
 import ConfirmationModal from "@/components/common/ConfirmationModal.vue";
+import { getImageUrl, handleImageError } from "@/helpers/imageHelper";
 import { useRoute, useRouter } from "vue-router";
 import { useEmployeeStore } from "@/stores/employee";
 import { storeToRefs } from "pinia";
@@ -127,17 +128,11 @@ onMounted(() => {
       <div class="flex items-center gap-6">
         <div class="relative">
           <img
-            :src="employee.user?.profile_photo"
-            v-if="employee.user?.profile_photo"
-            alt="Employee"
+            :src="getImageUrl(employee.user?.profile_photo, employee.user?.name || 'Employee')"
+            :alt="employee.user?.name || 'Employee'"
+            @error="handleImageError($event, employee.user?.name || 'Employee')"
             class="w-32 h-32 rounded-full object-cover"
           />
-          <div
-            v-else
-            class="w-32 h-32 rounded-full bg-gray-100 flex items-center justify-center"
-          >
-            <User class="w-16 h-16 text-gray-400" />
-          </div>
           <span
             :class="statusBadgeClass"
             class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 px-3 py-1 rounded-full text-sm font-semibold whitespace-nowrap"
