@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, reactive } from "vue";
+import { useI18n } from "vue-i18n";
 import { storeToRefs } from "pinia";
 import {
   Bell,
@@ -15,6 +16,7 @@ import Select from "@/components/common/form/Select.vue";
 import TextArea from "@/components/common/form/TextArea.vue";
 import Alert from "@/components/common/Alert.vue";
 
+const { t } = useI18n();
 const settingsStore = useSettingsStore();
 const authStore = useAuthStore();
 const { company, notifications, loading, error, success } = storeToRefs(settingsStore);
@@ -35,11 +37,11 @@ const canEditCompany = computed(() => {
 const tabs = computed(() => {
   const list = [];
   if (canEditCompany.value) {
-    list.push({ key: "general", label: "General", icon: Building });
+    list.push({ key: "general", label: t("settings.tabs.general"), icon: Building });
   }
   list.push(
-    { key: "notifications", label: "Notifications", icon: Bell },
-    { key: "security", label: "Security", icon: ShieldCheck }
+    { key: "notifications", label: t("settings.tabs.notifications"), icon: Bell },
+    { key: "security", label: t("settings.tabs.security"), icon: ShieldCheck }
   );
   return list;
 });
@@ -108,21 +110,21 @@ const submitPasswordChange = async () => {
 <template>
   <div>
     <div class="mb-6">
-      <h1 class="text-brand-dark text-2xl font-bold">Settings</h1>
+      <h1 class="text-brand-dark text-2xl font-bold">{{ t("settings.title") }}</h1>
       <p class="text-brand-light text-sm mt-1">
         {{
           canEditCompany
-            ? "Manage company information, notification preferences, and account security."
-            : "Manage your notification preferences and account security."
+            ? t("settings.subtitleAdmin")
+            : t("settings.subtitlePersonal")
         }}
       </p>
     </div>
 
-    <Alert v-if="success" type="success" title="Success" :message="success" :show="!!success" />
+    <Alert v-if="success" type="success" :title="t('common.success')" :message="success" :show="!!success" />
     <Alert
       v-if="error && typeof error === 'string'"
       type="danger"
-      title="Failed to load or save settings"
+      :title="t('settings.loadErrorTitle')"
       :message="error"
       :show="!!error"
     />

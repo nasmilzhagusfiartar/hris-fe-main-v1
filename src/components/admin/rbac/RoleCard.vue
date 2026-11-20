@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import {
   ShieldCheck,
   Shield,
@@ -17,7 +18,9 @@ import {
   Users,
   Lock,
 } from "lucide-vue-next";
-import { formatRoleLabel } from "@/constants/labels";
+import { formatRoleLabel } from "@/plugins/i18n";
+
+const { t } = useI18n();
 
 const props = defineProps({
   role: {
@@ -103,19 +106,19 @@ const getRoleGradient = (roleName) => {
           class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300 shrink-0"
         >
           <Crown class="w-3.5 h-3.5" />
-          Super Admin
+          {{ t("roles.super-admin") }}
         </span>
         <span
           v-else-if="role.is_system_role"
           class="px-2.5 py-1 rounded-md text-xs font-semibold bg-[#EBF8FF] text-[#1E40AF] shrink-0"
         >
-          System
+          {{ t("rbac.system") }}
         </span>
         <span
           v-else
           class="px-2.5 py-1 rounded-md text-xs font-semibold bg-purple-100 text-purple-700 shrink-0"
         >
-          Custom
+          {{ t("rbac.custom") }}
         </span>
       </div>
 
@@ -125,7 +128,7 @@ const getRoleGradient = (roleName) => {
       <!-- Permissions Progress Bar -->
       <div class="mb-4">
         <div class="flex items-center justify-between text-xs mb-2">
-          <span class="text-brand-light font-medium">Active Permissions</span>
+          <span class="text-brand-light font-medium">{{ t("rbac.activePermissions") }}</span>
           <span class="text-brand-dark font-bold">
             {{ role.permissions_count || 0 }}
             <span class="text-gray-400 font-normal">/ {{ totalAvailablePermissions }}</span>
@@ -150,7 +153,7 @@ const getRoleGradient = (roleName) => {
       <div class="space-y-2 mb-2">
         <div class="flex items-center gap-1.5 text-xs text-brand-light mb-1.5">
           <Layers class="w-3.5 h-3.5 text-gray-500" />
-          <span class="font-medium">Assigned Permissions:</span>
+          <span class="font-medium">{{ t("rbac.assignedPermissions") }}</span>
         </div>
         <div class="flex flex-wrap gap-1.5 min-h-[32px]">
           <template v-if="role.permissions && role.permissions.length > 0">
@@ -165,11 +168,11 @@ const getRoleGradient = (roleName) => {
               v-if="role.permissions.length > 3"
               class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-blue-50 text-[#0C51D9]"
             >
-              +{{ role.permissions.length - 3 }} more
+              {{ t("rbac.moreCount", { count: role.permissions.length - 3 }) }}
             </span>
           </template>
           <span v-else class="text-xs text-gray-400 italic">
-            No permissions assigned yet
+            {{ t("rbac.noPermissions") }}
           </span>
         </div>
       </div>
@@ -182,7 +185,7 @@ const getRoleGradient = (roleName) => {
       <!-- Action Buttons -->
       <div v-if="isSuperAdminRole" class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-[8px] bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold">
         <Lock class="w-3.5 h-3.5" />
-        <span>Protected Role (Full System Access)</span>
+        <span>{{ t("rbac.protectedRole") }}</span>
       </div>
       <div v-else class="flex items-center gap-2">
         <button
@@ -192,7 +195,7 @@ const getRoleGradient = (roleName) => {
         >
           <Key class="w-4 h-4 text-gray-600 group-hover:text-[#0C51D9] transition-colors" />
           <span class="text-brand-dark text-sm font-semibold group-hover:text-[#0C51D9] transition-colors">
-            Manage Permissions
+            {{ t("rbac.managePermissions") }}
           </span>
         </button>
 
@@ -201,7 +204,7 @@ const getRoleGradient = (roleName) => {
           <button
             type="button"
             @click="emit('editRole', role)"
-            title="Edit Role Name"
+            :title="t('rbac.editRoleName')"
             class="border border-[#DCDEDD] rounded-[8px] hover:border-[#0C51D9] hover:border-2 hover:bg-gray-50 transition-all duration-300 p-2.5 flex items-center justify-center text-gray-600 hover:text-[#0C51D9] cursor-pointer"
           >
             <Edit class="w-4 h-4" />
@@ -209,7 +212,7 @@ const getRoleGradient = (roleName) => {
           <button
             type="button"
             @click="emit('deleteRole', role)"
-            title="Delete Role"
+            :title="t('rbac.deleteRole')"
             class="border border-[#DCDEDD] rounded-[8px] hover:border-red-500 hover:border-2 hover:bg-red-50 transition-all duration-300 p-2.5 flex items-center justify-center text-gray-600 hover:text-red-600 cursor-pointer"
           >
             <Trash2 class="w-4 h-4" />

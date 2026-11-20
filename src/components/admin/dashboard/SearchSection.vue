@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
 import {
   SearchIcon,
   BuildingIcon,
@@ -34,6 +35,7 @@ interface SearchResultItem {
   };
 }
 
+const { t } = useI18n();
 const router = useRouter();
 const authStore = useAuthStore();
 
@@ -479,7 +481,7 @@ onUnmounted(() => {
           aria-label="Global search"
           class="w-full pl-12 pr-20 py-3 border border-[#DCDEDD] rounded-[16px] text-sm sm:text-base text-brand-dark hover:border-[#0C51D9] focus:border-[#0C51D9] focus:ring-2 focus:ring-blue-100 focus:outline-none focus:bg-white transition-all duration-200"
           style="padding-left: 3rem; padding-right: 5rem;"
-          placeholder="Search employees, teams, projects, tasks, attendance, or pages... (Ctrl+K)"
+          :placeholder="t('search.placeholder')"
           @focus="searchQuery.trim().length >= 2 && (isOpen = true)"
           @keydown="handleKeydown"
         />
@@ -525,7 +527,7 @@ onUnmounted(() => {
             class="w-full sm:w-auto pl-10 pr-8 py-3 border border-[#DCDEDD] rounded-[16px] text-sm font-medium text-brand-dark hover:border-[#0C51D9] focus:border-[#0C51D9] focus:outline-none transition-all duration-200 bg-white appearance-none cursor-pointer"
             style="padding-left: 2.5rem; padding-right: 2rem;"
           >
-            <option value="All Departments">All Departments</option>
+            <option value="All Departments">{{ t("search.allDepartments") }}</option>
             <option value="development">Development</option>
             <option value="design">Design</option>
             <option value="marketing">Marketing</option>
@@ -554,7 +556,7 @@ onUnmounted(() => {
             class="w-full sm:w-auto pl-10 pr-8 py-3 border border-[#DCDEDD] rounded-[16px] text-sm font-medium text-brand-dark hover:border-[#0C51D9] focus:border-[#0C51D9] focus:outline-none transition-all duration-200 bg-white appearance-none cursor-pointer"
             style="padding-left: 2.5rem; padding-right: 2rem;"
           >
-            <option value="All Status">All Status</option>
+            <option value="All Status">{{ t("search.allStatus") }}</option>
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
             <option value="pending">Pending</option>
@@ -574,7 +576,7 @@ onUnmounted(() => {
         >
           <SearchIcon class="w-4 h-4 text-white shrink-0" />
           <span class="text-brand-white text-sm sm:text-base font-semibold">
-            Search
+            {{ t("common.search") }}
           </span>
         </button>
       </div>

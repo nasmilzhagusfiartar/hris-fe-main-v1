@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
-import { LABELS } from '@/constants/labels'
+import i18n from '@/plugins/i18n'
 import AuthLayout from '@/layouts/Auth.vue'
 import AdminLayout from '@/layouts/Admin.vue'
 import Login from '@/views/auth/Login.vue'
@@ -155,7 +155,7 @@ router.beforeEach(async (to, from, next) => {
         // Enforce mandatory MFA setup for enforced roles before accessing any other page
         if (authStore.user?.mfa_setup_required && to.name !== 'employee.profile.edit') {
           const toast = useToastStore()
-          toast.warning('Please complete MFA setup before accessing other pages.')
+          toast.warning(i18n.global.t('auth.mfaSetupRequiredToast'))
           return next({
             name: 'employee.profile.edit',
             query: { tab: 'security', enforce_mfa: '1' },
@@ -175,7 +175,7 @@ router.beforeEach(async (to, from, next) => {
 
         if (to.meta.role && !userRoles.includes(to.meta.role.toLowerCase())) {
           const toast = useToastStore()
-          toast.error(LABELS.NO_ACCESS)
+          toast.error(i18n.global.t('common.noAccess'))
           return next({ name: 'admin.dashboard' })
         }
 
@@ -184,12 +184,12 @@ router.beforeEach(async (to, from, next) => {
           const hasPerm = to.meta.permission ? userPermissions.includes(to.meta.permission) : false
           if (!hasRole && !hasPerm) {
             const toast = useToastStore()
-            toast.error(LABELS.NO_ACCESS)
+            toast.error(i18n.global.t('common.noAccess'))
             return next({ name: 'admin.dashboard' })
           }
         } else if (to.meta.permission && !userPermissions.includes(to.meta.permission)) {
           const toast = useToastStore()
-          toast.error(LABELS.NO_ACCESS)
+          toast.error(i18n.global.t('common.noAccess'))
           return next({ name: 'admin.dashboard' })
         }
 

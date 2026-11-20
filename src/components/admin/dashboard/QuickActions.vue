@@ -1,11 +1,18 @@
 <script setup lang="ts">
 import { computed, onMounted } from "vue";
 import { RouterLink } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { useDashboardStore } from "@/stores/dashboard";
 import { can } from "@/helpers/permissionHelper";
 import { quickActionsConfig } from "@/config/quickActions";
 
+const { t, te } = useI18n();
 const dashboardStore = useDashboardStore();
+
+const getActionLabel = (action: { key: string; label: string }) => {
+  const path = `quickActions.items.${action.key}`;
+  return te(path) ? t(path) : action.label;
+};
 
 // Purely permission-based filtering from authStore.user.permissions
 const visibleActions = computed(() => {
@@ -36,29 +43,29 @@ onMounted(() => {
           id="quick-actions-heading"
           class="text-brand-dark text-base sm:text-lg font-bold leading-tight"
         >
-          Quick Actions
+          {{ t("quickActions.title") }}
         </h3>
         <p class="text-xs text-gray-500 mt-0.5">
-          Quick shortcuts based on your permissions
+          {{ t("quickActions.subtitle") }}
         </p>
       </div>
       <span
         class="text-xs text-[#0C51D9] bg-blue-50 border border-blue-100 px-2.5 py-1 rounded-full font-semibold shrink-0"
       >
-        {{ visibleActions.length }} Shortcuts
+        {{ t("quickActions.shortcutsCount", { count: visibleActions.length }) }}
       </span>
     </div>
 
     <div
       class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
       role="group"
-      aria-label="Quick Actions"
+      :aria-label="t('quickActions.title')"
     >
       <RouterLink
         v-for="(action, index) in visibleActions"
         :key="action.key"
         :to="action.route"
-        :aria-label="action.ariaLabel || action.label"
+        :aria-label="getActionLabel(action)"
         :class="[
           action.primary || index === 0
             ? 'border-[#2151A0] blue-gradient blue-btn-shadow text-white hover:brightness-110 active:scale-[0.98]'
@@ -83,7 +90,7 @@ onMounted(() => {
             v-if="action.badgeKey && getBadgeValue(action.badgeKey) > 0"
             :class="action.badgeColor || 'bg-blue-600 text-white'"
             class="min-w-[22px] h-5 px-1.5 rounded-full text-[11px] font-bold inline-flex items-center justify-center shadow-sm shrink-0"
-            :title="`${getBadgeValue(action.badgeKey)} item(s) need attention`"
+            :title="t('quickActions.needAttention', { count: getBadgeValue(action.badgeKey) })"
           >
             {{ getBadgeValue(action.badgeKey) }}
           </span>
@@ -97,7 +104,7 @@ onMounted(() => {
           ]"
           class="w-full text-xs sm:text-sm leading-snug line-clamp-2 text-ellipsis overflow-hidden break-words transition-colors"
         >
-          {{ action.label }}
+          {{ getActionLabel(action) }}
         </span>
       </RouterLink>
     </div>

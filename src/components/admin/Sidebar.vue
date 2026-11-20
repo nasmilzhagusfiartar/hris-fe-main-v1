@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import {
   BuildingIcon,
   HomeIcon,
@@ -23,6 +24,7 @@ import { useAuthStore } from "@/stores/auth";
 const props = defineProps(["isOpen"]);
 const emit = defineEmits(["navigate"]);
 
+const { t } = useI18n();
 const onNavigate = () => emit("navigate");
 const authStore = useAuthStore();
 
@@ -109,13 +111,13 @@ const hasOthersAccess = computed(() => {
 
 // Portal title
 const portalSubtitle = computed(() => {
-  if (isSuperAdmin.value) return "Super Admin Portal";
-  if (isAdmin.value) return "Admin Portal";
-  if (isSecurity.value) return "Security Portal";
-  if (isEmployee.value) return "Employee Portal";
-  if (isHr.value) return "HR Portal";
-  if (isFinance.value) return "Finance Portal";
-  return "Manager Dashboard";
+  if (isSuperAdmin.value) return t("nav.portals.superAdmin");
+  if (isAdmin.value) return t("nav.portals.admin");
+  if (isSecurity.value) return t("nav.portals.security");
+  if (isEmployee.value) return t("nav.portals.employee");
+  if (isHr.value) return t("nav.portals.hr");
+  if (isFinance.value) return t("nav.portals.finance");
+  return t("nav.portals.manager");
 });
 </script>
 
@@ -163,7 +165,7 @@ const portalSubtitle = computed(() => {
     <nav class="px-6 py-4 space-y-6 overflow-y-auto flex-1 custom-scrollbar">
       <!-- 1. MAIN / DASHBOARD -->
       <div>
-        <h3 class="section-title">MAIN</h3>
+        <h3 class="section-title">{{ t("nav.sections.main") }}</h3>
         <div class="space-y-2">
           <RouterLink
             :to="{ name: 'admin.dashboard' }"
@@ -185,7 +187,7 @@ const portalSubtitle = computed(() => {
                 'text-brand-white': $route.name === 'admin.dashboard',
               }"
             >
-              Dashboard
+              {{ t("nav.dashboard") }}
             </span>
           </RouterLink>
         </div>
@@ -193,7 +195,7 @@ const portalSubtitle = computed(() => {
 
       <!-- 2. MANAGEMENT SECTION (Admin, HR, Manager, Finance) -->
       <div v-if="hasManagementAccess">
-        <h3 class="section-title">MANAGEMENT</h3>
+        <h3 class="section-title">{{ t("nav.sections.management") }}</h3>
         <div class="space-y-2">
           <!-- Our Teams -->
           <RouterLink
@@ -217,7 +219,7 @@ const portalSubtitle = computed(() => {
                 'text-brand-white': $route.name?.startsWith('admin.team'),
               }"
             >
-              Our Teams
+              {{ t("nav.teams") }}
             </span>
           </RouterLink>
 
@@ -243,7 +245,7 @@ const portalSubtitle = computed(() => {
                 'text-brand-white': $route.name?.startsWith('admin.employee'),
               }"
             >
-              Employees
+              {{ t("nav.employees") }}
             </span>
           </RouterLink>
 
@@ -269,7 +271,7 @@ const portalSubtitle = computed(() => {
                 'text-brand-white': $route.name === 'admin.attendances',
               }"
             >
-              Attendance
+              {{ t("nav.attendance") }}
             </span>
           </RouterLink>
 
@@ -295,7 +297,7 @@ const portalSubtitle = computed(() => {
                 'text-brand-white': $route.name?.startsWith('admin.project'),
               }"
             >
-              Projects
+              {{ t("nav.projects") }}
             </span>
           </RouterLink>
 
@@ -321,7 +323,7 @@ const portalSubtitle = computed(() => {
                 'text-brand-white': $route.name?.startsWith('admin.payroll'),
               }"
             >
-              Payroll
+              {{ t("nav.payroll") }}
             </span>
           </RouterLink>
 
@@ -347,7 +349,7 @@ const portalSubtitle = computed(() => {
                 'text-brand-white': $route.name?.startsWith('admin.roles'),
               }"
             >
-              Roles
+              {{ t("nav.roles") }}
             </span>
           </RouterLink>
 
@@ -373,7 +375,7 @@ const portalSubtitle = computed(() => {
                 'text-brand-white': $route.name?.startsWith('admin.permissions'),
               }"
             >
-              Permissions
+              {{ t("nav.permissions") }}
             </span>
           </RouterLink>
         </div>
@@ -382,7 +384,7 @@ const portalSubtitle = computed(() => {
       <!-- 3. EMPLOYEE SELF-SERVICE SECTION (ESS / Personal) -->
       <div v-if="hasSelfServiceAccess">
         <h3 class="section-title">
-          {{ isEmployee ? "MY WORKSPACE" : "PERSONAL WORKSPACE" }}
+          {{ isEmployee ? t("nav.sections.myWorkspace") : t("nav.sections.personalWorkspace") }}
         </h3>
         <div class="space-y-2">
           <!-- Clock In / Out -->
@@ -407,7 +409,7 @@ const portalSubtitle = computed(() => {
                 'text-brand-white': $route.name === 'employee.attendance.clock',
               }"
             >
-              Clock In/Out
+              {{ t("nav.clockInOut") }}
             </span>
           </RouterLink>
 
@@ -436,7 +438,7 @@ const portalSubtitle = computed(() => {
                   $route.name === 'employee.attendance.my-attendances',
               }"
             >
-              My Attendance
+              {{ t("nav.myAttendance") }}
             </span>
           </RouterLink>
 
@@ -463,7 +465,7 @@ const portalSubtitle = computed(() => {
                   $route.name?.startsWith('employee.payslips'),
               }"
             >
-              My Payslips
+              {{ t("nav.myPayslips") }}
             </span>
           </RouterLink>
 
@@ -489,7 +491,7 @@ const portalSubtitle = computed(() => {
                 'text-brand-white': $route.name === 'employee.team',
               }"
             >
-              My Team
+              {{ t("nav.myTeam") }}
             </span>
           </RouterLink>
 
@@ -515,7 +517,7 @@ const portalSubtitle = computed(() => {
                 'text-brand-white': $route.name === 'employee.profile',
               }"
             >
-              My Profile
+              {{ t("nav.myProfile") }}
             </span>
           </RouterLink>
         </div>
@@ -523,7 +525,7 @@ const portalSubtitle = computed(() => {
 
       <!-- 4. CYBER THREAT INTEL SECTION (Security / Monitoring) -->
       <div v-if="hasCtiAccess">
-        <h3 class="section-title">CYBER THREAT INTEL</h3>
+        <h3 class="section-title">{{ t("nav.sections.cti") }}</h3>
         <div class="space-y-2">
           <RouterLink
             :to="{ name: 'admin.cti.brand-protection' }"
@@ -546,7 +548,7 @@ const portalSubtitle = computed(() => {
                   $route.name === 'admin.cti.brand-protection',
               }"
             >
-              {{ hasFullCtiAccess ? "Brand Protection" : "Email Breach" }}
+              {{ hasFullCtiAccess ? t("nav.brandProtection") : t("nav.emailBreach") }}
             </span>
           </RouterLink>
 
@@ -571,7 +573,7 @@ const portalSubtitle = computed(() => {
                 'text-brand-white': $route.name === 'admin.cti.audit-user',
               }"
             >
-              Audit User
+              {{ t("nav.auditUser") }}
             </span>
           </RouterLink>
         </div>
@@ -579,7 +581,7 @@ const portalSubtitle = computed(() => {
 
       <!-- 5. OTHERS (Reports & Settings) -->
       <div v-if="hasOthersAccess">
-        <h3 class="section-title">OTHERS</h3>
+        <h3 class="section-title">{{ t("nav.sections.others") }}</h3>
         <div class="space-y-2">
           <RouterLink
             v-if="(can('report-menu') || can('report-view') || isAdmin || isManager || isHr || isFinance) && !isEmployee && !isSecurity"
@@ -602,7 +604,7 @@ const portalSubtitle = computed(() => {
                 'text-brand-white': $route.name === 'admin.reports',
               }"
             >
-              Reports
+              {{ t("nav.reports") }}
             </span>
           </RouterLink>
 
@@ -627,7 +629,7 @@ const portalSubtitle = computed(() => {
                 'text-brand-white': $route.name === 'admin.settings',
               }"
             >
-              Settings
+              {{ t("nav.settings") }}
             </span>
           </RouterLink>
         </div>

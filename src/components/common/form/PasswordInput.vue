@@ -46,7 +46,7 @@
         type="button"
         @click="toggleVisibility"
         :disabled="disabled"
-        :aria-label="isVisible ? 'Hide password' : 'Show password'"
+        :aria-label="isVisible ? t('common.hidePassword') : t('common.showPassword')"
         :aria-pressed="isVisible"
         class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-700 focus:outline-none focus:text-[#0C51D9] transition-colors cursor-pointer disabled:opacity-50"
       >
@@ -63,7 +63,10 @@
 
 <script setup>
 import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { Eye, EyeOff, Lock } from "lucide-vue-next";
+
+const { t } = useI18n();
 
 const props = defineProps({
   id: { type: String, required: true },

@@ -4,6 +4,7 @@ import { useRoute } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import { axiosInstance } from "@/plugins/axios";
 import { getImageUrl, handleImageError } from "@/helpers/imageHelper";
+import { getTimezoneLabel } from "@/utils/dateUtils";
 import {
   ShieldCheck,
   Monitor,
@@ -37,6 +38,7 @@ import {
 
 const route = useRoute();
 const authStore = useAuthStore();
+const activeTimezoneLabel = computed(() => getTimezoneLabel());
 
 // Audit Logs State
 const logs = ref([]);
@@ -526,7 +528,7 @@ onBeforeUnmount(() => {
               User Activity Log Table
             </h3>
             <p class="text-xs text-brand-light">
-              Showing most recent access history first (Time in WIB)
+              Showing most recent access history first (Time in {{ activeTimezoneLabel }})
             </p>
           </div>
 

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { can, isSuperAdmin } from "@/helpers/permissionHelper";
 import { getImageUrl, handleImageError } from "@/helpers/imageHelper";
 import { axiosInstance } from "@/plugins/axios";
@@ -18,6 +19,7 @@ import {
 } from "lucide-vue-next";
 import { useRouter } from "vue-router";
 
+const { t } = useI18n();
 const router = useRouter();
 const toast = useToastStore();
 
@@ -62,7 +64,7 @@ const handleResetMfa = async () => {
   if (!userId || resettingMfa.value) return;
   if (
     !confirm(
-      `Are you sure you want to reset MFA for ${props.data?.user?.name || "this user"}?`
+      t("employee.confirmResetMfa", { name: props.data?.user?.name || "this user" })
     )
   ) {
     return;
@@ -75,9 +77,9 @@ const handleResetMfa = async () => {
     if (props.data?.user) {
       props.data.user.mfa_enabled = false;
     }
-    toast.success(`MFA reset successfully for ${props.data?.user?.name}.`);
+    toast.success(t("employee.mfaResetSuccess", { name: props.data?.user?.name }));
   } catch (err) {
-    toast.error(err?.response?.data?.message || "Failed to reset user MFA.");
+    toast.error(err?.response?.data?.message || t("employee.mfaResetFailed"));
   } finally {
     resettingMfa.value = false;
   }
@@ -118,7 +120,7 @@ const handleResetMfa = async () => {
             class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300"
           >
             <Crown class="w-3 h-3" />
-            Super Admin
+            {{ t("roles.super-admin") }}
           </span>
         </div>
         <p
@@ -149,9 +151,7 @@ const handleResetMfa = async () => {
       </div>
       <div class="flex items-center gap-2 text-sm text-gray-500">
         <Calendar class="w-3.5 h-3.5" />
-        <span
-          >{{ data?.job_information?.years_experience }} years experience</span
-        >
+        <span>{{ t("employee.yearsExperience", { count: data?.job_information?.years_experience || 0 }) }}</span>
       </div>
       <!-- MFA Status Badge & Admin Reset -->
       <div class="flex items-center justify-between gap-2 pt-1">
@@ -165,7 +165,7 @@ const handleResetMfa = async () => {
         >
           <ShieldCheck v-if="localMfaEnabled" class="w-3.5 h-3.5" />
           <ShieldOff v-else class="w-3.5 h-3.5" />
-          <span>{{ localMfaEnabled ? "MFA: Enabled" : "MFA: Disabled" }}</span>
+          <span>{{ localMfaEnabled ? t("employee.mfaEnabled") : t("employee.mfaDisabled") }}</span>
         </span>
 
         <button
@@ -176,7 +176,7 @@ const handleResetMfa = async () => {
           class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors cursor-pointer disabled:opacity-50"
         >
           <RotateCcw class="w-3 h-3" :class="{ 'animate-spin': resettingMfa }" />
-          <span>{{ resettingMfa ? "Resetting..." : "Reset MFA" }}</span>
+          <span>{{ resettingMfa ? t("employee.resetting") : t("employee.resetMfa") }}</span>
         </button>
       </div>
     </div>
@@ -187,14 +187,14 @@ const handleResetMfa = async () => {
         v-if="can('employee-edit') && !isTargetSuperAdmin"
       >
         <Edit class="w-4 h-4 text-gray-600" />
-        <span class="text-brand-dark text-sm font-semibold">Edit</span>
+        <span class="text-brand-dark text-sm font-semibold">{{ t("common.edit") }}</span>
       </button>
       <button
         @click="goToDetail"
         class="flex-1 border border-[#DCDEDD] rounded-[8px] hover:border-[#0C51D9] hover:border-2 hover:bg-gray-50 transition-all duration-300 px-4 py-3 flex items-center justify-center gap-2"
       >
         <Eye class="w-4 h-4 text-gray-600" />
-        <span class="text-brand-dark text-sm font-semibold">View</span>
+        <span class="text-brand-dark text-sm font-semibold">{{ t("common.view") }}</span>
       </button>
     </div>
   </div>

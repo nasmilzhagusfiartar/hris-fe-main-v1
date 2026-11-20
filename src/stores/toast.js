@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { LABELS } from "@/constants/labels";
+import i18n from "@/plugins/i18n";
 
 export const useToastStore = defineStore("toast", {
   state: () => ({
@@ -22,20 +22,36 @@ export const useToastStore = defineStore("toast", {
       return id;
     },
 
-    success(message, title = LABELS.SUCCESS) {
-      return this.addToast({ type: "success", title, message });
+    success(message, title = null) {
+      return this.addToast({
+        type: "success",
+        title: title ?? i18n.global.t("common.success"),
+        message,
+      });
     },
 
-    error(message, title = LABELS.FAILED) {
-      return this.addToast({ type: "error", title, message });
+    error(message, title = null) {
+      return this.addToast({
+        type: "error",
+        title: title ?? i18n.global.t("common.failed"),
+        message,
+      });
     },
 
-    warning(message, title = "Warning") {
-      return this.addToast({ type: "warning", title, message });
+    warning(message, title = null) {
+      return this.addToast({
+        type: "warning",
+        title: title ?? i18n.global.t("common.warning"),
+        message,
+      });
     },
 
-    info(message, title = "Information") {
-      return this.addToast({ type: "info", title, message });
+    info(message, title = null) {
+      return this.addToast({
+        type: "info",
+        title: title ?? i18n.global.t("common.info"),
+        message,
+      });
     },
 
     removeToast(id) {

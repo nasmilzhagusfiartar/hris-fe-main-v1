@@ -786,6 +786,7 @@ import { useCtiStore } from '@/stores/cti';
 import { useAuthStore } from '@/stores/auth';
 import { useToastStore } from '@/stores/toast';
 import { can } from '@/helpers/permissionHelper';
+import { formatDateTimeWithTz } from '@/utils/dateUtils';
 import Pagination from '@/components/admin/team/Pagination.vue';
 import SearchInput from '@/components/common/SearchInput.vue';
 
@@ -855,25 +856,8 @@ const {
   loadingUrlscan: loadingUrlscanMap,
 } = storeToRefs(ctiStore);
 
-// Helper Date Time Format
-const formatDateTime = (dateStr) => {
-  if (!dateStr) return '-';
-  try {
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return dateStr;
-    return `${d.toLocaleString('en-GB', {
-      year: 'numeric',
-      month: 'short',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-      timeZone: 'Asia/Jakarta',
-    })} WIB`;
-  } catch (e) {
-    return dateStr;
-  }
-};
+// Helper Date Time Format (follows active locale & configured timezone)
+const formatDateTime = (dateStr) => formatDateTimeWithTz(dateStr);
 
 const formatDnsList = (val) => {
   if (!val) return '-';

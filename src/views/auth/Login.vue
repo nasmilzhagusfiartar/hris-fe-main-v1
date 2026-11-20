@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { useAuthStore } from "@/stores/auth";
 import { ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import Alert from "@/components/common/Alert.vue";
 import Input from "@/components/common/form/Input.vue";
 import PasswordInput from "@/components/common/form/PasswordInput.vue";
+import LanguageToggle from "@/components/common/LanguageToggle.vue";
 import {
   AtSign,
   BuildingIcon,
@@ -15,6 +17,7 @@ import {
 } from "lucide-vue-next";
 import { storeToRefs } from "pinia";
 
+const { t } = useI18n();
 const authStore = useAuthStore();
 const {
   loading,
@@ -104,29 +107,32 @@ const handleBackToLogin = () => {
     style="padding: 20px"
   >
     <div class="w-full max-w-md space-y-8">
-      <!-- Logo/Brand -->
-      <div class="flex items-center gap-4">
-        <div class="w-16 h-16 relative flex items-center justify-center">
-          <div
-            class="w-16 h-16 absolute bg-gradient-to-br from-primary-100 to-primary-200 rounded-full"
-          ></div>
-          <div
-            class="w-10 h-10 absolute bg-gradient-to-br from-primary-500 to-primary-600 rounded-full opacity-90"
-          ></div>
-          <BuildingIcon class="w-5 h-5 text-white relative z-10" />
+      <!-- Logo/Brand + Language Toggle -->
+      <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div class="w-16 h-16 relative flex items-center justify-center">
+            <div
+              class="w-16 h-16 absolute bg-gradient-to-br from-primary-100 to-primary-200 rounded-full"
+            ></div>
+            <div
+              class="w-10 h-10 absolute bg-gradient-to-br from-primary-500 to-primary-600 rounded-full opacity-90"
+            ></div>
+            <BuildingIcon class="w-5 h-5 text-white relative z-10" />
+          </div>
+          <div>
+            <h1 class="text-brand-dark text-lg font-bold">HIP HRIS</h1>
+            <p class="text-brand-dark text-xs font-normal">{{ t("auth.brandSubtitle") }}</p>
+          </div>
         </div>
-        <div>
-          <h1 class="text-brand-dark text-lg font-bold">HIP HRIS</h1>
-          <p class="text-brand-dark text-xs font-normal">HIP Dashboard</p>
-        </div>
+        <LanguageToggle />
       </div>
 
       <!-- STEP 1: EMAIL & PASSWORD LOGIN -->
       <template v-if="!mfaRequired">
         <Alert
           type="danger"
-          title="Invalid Credentials"
-          message="The email or password you entered is incorrect. Please try again."
+          :title="t('auth.invalidCredentialsTitle')"
+          :message="t('auth.invalidCredentialsMessage')"
           :show="error === 'Unauthorized'"
         />
 
@@ -136,7 +142,7 @@ const handleBackToLogin = () => {
         >
           <AlertTriangle class="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
           <div>
-            <h4 class="font-bold text-sm">Account Temporarily Locked</h4>
+            <h4 class="font-bold text-sm">{{ t("auth.accountLockedTitle") }}</h4>
             <p class="text-xs text-red-700 mt-1 leading-relaxed">
               {{ error }}
             </p>
@@ -146,7 +152,7 @@ const handleBackToLogin = () => {
         <Alert
           v-else-if="error && typeof error === 'string' && error !== 'Unauthorized'"
           type="danger"
-          title="Sign In Failed"
+          :title="t('auth.signInFailedTitle')"
           :message="error"
           :show="true"
         />
@@ -157,8 +163,8 @@ const handleBackToLogin = () => {
             name="email"
             type="email"
             v-model="form.email"
-            label="Email Address"
-            placeholder="Enter your email"
+            :label="t('auth.emailLabel')"
+            :placeholder="t('auth.emailPlaceholder')"
             :required="true"
             :error="error?.email?.join(', ')"
           >
@@ -172,8 +178,8 @@ const handleBackToLogin = () => {
             id="password"
             name="password"
             v-model="form.password"
-            label="Password"
-            placeholder="Enter your password"
+            :label="t('auth.passwordLabel')"
+            :placeholder="t('auth.passwordPlaceholder')"
             :required="true"
             :error="error?.password?.join(', ')"
           >
@@ -187,7 +193,7 @@ const handleBackToLogin = () => {
             class="btn-primary rounded-[8px] border border-[#2151A0] hover:brightness-110 focus:ring-2 focus:ring-[#0C51D9] transition-all duration-300 blue-gradient blue-btn-shadow px-4 py-3 flex items-center gap-2 w-full justify-center bg-gradient-to-l from-[#0c51d9] via-[#6f96e3] to-[#0c51d9] shadow-[inset_-2px_2px_1px_0_#6197ff,inset_2px_2px_1px_0_rgba(97,151,255,0.55)] text-white font-plus-jakarta-sans text-[14px] font-semibold cursor-pointer disabled:opacity-60"
             :disabled="loading"
           >
-            {{ loading ? "Signing In..." : "Sign In" }}
+            {{ loading ? t("auth.signingIn") : t("auth.signIn") }}
           </button>
         </form>
       </template>
@@ -202,13 +208,13 @@ const handleBackToLogin = () => {
             </div>
             <div>
               <h2 class="text-brand-dark text-lg font-bold">
-                Enter Verification Code
+                {{ t("auth.mfaTitle") }}
               </h2>
               <p class="text-brand-light text-xs mt-1 leading-relaxed">
                 {{
                   useRecoveryMode
-                    ? "Enter one of your single-use 8-character recovery codes."
-                    : "Enter the 6-digit code from your authenticator app."
+                    ? t("auth.mfaSubtitleRecovery")
+                    : t("auth.mfaSubtitleTotp")
                 }}
               </p>
             </div>
@@ -221,7 +227,7 @@ const handleBackToLogin = () => {
           >
             <AlertTriangle class="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
             <div>
-              <h4 class="font-bold text-sm">Account Locked</h4>
+              <h4 class="font-bold text-sm">{{ t("auth.mfaLockedTitle") }}</h4>
               <p class="text-xs text-red-700 mt-1 leading-relaxed">
                 {{ mfaError || `Too many failed attempts. Please try again in ${mfaLockoutMinutes || 15} minutes.` }}
               </p>
@@ -235,7 +241,7 @@ const handleBackToLogin = () => {
           >
             <p class="font-bold">{{ mfaError }}</p>
             <p v-if="mfaRemainingAttempts !== null" class="text-amber-700 font-medium">
-              Remaining attempts before 15-minute lockout: <strong>{{ mfaRemainingAttempts }}</strong>
+              {{ t("auth.mfaRemainingAttempts") }} <strong>{{ mfaRemainingAttempts }}</strong>
             </p>
           </div>
 
@@ -245,7 +251,7 @@ const handleBackToLogin = () => {
                 for="mfa-code"
                 class="block text-xs font-semibold text-gray-700 mb-1.5"
               >
-                6-Digit Verification Code
+                {{ t("auth.mfaCodeLabel") }}
               </label>
               <input
                 id="mfa-code"
@@ -266,7 +272,7 @@ const handleBackToLogin = () => {
                 for="mfa-recovery-code"
                 class="block text-xs font-semibold text-gray-700 mb-1.5"
               >
-                Recovery Code
+                {{ t("auth.mfaRecoveryLabel") }}
               </label>
               <input
                 id="mfa-recovery-code"
@@ -289,7 +295,7 @@ const handleBackToLogin = () => {
               "
               class="btn-primary rounded-[8px] border border-[#2151A0] hover:brightness-110 focus:ring-2 focus:ring-[#0C51D9] transition-all duration-300 blue-gradient blue-btn-shadow px-4 py-3 flex items-center gap-2 w-full justify-center text-white text-sm font-semibold cursor-pointer disabled:opacity-50"
             >
-              {{ loading ? "Verifying..." : "Verify Code" }}
+              {{ loading ? t("auth.verifying") : t("auth.verifyCode") }}
             </button>
           </form>
 
@@ -300,7 +306,7 @@ const handleBackToLogin = () => {
               :disabled="mfaLocked"
               class="text-[#0C51D9] font-semibold hover:underline cursor-pointer disabled:opacity-50"
             >
-              {{ useRecoveryMode ? "Use authenticator app code" : "Use a recovery code" }}
+              {{ useRecoveryMode ? t("auth.useAuthenticatorCode") : t("auth.useRecoveryCode") }}
             </button>
 
             <button
@@ -309,7 +315,7 @@ const handleBackToLogin = () => {
               class="inline-flex items-center gap-1 text-gray-600 font-semibold hover:text-gray-900 cursor-pointer"
             >
               <ArrowLeft class="w-3.5 h-3.5" />
-              <span>Back to Login</span>
+              <span>{{ t("auth.backToLogin") }}</span>
             </button>
           </div>
         </div>

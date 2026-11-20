@@ -14,11 +14,16 @@ import { useNotificationStore } from "@/stores/notification";
 import { storeToRefs } from "pinia";
 import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import { useRoute, useRouter, RouterLink } from "vue-router";
+import { useI18n } from "vue-i18n";
 import _ from "lodash";
 import { getImageUrl, handleImageError } from "@/helpers/imageHelper";
 import { can } from "@/helpers/permissionHelper";
 import { useClickOutside } from "@/composables/useClickOutside";
 import { getTimeAgo } from "@/utils/dateUtils";
+import { formatRoleLabel } from "@/plugins/i18n";
+import LanguageToggle from "@/components/common/LanguageToggle.vue";
+
+const { t, te } = useI18n();
 
 const authStore = useAuthStore();
 const { user } = storeToRefs(authStore);
@@ -41,118 +46,20 @@ const emit = defineEmits(["toggle-sidebar"]);
 const route = useRoute();
 const router = useRouter();
 
-const titles = {
-  "admin.dashboard": {
-    title: "Dashboard Overview",
-    subtitle: "Monitor your team performance and key metrics",
-  },
-  "admin.teams": {
-    title: "Teams",
-    subtitle: "Manage teams and organization units",
-  },
-  "admin.team.detail": {
-    title: "Team Details",
-    subtitle: "View team information",
-  },
-  "admin.team.create": { title: "Create Team", subtitle: "Set up a new team" },
-  "admin.team.edit": {
-    title: "Edit Team",
-    subtitle: "Update team information",
-  },
-  "admin.employees": {
-    title: "Employees",
-    subtitle: "Manage employee records",
-  },
-  "admin.employees.create": {
-    title: "Create Employee",
-    subtitle: "Add new employee",
-  },
-  "admin.employees.edit": {
-    title: "Edit Employee",
-    subtitle: "Update employee information",
-  },
-  "admin.employees.detail": {
-    title: "Employee Details",
-    subtitle: "View employee profile",
-  },
-  "admin.employees.success": {
-    title: "Employee Created",
-    subtitle: "Employee has been added",
-  },
-  "admin.attendances": {
-    title: "Attendance",
-    subtitle: "Review clock in/out records",
-  },
-  "admin.projects": {
-    title: "Projects",
-    subtitle: "Manage projects and tasks",
-  },
-  "admin.projects.create": {
-    title: "Create Project",
-    subtitle: "Set up a new project",
-  },
-  "admin.projects.edit": {
-    title: "Edit Project",
-    subtitle: "Update project information",
-  },
-  "admin.projects.detail": {
-    title: "Project Details",
-    subtitle: "View project information",
-  },
-  "admin.payroll.dashboard": {
-    title: "Payroll",
-    subtitle: "Manage payroll and payments",
-  },
-  "admin.payroll.create": {
-    title: "Create Payroll",
-    subtitle: "Generate payroll for employees",
-  },
-  "admin.payroll.detail": {
-    title: "Payroll Details",
-    subtitle: "View payroll summary",
-  },
-  "admin.reports": {
-    title: "Reports",
-    subtitle: "Analyze company attendance, payroll, and employee metrics",
-  },
-  "admin.settings": {
-    title: "Settings",
-    subtitle: "Manage system and account preferences",
-  },
-  "employee.profile": {
-    title: "My Profile",
-    subtitle: "Manage your personal information",
-  },
-  "employee.profile.edit": {
-    title: "Edit Profile",
-    subtitle: "Update your personal information",
-  },
-  "employee.team": { title: "My Team", subtitle: "See your team members" },
-  "employee.attendance.my-attendances": {
-    title: "My Attendances",
-    subtitle: "Track your attendance records",
-  },
-  "employee.attendance.clock": {
-    title: "Clock In/Out",
-    subtitle: "Record your working time",
-  },
-  "employee.payslips": {
-    title: "My Payslips",
-    subtitle: "View your payroll history",
-  },
-  "employee.payslips.detail": {
-    title: "Payslip Details",
-    subtitle: "See payroll breakdown",
-  },
-};
-
-const pageInfo = computed(() => {
-  const name = route.name?.toString() || "";
-  return titles[name] || titles["admin.dashboard"];
+const pageKey = computed(() => {
+  const name = (route.name?.toString() || "admin.dashboard").replace(/\./g, "_");
+  return te(`header.pages.${name}.title`) ? name : "admin_dashboard";
 });
 
-const pageTitle = computed(() => pageInfo.value.title);
-const pageSubtitle = computed(() => pageInfo.value.subtitle);
+const pageTitle = computed(() => t(`header.pages.${pageKey.value}.title`));
+const pageSubtitle = computed(() => t(`header.pages.${pageKey.value}.subtitle`));
+
+const formattedUserRoles = computed(() => {
+  const roles = user.value?.roles || [];
+  return roles
+    .map((r) => formatRoleLabel(typeof r === "string" ? r : r?.name))
+    .join(", ");
+});
 
 const canAccessSettings = computed(() => {
   const roles = (user.value?.roles || []).map((r) =>
@@ -210,7 +117,7 @@ const handleMarkAllRead = async () => {
 
 const handleLogout = async () => {
   closeAllDropdowns();
-  if (confirm("Are you sure you want to logout?")) {
+  if (confirm(t("header.confirmLogout"))) {
     notificationStore.reset();
     await logout();
   }
@@ -280,6 +187,9 @@ onUnmounted(() => {
       </div>
 
       <div class="flex items-center gap-3 sm:gap-4">
+        <!-- Language Toggle (EN | ID) -->
+        <LanguageToggle />
+
         <!-- Action Buttons: Notifications & Settings (Chat Removed) -->
         <div class="flex items-center gap-2.5 sm:gap-3">
           <!-- Notification Bell & Dropdown -->
@@ -289,7 +199,7 @@ onUnmounted(() => {
               @click="toggleNotificationsDropdown"
               :aria-expanded="activeDropdown === 'notifications'"
               aria-haspopup="true"
-              aria-label="Notifications"
+              :aria-label="t('header.notifications')"
               class="relative w-10 h-10 rounded-full border border-[#DCDEDD] flex items-center justify-center hover:border-[#0C51D9] hover:border-2 transition-all duration-200 cursor-pointer"
               :class="{
                 'border-[#0C51D9] border-2 bg-blue-50/40':
@@ -315,12 +225,12 @@ onUnmounted(() => {
                 class="px-4 py-3 border-b border-[#DCDEDD] flex items-center justify-between bg-gray-50/70"
               >
                 <div class="flex items-center gap-2">
-                  <h3 class="text-sm font-bold text-gray-900">Notifications</h3>
+                  <h3 class="text-sm font-bold text-gray-900">{{ t("header.notifications") }}</h3>
                   <span
                     v-if="unreadCount > 0"
                     class="px-2 py-0.5 text-[11px] font-bold rounded-full bg-blue-100 text-[#0C51D9]"
                   >
-                    {{ unreadCount }} new
+                    {{ t("header.newCount", { count: unreadCount }) }}
                   </span>
                 </div>
                 <button
@@ -330,7 +240,7 @@ onUnmounted(() => {
                   class="inline-flex items-center gap-1 text-xs font-semibold text-[#0C51D9] hover:text-blue-800 transition-colors cursor-pointer"
                 >
                   <CheckCheckIcon class="w-3.5 h-3.5" />
-                  <span>Mark all as read</span>
+                  <span>{{ t("header.markAllRead") }}</span>
                 </button>
               </div>
 
@@ -339,7 +249,7 @@ onUnmounted(() => {
                   v-if="loadingNotifications"
                   class="py-8 px-4 text-center text-xs text-gray-500"
                 >
-                  Loading notifications...
+                  {{ t("header.loadingNotifications") }}
                 </div>
 
                 <div
@@ -348,10 +258,10 @@ onUnmounted(() => {
                 >
                   <InboxIcon class="w-9 h-9 text-gray-300 mx-auto mb-2" />
                   <p class="text-sm font-semibold text-gray-700">
-                    No notifications yet
+                    {{ t("header.noNotifications") }}
                   </p>
                   <p class="text-xs text-gray-400 mt-0.5">
-                    Your latest notifications will appear here.
+                    {{ t("header.noNotificationsSub") }}
                   </p>
                 </div>
 
@@ -434,7 +344,7 @@ onUnmounted(() => {
               <p
                 class="text-brand-dark text-xs sm:text-sm font-normal leading-5 text-gray-500"
               >
-                {{ _.join(user?.roles, ", ").toUpperCase() }}
+                {{ formattedUserRoles }}
               </p>
             </div>
             <ChevronDownIcon
@@ -455,7 +365,7 @@ onUnmounted(() => {
               </p>
               <p class="text-xs text-gray-600 truncate">{{ user?.email }}</p>
               <p class="text-xs text-gray-500 mt-0.5 font-medium">
-                {{ _.join(user?.roles, ", ").toUpperCase() }}
+                {{ formattedUserRoles }}
               </p>
             </div>
 
@@ -466,7 +376,7 @@ onUnmounted(() => {
                 @click="closeAllDropdowns"
               >
                 <UserIcon class="w-4 h-4" />
-                User Profile
+                {{ t("header.userProfile") }}
               </RouterLink>
               <RouterLink
                 v-if="canAccessSettings"
@@ -475,7 +385,7 @@ onUnmounted(() => {
                 @click="closeAllDropdowns"
               >
                 <SettingsIcon class="w-4 h-4" />
-                System Settings
+                {{ t("header.systemSettings") }}
               </RouterLink>
             </div>
 
@@ -486,7 +396,7 @@ onUnmounted(() => {
                 class="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer text-left"
               >
                 <LogOutIcon class="w-4 h-4" />
-                Logout
+                {{ t("header.logout") }}
               </button>
             </div>
           </div>
