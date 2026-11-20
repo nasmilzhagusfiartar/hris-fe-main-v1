@@ -1101,25 +1101,20 @@ const runUrlscan = async (result) => {
   }
 };
 
-// === EXISTING DOMAIN / SSL / DNS LOGIC (UNTOUCHED) ===
+// Real discovered domains from latest brand scan (no hardcoded subdomain list)
 const ownedDomains = ref(domainsList.map(d => ({
-  name: d, category: 'Owned', source: 'Internal', status: 'ACTIVE', found: 'System'
+  name: d, category: 'Owned', source: 'Configured', status: 'MONITORED', found: 'System'
 })));
 
-const impersonationDomains = ref([
-  { name: 'cpanel.herointiputra.com', category: 'Subdomain', source: 'VirusTotal Intel', status: 'ACTIVE' },
-  { name: 'webmail.herointiputra.com', category: 'Subdomain', source: 'VirusTotal Intel', status: 'ACTIVE' },
-  { name: 'mail.herointiputra.com', category: 'Subdomain', source: 'VirusTotal Intel', status: 'ACTIVE' },
-  { name: 'autodiscover.herointiputra.com', category: 'Subdomain', source: 'VirusTotal Intel', status: 'ACTIVE' },
-  { name: 'webdisk.herointiputra.com', category: 'Subdomain', source: 'VirusTotal Intel', status: 'ACTIVE' },
-  { name: 'www.herointiputra.com', category: 'Subdomain', source: 'VirusTotal Intel', status: 'ACTIVE' },
-  { name: 'cpcontacts.herointiputra.com', category: 'Subdomain', source: 'VirusTotal Intel', status: 'ACTIVE' },
-  { name: 'cpanel.hip.co.id', category: 'Subdomain', source: 'VirusTotal Intel', status: 'ACTIVE' },
-  { name: 'webmail.hip.co.id', category: 'Subdomain', source: 'VirusTotal Intel', status: 'ACTIVE' },
-  { name: 'member.toyscity.id', category: 'Subdomain', source: 'VirusTotal Intel', status: 'ACTIVE' },
-  { name: 'www.member.toyscity.id', category: 'Subdomain', source: 'VirusTotal Intel', status: 'ACTIVE' },
-  { name: 'www.toyscity.id', category: 'Subdomain', source: 'VirusTotal Intel', status: 'ACTIVE' }
-]);
+const impersonationDomains = computed(() => {
+  const results = brandScanStatus.value?.results || [];
+  return results.map((res) => ({
+    name: res.domain,
+    category: res.urlscan_malicious ? 'Phishing' : 'Impersonation',
+    source: res.fuzzer ? `Brand Scan (${res.fuzzer})` : 'Brand Scan',
+    status: res.urlscan_status ? String(res.urlscan_status).toUpperCase() : 'DETECTED',
+  }));
+});
 
 const filteredImpersonations = computed(() => {
   if (!filterCategory.value) return impersonationDomains.value;
@@ -1127,11 +1122,11 @@ const filteredImpersonations = computed(() => {
 });
 
 const sslMonitorData = ref(domainsList.map(d => ({
-  domain: d, issuer: '', subject: '', status: 'PENDING', expired: '', not_before: '', sisaWaktu: '', terakhirCek: 'Just now'
+  domain: d, issuer: '', subject: '', status: 'PENDING', expired: '', not_before: '', sisaWaktu: '', terakhirCek: '-', error: null
 })));
 
 const dnsMonitorData = ref(domainsList.map(d => ({
-  domain: d, records: { A: [], AAAA: [], MX: [], NS: [], TXT: [] }
+  domain: d, records: { A: [], AAAA: [], MX: [], NS: [], TXT: [] }, error: null
 })));
 
 const selectedDomain = ref(null);
@@ -1151,20 +1146,8 @@ const openDomainModal = async (domain) => {
   abuseData.value = null;
   activeIp.value = 'Resolving...';
   
-  let ip = await ctiService.resolveIp(domain.name);
-  
-  // Specific user-requested IP overrides
-  if (domain.name === 'hip.co.id') ip = '101.255.17.14';
-  else if (domain.name === 'toyscity.id') ip = '194.163.41.58';
-
-  if (ip) {
-    activeIp.value = ip;
-  } else {
-    if (domain.name.includes('herointiputra')) activeIp.value = '46.202.184.52';
-    else if (domain.name.includes('hip')) activeIp.value = '101.255.17.14';
-    else if (domain.name.includes('toyscity')) activeIp.value = '194.163.41.58';
-    else activeIp.value = '127.0.0.1';
-  }
+  const ip = await ctiService.resolveIp(domain.name);
+  activeIp.value = ip || 'Unavailable';
 };
 
 const enrichDomain = async (domainName) => {
@@ -1243,12 +1226,15 @@ const loadSslData = async () => {
         sslMonitorData.value[i].sisaWaktu = calculateSisaWaktu(expDate);
         sslMonitorData.value[i].terakhirCek = 'Just now';
       } else {
-        sslMonitorData.value[i].status = 'INVALID';
+        sslMonitorData.value[i].issuer = '-';
+        sslMonitorData.value[i].status = 'UNAVAILABLE';
         sslMonitorData.value[i].sisaWaktu = '-';
       }
     } catch(e) {
-      sslMonitorData.value[i].status = 'INVALID';
+      sslMonitorData.value[i].issuer = '-';
+      sslMonitorData.value[i].status = 'UNAVAILABLE';
       sslMonitorData.value[i].sisaWaktu = '-';
+      sslMonitorData.value[i].error = e?.message || 'Failed to fetch SSL data';
     }
   }
 };
@@ -1257,11 +1243,15 @@ const loadDnsData = async () => {
   const types = ['A', 'AAAA', 'MX', 'NS', 'TXT'];
   for (let i=0; i<dnsMonitorData.value.length; i++) {
     const d = dnsMonitorData.value[i].domain;
+    dnsMonitorData.value[i].error = null;
     for (const t of types) {
       try {
         const records = await ctiService.checkDns(d, t);
         dnsMonitorData.value[i].records[t] = records;
-      } catch(e) { }
+      } catch(e) {
+        dnsMonitorData.value[i].records[t] = [];
+        dnsMonitorData.value[i].error = e?.message || 'Failed to resolve DNS records';
+      }
     }
   }
 };

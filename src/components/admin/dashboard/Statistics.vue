@@ -34,8 +34,8 @@ const loading = computed(() => dashboardStore.loading);
       class="main-card md:col-span-2 lg:col-span-1 lg:row-span-2 rounded-[20px] border border-[#0B1042] relative overflow-hidden p-4 sm:p-5"
     >
       <div class="flex flex-col justify-center h-full relative z-10">
-        <!-- Trending Badge -->
-        <div class="flex items-center gap-2 mb-3">
+        <!-- Trending Badge (shown only when real comparison data exists) -->
+        <div v-if="employees.added_this_month > 0" class="flex items-center gap-2 mb-3">
           <div
             class="flex items-center gap-1 px-3 py-1 bg-white/20 rounded-full backdrop-blur-sm"
           >
@@ -94,7 +94,7 @@ const loading = computed(() => dashboardStore.loading);
           <p class="text-brand-dark text-2xl sm:text-3xl font-extrabold leading-tight my-2">
             {{ loading ? '...' : teams.total }}
           </p>
-          <p class="text-success text-sm font-medium">+{{ teams.new_teams }} new teams</p>
+          <p v-if="teams.new_teams > 0" class="text-success text-sm font-medium">+{{ teams.new_teams }} new teams</p>
         </div>
         <div
           class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-50 rounded-[16px] flex items-center justify-center"
@@ -114,7 +114,7 @@ const loading = computed(() => dashboardStore.loading);
           <p class="text-brand-dark text-2xl sm:text-3xl font-extrabold leading-tight my-2">
             {{ loading ? '...' : attendance.rate }}%
           </p>
-          <p :class="attendance.change >= 0 ? 'text-success' : 'text-danger'" class="text-sm font-medium">
+          <p v-if="attendance.change !== 0" :class="attendance.change >= 0 ? 'text-success' : 'text-danger'" class="text-sm font-medium">
             {{ attendance.change >= 0 ? '+' : '' }}{{ attendance.change }}% from last week
           </p>
         </div>
@@ -137,7 +137,7 @@ const loading = computed(() => dashboardStore.loading);
           <p class="text-brand-dark text-2xl sm:text-3xl font-extrabold leading-tight my-2">
             {{ loading ? '...' : tasks.completed }}
           </p>
-          <p :class="tasks.change >= 0 ? 'text-success' : 'text-danger'" class="text-sm font-medium">
+          <p v-if="tasks.change !== 0" :class="tasks.change >= 0 ? 'text-success' : 'text-danger'" class="text-sm font-medium">
             {{ tasks.change >= 0 ? '+' : '' }}{{ tasks.change }} from yesterday
           </p>
         </div>
@@ -159,7 +159,7 @@ const loading = computed(() => dashboardStore.loading);
           <p class="text-brand-dark text-2xl sm:text-3xl font-extrabold leading-tight my-2">
             {{ loading ? '...' : projects.active }}
           </p>
-          <p class="text-success text-sm font-medium">+{{ projects.new_projects }} new projects</p>
+          <p v-if="projects.new_projects > 0" class="text-success text-sm font-medium">+{{ projects.new_projects }} new projects</p>
         </div>
         <div
           class="w-10 h-10 sm:w-12 sm:h-12 bg-orange-50 rounded-[16px] flex items-center justify-center"

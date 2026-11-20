@@ -16,13 +16,16 @@ const { loadingStatistics } = storeToRefs(projectStore);
 
 const total = computed(() => projectStore.statistics.total);
 const active = computed(() => projectStore.statistics.active);
+const trendMonths = computed(() => projectStore.statistics?.monthly_trend?.months || []);
+const trendCounts = computed(() => projectStore.statistics?.monthly_trend?.counts || []);
+const hasTrendData = computed(() => trendCounts.value.some((c: number) => c > 0));
 
 onMounted(() => {
   projectStore.fetchStatistics();
 });
 
-// Chart configuration
-const chartOptions = ref({
+// Chart configuration (driven by real DB monthly_trend)
+const chartOptions = computed(() => ({
   chart: {
     type: "area",
     height: 250,
@@ -76,14 +79,7 @@ const chartOptions = ref({
     },
   },
   xaxis: {
-    categories: [
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ],
+    categories: trendMonths.value,
     axisBorder: {
       show: false,
     },
@@ -99,14 +95,13 @@ const chartOptions = ref({
   },
   yaxis: {
     min: 0,
-    max: 8,
-    tickAmount: 8,
+    forceNiceScale: true,
     labels: {
       style: {
         colors: "#6B7280",
         fontSize: "12px",
       },
-      formatter: (value: number) => `${value}`,
+      formatter: (value: number) => `${Math.round(value)}`,
     },
   },
   tooltip: {
@@ -142,18 +137,15 @@ const chartOptions = ref({
         chart: {
           height: 200,
         },
-        yaxis: {
-          tickAmount: 6,
-        },
       },
     },
   ],
-});
+}));
 
-const chartSeries = ref([
+const chartSeries = computed(() => [
   {
-    name: "Project Progress",
-    data: [4, 3, 6, 2, 5, 3],
+    name: "Projects Created",
+    data: trendCounts.value,
   },
 ]);
 </script>
@@ -236,7 +228,16 @@ const chartSeries = ref([
 
       <!-- Chart Container -->
       <div class="relative w-full" style="height: 250px">
+        <div
+          v-if="!loadingStatistics && !hasTrendData"
+          class="h-full flex flex-col items-center justify-center text-center text-gray-500"
+        >
+          <Briefcase class="w-10 h-10 text-gray-300 mb-2" />
+          <p class="text-sm font-semibold text-gray-600">No project trend data available</p>
+          <p class="text-xs text-gray-400 mt-1">Monthly trends will appear once projects are created.</p>
+        </div>
         <VueApexCharts
+          v-else
           type="area"
           height="250"
           :options="chartOptions"

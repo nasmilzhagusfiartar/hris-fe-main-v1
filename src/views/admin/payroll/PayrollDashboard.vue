@@ -183,8 +183,11 @@ const viewDetails = (id) => {
             <p class="text-brand-dark text-2xl lg:text-3xl font-extrabold leading-tight my-2">
               {{ loading ? "..." : formatRupiahCompact(statistics.average_salary) }}
             </p>
-            <p class="text-success text-sm font-medium">
-              +{{ formatRupiahCompact(1900000) }} from last month
+            <p
+              v-if="statistics.average_salary_change"
+              class="text-success text-sm font-medium"
+            >
+              {{ statistics.average_salary_change > 0 ? '+' : '' }}{{ formatRupiahCompact(statistics.average_salary_change) }} from last month
             </p>
           </div>
           <div class="w-12 h-12 bg-blue-50 rounded-[16px] flex items-center justify-center flex-shrink-0">
@@ -218,7 +221,19 @@ const viewDetails = (id) => {
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-brand-dark text-lg font-bold">Monthly Payroll Periods</h3>
       </div>
-      <div class="space-y-4">
+      <div v-if="!loading && payrolls.length === 0" class="py-10 text-center">
+        <Calendar class="w-10 h-10 text-gray-300 mx-auto mb-2" />
+        <p class="text-sm font-semibold text-gray-600">No payroll periods yet</p>
+        <p class="text-xs text-gray-400 mt-1 mb-4">Create your first payroll period to start managing employee disbursements.</p>
+        <RouterLink
+          :to="{ name: 'admin.payroll.create' }"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#0C51D9] text-white text-xs font-semibold hover:bg-blue-700"
+        >
+          <Plus class="w-4 h-4" />
+          <span>Create New Payroll</span>
+        </RouterLink>
+      </div>
+      <div v-else class="space-y-4">
         <div v-for="payroll in payrolls" :key="payroll.id"
           class="flex items-center gap-4 p-4 border border-[#DCDEDD] rounded-[16px] hover:border-[#0C51D9] hover:border-2 transition-all duration-300">
           <div class="w-16 h-16 relative flex items-center justify-center rounded-[12px] overflow-hidden">

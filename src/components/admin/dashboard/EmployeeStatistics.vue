@@ -19,6 +19,7 @@ import { useAuthStore } from "@/stores/auth";
 import { axiosInstance } from "@/plugins/axios";
 import { useTaskStore } from "@/stores/task";
 import { useEmployeeStore } from "@/stores/employee";
+import { getTimeAgo } from "@/utils/dateUtils";
 
 const authStore = useAuthStore();
 
@@ -52,41 +53,15 @@ const upcomingTasks = computed(() => {
   }));
 });
 
-// Dummy recent activities
-const recentActivities = ref([
-  {
-    id: 1,
-    type: "task_completed",
-    title: "Completed task: User Authentication Flow",
-    time: "2 hours ago",
-    icon: CheckCircle2,
-    color: "text-green-600",
-  },
-  {
-    id: 2,
-    type: "comment",
-    title: "Commented on PR: Add dark mode support",
-    time: "4 hours ago",
-    icon: MessageSquare,
-    color: "text-blue-600",
-  },
-  {
-    id: 3,
-    type: "check_in",
-    title: "Checked in at 08:30 AM",
-    time: "6 hours ago",
-    icon: Clock3,
-    color: "text-purple-600",
-  },
-  {
-    id: 4,
-    type: "meeting",
-    title: "Attended Sprint Planning Meeting",
-    time: "Yesterday",
-    icon: Users,
-    color: "text-orange-600",
-  },
-]);
+// Real recent activities from /dashboard/my-statistics
+const recentActivities = ref<any[]>([]);
+const statsError = ref<string | null>(null);
+
+const mapActivityIcon = (type: string) => {
+  if (type === "task_completed") return { icon: CheckCircle2, color: "text-green-600" };
+  if (type === "leave") return { icon: Calendar, color: "text-blue-600" };
+  return { icon: Clock3, color: "text-purple-600" };
+};
 
 const loading = ref(false);
 const userName = computed(() => authStore.user?.name || "Employee");
@@ -139,6 +114,7 @@ const formatDate = (dateString: string) => {
 
 const fetchMyStatistics = async () => {
   loading.value = true;
+  statsError.value = null;
   try {
     const response = await axiosInstance.get("/dashboard/my-statistics");
     const data = response.data?.data || {};
@@ -146,6 +122,19 @@ const fetchMyStatistics = async () => {
     const attendance = data.attendance || {};
     const tasks = data.tasks || {};
     const projects = data.projects || {};
+    const activities = Array.isArray(data.recent_activities) ? data.recent_activities : [];
+
+    recentActivities.value = activities.map((act: any) => {
+      const style = mapActivityIcon(act.type);
+      return {
+        id: act.id,
+        type: act.type,
+        title: act.title,
+        time: act.created_at ? getTimeAgo(act.created_at) : "-",
+        icon: style.icon,
+        color: style.color,
+      };
+    });
 
     statistics.value = {
       attendance_rate: attendance.rate ?? 0,
@@ -161,7 +150,9 @@ const fetchMyStatistics = async () => {
       assigned_active_projects: projects.assigned_active ?? 0,
       led_active_projects: projects.led_active ?? 0,
     };
-  } catch (error) {
+  } catch (error: any) {
+    statsError.value = error?.response?.data?.message || "Failed to load dashboard statistics.";
+    recentActivities.value = [];
   } finally {
     loading.value = false;
   }
@@ -415,14 +406,29 @@ onMounted(() => {
         <h3 class="text-brand-dark text-base sm:text-lg font-bold">
           Recent Activities
         </h3>
-        <RouterLink
-          :to="{ name: 'admin.reports' }"
-          class="text-[#0C51D9] text-xs sm:text-sm font-medium hover:underline"
-          >View All</RouterLink
-        >
       </div>
 
-      <div class="space-y-4">
+      <div v-if="statsError" class="py-6 text-center space-y-2">
+        <AlertCircle class="w-8 h-8 text-red-500 mx-auto" />
+        <p class="text-sm text-red-600 font-medium">{{ statsError }}</p>
+        <button
+          type="button"
+          @click="fetchMyStatistics"
+          class="px-4 py-1.5 rounded-lg bg-[#0C51D9] text-white text-xs font-semibold hover:bg-blue-700 cursor-pointer"
+        >
+          Retry
+        </button>
+      </div>
+
+      <div v-else-if="recentActivities.length === 0" class="py-8 text-center">
+        <Clock3 class="w-8 h-8 text-gray-300 mx-auto mb-2" />
+        <p class="text-sm font-semibold text-gray-600">No recent activities</p>
+        <p class="text-xs text-gray-400 mt-1">
+          Your attendance, leave requests, and task updates will appear here.
+        </p>
+      </div>
+
+      <div v-else class="space-y-4">
         <div
           v-for="activity in recentActivities"
           :key="activity.id"

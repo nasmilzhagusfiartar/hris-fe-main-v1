@@ -412,7 +412,7 @@ onBeforeUnmount(() => {
         <div class="flex items-center gap-2.5">
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
           <h2 class="text-sm font-bold text-gray-700 uppercase tracking-wider">
-            Your Current Session Information
+            Your Current Session
           </h2>
         </div>
         <span
