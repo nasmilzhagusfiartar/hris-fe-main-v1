@@ -394,5 +394,72 @@
     "oneMonthDays": "1 bulan {days} hari",
     "months": "{count} bulan",
     "monthsDays": "{months} bulan {days} hari"
+  },
+  "tips": {
+    "team": {
+      "title": "Tips Pengaturan Tim",
+      "subtitle": "Panduan membuat atau mengubah tim",
+      "nameTitle": "Gunakan Nama Tim yang Jelas",
+      "nameDesc": "Pilih nama deskriptif yang mencerminkan divisi, toko, atau unit operasional.",
+      "leadTitle": "Tentukan Ketua Tim",
+      "leadDesc": "Pilih Manager atau ketua aktif yang akan memantau absensi dan persetujuan cuti.",
+      "membersTitle": "Anggota Bisa Ditambah Nanti",
+      "membersDesc": "Anda dapat menambah atau menghapus anggota tim kapan saja di halaman Detail Tim."
+    },
+    "project": {
+      "title": "Tips Pengaturan Proyek",
+      "subtitle": "Panduan membuat atau mengubah proyek",
+      "scopeTitle": "Tentukan Ruang Lingkup & Prioritas",
+      "scopeDesc": "Atur jenis proyek, status, dan prioritas agar tim memahami target kerja.",
+      "leaderTitle": "Pilih Pemimpin Proyek",
+      "leaderDesc": "Tunjuk penanggung jawab untuk mengoordinasikan tugas dan pemantauan progres.",
+      "timelineTitle": "Atur Tanggal Mulai & Selesai",
+      "timelineDesc": "Pastikan tanggal selesai lebih akhir dari tanggal mulai agar pelacakan akurat.",
+      "teamsTitle": "Tugaskan Tim yang Relevan",
+      "teamsDesc": "Hubungkan satu atau lebih tim yang akan mengerjakan tugas pada proyek ini."
+    },
+    "employeeStep2": {
+      "title": "Tips Pekerjaan & Bank",
+      "subtitle": "Panduan Langkah 2",
+      "roleTitle": "Pilih Peran yang Sesuai",
+      "roleDesc": "Peran pengguna menentukan hak akses modul (HR, Finance, Manager, Employee, dll.).",
+      "scheduleTitle": "Pastikan Tanggal Mulai & Status",
+      "scheduleDesc": "Isi tanggal mulai, tipe kerja, dan gaji bulanan yang akurat untuk Payroll.",
+      "bankTitle": "Periksa Data Rekening Bank",
+      "bankDesc": "Pastikan nomor rekening dan nama pemilik sesuai demi kelancaran Payroll."
+    },
+    "employeeStep3": {
+      "title": "Tips Kontak Darurat",
+      "subtitle": "Panduan Langkah 3",
+      "contactTitle": "Cantumkan Kontak yang Aktif",
+      "contactDesc": "Masukkan nomor telepon aktif dari pihak yang mudah dihubungi saat darurat.",
+      "relationTitle": "Jelaskan Hubungan",
+      "relationDesc": "Tulis hubungan dengan jelas (misalnya Pasangan, Orang Tua, Saudara).",
+      "reviewTitle": "Periksa Kembali Sebelum Simpan",
+      "reviewDesc": "Pastikan seluruh data pribadi, pekerjaan, bank, dan kontak darurat sudah benar."
+    }
+  },
+  "contextActions": {
+    "team": {
+      "subtitle": "Pintasan terkait tim",
+      "viewAll": "Lihat Semua Tim",
+      "viewAllDesc": "Kembali ke daftar tim",
+      "browseEmployees": "Daftar Karyawan",
+      "browseEmployeesDesc": "Lihat direktori karyawan"
+    },
+    "project": {
+      "subtitle": "Pintasan terkait proyek",
+      "viewAll": "Lihat Semua Proyek",
+      "viewAllDesc": "Kembali ke daftar proyek",
+      "browseTeams": "Daftar Tim",
+      "browseTeamsDesc": "Lihat tim yang tersedia"
+    },
+    "payroll": {
+      "title": "Aksi Payroll",
+      "subtitle": "Pintasan kontekstual Payroll",
+      "create": "Buat Payroll Baru",
+      "reports": "Laporan Payroll",
+      "settings": "Pengaturan"
+    }
   }
 }

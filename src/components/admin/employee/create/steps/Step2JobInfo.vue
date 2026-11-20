@@ -128,7 +128,7 @@ watch(
 </script>
 
 <template>
-  <div class="flex gap-5 items-start pr-5">
+  <div class="flex flex-col lg:flex-row gap-5 items-start lg:pr-5">
     <div class="flex-1 space-y-6">
       <!-- Job Information Section -->
       <div class="bg-white border border-[#DCDEDD] rounded-[20px] p-6">

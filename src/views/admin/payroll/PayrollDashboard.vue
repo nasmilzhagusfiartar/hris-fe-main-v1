@@ -18,6 +18,7 @@ import {
   Users,
 } from "lucide-vue-next";
 import Alert from "@/components/common/Alert.vue";
+import ContextActions from "@/components/common/ContextActions.vue";
 import { formatRupiah, formatRupiahCompact } from "@/utils/formatUtils";
 
 const router = useRouter();
@@ -143,34 +144,35 @@ const viewDetails = (id) => {
       </div>
 
       <!-- Quick Actions Card (spans 2 rows on the right) -->
-      <div
-        class="lg:row-span-2 bg-white border border-[#DCDEDD] rounded-[20px] hover:border-[#0C51D9] hover:border-2 transition-all duration-300 p-5">
-        <h3 class="text-brand-dark text-lg font-bold mb-4">Payroll Actions</h3>
-        <div class="space-y-3">
-          <RouterLink :to="{ name: 'admin.payroll.create' }"
-            class="btn-secondary w-full text-left rounded-[12px] border border-[#2151A0] hover:brightness-110 focus:ring-2 focus:ring-[#0C51D9] transition-all duration-300 blue-gradient blue-btn-shadow px-4 py-3 flex items-center gap-2">
-            <Plus class="w-4 h-4 text-white" />
-            <span class="text-brand-white text-sm font-semibold">Create New Payroll</span>
-          </RouterLink>
-
-          <button
-            class="btn-secondary w-full text-left border border-[#DCDEDD] rounded-[16px] hover:border-[#0C51D9] hover:border-2 hover:rounded-[12px] focus:border-[#0C51D9] focus:border-2 focus:rounded-[12px] focus:bg-white transition-all duration-300 px-4 py-3 flex items-center gap-2">
-            <FileText class="w-4 h-4 text-gray-600" />
-            <span class="text-brand-dark text-sm font-medium">Generate Reports</span>
-          </button>
-
-          <button
-            class="btn-secondary w-full text-left border border-[#DCDEDD] rounded-[16px] hover:border-[#0C51D9] hover:border-2 hover:rounded-[12px] focus:border-[#0C51D9] focus:border-2 focus:rounded-[12px] focus:bg-white transition-all duration-300 px-4 py-3 flex items-center gap-2">
-            <Download class="w-4 h-4 text-gray-600" />
-            <span class="text-brand-dark text-sm font-medium">Export Data</span>
-          </button>
-
-          <button
-            class="btn-secondary w-full text-left border border-[#DCDEDD] rounded-[16px] hover:border-[#0C51D9] hover:border-2 hover:rounded-[12px] focus:border-[#0C51D9] focus:border-2 focus:rounded-[12px] focus:bg-white transition-all duration-300 px-4 py-3 flex items-center gap-2">
-            <Settings class="w-4 h-4 text-gray-600" />
-            <span class="text-brand-dark text-sm font-medium">Payroll Settings</span>
-          </button>
-        </div>
+      <div class="lg:row-span-2">
+        <ContextActions
+          title-key="contextActions.payroll.title"
+          subtitle-key="contextActions.payroll.subtitle"
+          :actions="[
+            {
+              key: 'create-payroll',
+              labelKey: 'contextActions.payroll.create',
+              icon: Plus,
+              to: { name: 'admin.payroll.create' },
+              permission: 'payroll-create',
+              primary: true,
+            },
+            {
+              key: 'payroll-reports',
+              labelKey: 'contextActions.payroll.reports',
+              icon: FileText,
+              to: { name: 'admin.reports', query: { tab: 'payroll' } },
+              permission: 'report-view',
+            },
+            {
+              key: 'payroll-settings',
+              labelKey: 'contextActions.payroll.settings',
+              icon: Settings,
+              to: { name: 'admin.settings' },
+              permission: 'setting-view',
+            },
+          ]"
+        />
       </div>
 
       <!-- Row 2 Stats Cards -->

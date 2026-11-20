@@ -394,5 +394,72 @@
     "oneMonthDays": "1 month {days} days",
     "months": "{count} months",
     "monthsDays": "{months} months {days} days"
+  },
+  "tips": {
+    "team": {
+      "title": "Team Setup Tips",
+      "subtitle": "Guidelines for creating or updating a team",
+      "nameTitle": "Use a Clear Team Name",
+      "nameDesc": "Choose a descriptive name reflecting the division, store, or operational unit.",
+      "leadTitle": "Assign a Team Lead",
+      "leadDesc": "Select an active manager or lead who will oversee attendance and leave approvals.",
+      "membersTitle": "Add Members Anytime",
+      "membersDesc": "You can add or remove team members later from the Team Details page."
+    },
+    "project": {
+      "title": "Project Setup Tips",
+      "subtitle": "Guidelines for creating or updating a project",
+      "scopeTitle": "Define Scope & Priority",
+      "scopeDesc": "Specify project type, status, and priority so teams understand deliverables.",
+      "leaderTitle": "Select a Project Leader",
+      "leaderDesc": "Assign a responsible leader to coordinate tasks and progress tracking.",
+      "timelineTitle": "Set Start & End Dates",
+      "timelineDesc": "Ensure the end date is after the start date for accurate progress tracking.",
+      "teamsTitle": "Assign Relevant Teams",
+      "teamsDesc": "Link one or more teams whose members will execute tasks in this project."
+    },
+    "employeeStep2": {
+      "title": "Job & Bank Tips",
+      "subtitle": "Step 2 guidelines",
+      "roleTitle": "Assign the Right Role",
+      "roleDesc": "User role determines module access (HR, Finance, Manager, Employee, etc.).",
+      "scheduleTitle": "Verify Start Date & Status",
+      "scheduleDesc": "Set accurate start date, employment type, and monthly salary for Payroll.",
+      "bankTitle": "Double-Check Bank Details",
+      "bankDesc": "Ensure account number and holder name match for smooth Payroll disbursement."
+    },
+    "employeeStep3": {
+      "title": "Emergency Contact Tips",
+      "subtitle": "Step 3 guidelines",
+      "contactTitle": "Provide Reachable Contact",
+      "contactDesc": "Enter an active phone number of someone who can be reached urgently.",
+      "relationTitle": "Specify Relationship",
+      "relationDesc": "State the relationship clearly (e.g., Spouse, Parent, Sibling).",
+      "reviewTitle": "Review Before Submitting",
+      "reviewDesc": "Confirm all personal, job, bank, and emergency details before saving."
+    }
+  },
+  "contextActions": {
+    "team": {
+      "subtitle": "Related team shortcuts",
+      "viewAll": "View All Teams",
+      "viewAllDesc": "Return to the team directory",
+      "browseEmployees": "Browse Employees",
+      "browseEmployeesDesc": "View employee directory"
+    },
+    "project": {
+      "subtitle": "Related project shortcuts",
+      "viewAll": "View All Projects",
+      "viewAllDesc": "Return to the project list",
+      "browseTeams": "Browse Teams",
+      "browseTeamsDesc": "View available teams"
+    },
+    "payroll": {
+      "title": "Payroll Actions",
+      "subtitle": "Contextual Payroll shortcuts",
+      "create": "Create New Payroll",
+      "reports": "Payroll Reports",
+      "settings": "Settings"
+    }
   }
 }
