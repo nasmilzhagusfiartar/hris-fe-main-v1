@@ -21,6 +21,7 @@ import reportRoutes from './report';
 import settingsRoutes from './settings';
 import ctiRoutes from './cti';
 import rbacRoutes from './rbac';
+import storeRoutes from './store';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -63,6 +64,7 @@ const router = createRouter({
         ...settingsRoutes,
         ...ctiRoutes,
         ...rbacRoutes,
+        ...storeRoutes,
         {
           path: 'my-profile',
           name: 'employee.profile',

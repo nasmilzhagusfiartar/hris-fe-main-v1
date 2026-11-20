@@ -3,11 +3,13 @@ import { computed, onMounted } from "vue";
 import { RouterLink } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useDashboardStore } from "@/stores/dashboard";
+import { useAuthStore } from "@/stores/auth";
 import { can } from "@/helpers/permissionHelper";
 import { quickActionsConfig } from "@/config/quickActions";
 
 const { t, te } = useI18n();
 const dashboardStore = useDashboardStore();
+const authStore = useAuthStore();
 
 const getActionLabel = (action: { key: string; label: string }) => {
   const path = `quickActions.items.${action.key}`;
@@ -15,8 +17,15 @@ const getActionLabel = (action: { key: string; label: string }) => {
 };
 
 // Purely permission-based filtering from authStore.user.permissions
+// Vendor sales employees are excluded from Payslips & Leave Request shortcuts
 const visibleActions = computed(() => {
-  return quickActionsConfig.filter((item) => can(item.permission));
+  const isVendor = Boolean(authStore.user?.is_vendor);
+  return quickActionsConfig.filter((item) => {
+    if (isVendor && (item.key === "self-payslips" || item.key === "self-leave-create")) {
+      return false;
+    }
+    return can(item.permission);
+  });
 });
 
 const getBadgeValue = (badgeKey?: string): number => {

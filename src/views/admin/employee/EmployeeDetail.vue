@@ -161,6 +161,12 @@ onMounted(() => {
               Super Admin
             </span>
             <span
+              v-if="employee.job_information?.employment_type === 'vendor'"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-bold bg-purple-100 text-purple-800 border border-purple-200"
+            >
+              Vendor{{ employee.job_information?.vendor_name ? ` · ${employee.job_information.vendor_name}` : '' }}
+            </span>
+            <span
               :class="
                 getLevelColor(capitalize(employee.job_information?.skill_level))
               "
@@ -559,6 +565,24 @@ onMounted(() => {
           </div>
         </div>
         <div class="space-y-4">
+          <div class="flex justify-between items-center" v-if="employee.job_information?.department">
+            <span class="text-brand-light text-base">Department</span>
+            <span class="text-brand-dark text-base font-medium">
+              {{ capitalize(employee.job_information.department.replace(/_/g, ' ')) }}
+            </span>
+          </div>
+          <div class="flex justify-between items-center" v-if="employee.job_information?.store?.name">
+            <span class="text-brand-light text-base">Store</span>
+            <span class="text-brand-dark text-base font-medium">
+              {{ employee.job_information.store.name }} ({{ employee.job_information.store.brand }})
+            </span>
+          </div>
+          <div class="flex justify-between items-center" v-if="employee.job_information?.employment_type === 'vendor' && employee.job_information?.vendor_name">
+            <span class="text-brand-light text-base">Vendor Name</span>
+            <span class="text-brand-dark text-base font-medium">
+              {{ employee.job_information.vendor_name }}
+            </span>
+          </div>
           <div class="flex justify-between items-center">
             <span class="text-brand-light text-base">Years of Experience</span>
             <span class="text-brand-dark text-base font-medium">

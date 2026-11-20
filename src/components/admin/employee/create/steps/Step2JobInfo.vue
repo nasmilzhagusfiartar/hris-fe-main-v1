@@ -26,6 +26,8 @@ import {
 import { ref, computed, onMounted, watch } from "vue";
 import { useTeamStore } from "@/stores/team";
 import { useOptionStore } from "@/stores/option";
+import { useStoreStore } from "@/stores/store";
+import { useI18n } from "vue-i18n";
 import { isSuperAdmin } from "@/helpers/permissionHelper";
 import { storeToRefs } from "pinia";
 import RightSidebarStep2 from "@/components/admin/employee/create/RightSidebarStep2.vue";
@@ -67,9 +69,25 @@ const teamStore = useTeamStore();
 const { teams } = storeToRefs(teamStore);
 
 // Option store
+const { t } = useI18n();
 const optionStore = useOptionStore();
-const { employmentTypes, jobStatuses, workLocations, skillLevels } =
+const { departments, employmentTypes, jobStatuses, workLocations, skillLevels } =
   storeToRefs(optionStore);
+
+// Store store (retail branches)
+const storeStore = useStoreStore();
+const { stores } = storeToRefs(storeStore);
+
+const storeOptions = computed(() =>
+  (stores.value || []).map((s: any) => ({
+    value: s.id,
+    label: `${s.name} (${s.brand} - ${s.city})`,
+  }))
+);
+
+const isVendorEmployment = computed(
+  () => String(form.value?.employment_type || "").toLowerCase() === "vendor"
+);
 
 // Team modal
 const teamModal = ref(false);
@@ -95,11 +113,15 @@ const handleRemoveTeam = () => {
 };
 
 onMounted(async () => {
-  await teamStore.fetchTeams();
-  await optionStore.fetchEmploymentTypes();
-  await optionStore.fetchJobStatuses();
-  await optionStore.fetchWorkLocations();
-  await optionStore.fetchSkillLevels();
+  await Promise.allSettled([
+    teamStore.fetchTeams(),
+    storeStore.fetchStores({ is_active: 1 }),
+    optionStore.fetchDepartments(),
+    optionStore.fetchEmploymentTypes(),
+    optionStore.fetchJobStatuses(),
+    optionStore.fetchWorkLocations(),
+    optionStore.fetchSkillLevels(),
+  ]);
   if (form.value.monthly_salary) {
     form.value.monthly_salary = formatRupiah(form.value.monthly_salary);
   }
@@ -298,6 +320,58 @@ watch(
             >
               <template #icon>
                 <Clock class="h-5 w-5 text-gray-400" />
+              </template>
+            </Select>
+          </div>
+
+          <!-- Conditional Vendor Name (ONLY shown & required when employment_type === 'vendor') -->
+          <div v-if="isVendorEmployment" class="mb-4">
+            <Input
+              id="vendor_name"
+              name="vendor_name"
+              type="text"
+              v-model="form.vendor_name"
+              :label="`${t('employee.vendorName')} *`"
+              :placeholder="t('employee.vendorNamePlaceholder')"
+              :error="errors?.vendor_name?.join(', ')"
+              required
+            >
+              <template #icon>
+                <Building2 class="h-5 w-5 text-gray-400" />
+              </template>
+            </Input>
+          </div>
+
+          <!-- Department -->
+          <div class="mb-4">
+            <Select
+              id="department"
+              name="department"
+              v-model="form.department"
+              :label="t('employee.department')"
+              :placeholder="t('employee.selectDepartment')"
+              :options="departments"
+              :error="errors?.department?.join(', ')"
+            >
+              <template #icon>
+                <Building2 class="h-5 w-5 text-gray-400" />
+              </template>
+            </Select>
+          </div>
+
+          <!-- Store / Branch -->
+          <div class="mb-4">
+            <Select
+              id="store_id"
+              name="store_id"
+              v-model="form.store_id"
+              :label="t('employee.store')"
+              :placeholder="t('employee.selectStore')"
+              :options="storeOptions"
+              :error="errors?.store_id?.join(', ')"
+            >
+              <template #icon>
+                <MapPin class="h-5 w-5 text-gray-400" />
               </template>
             </Select>
           </div>

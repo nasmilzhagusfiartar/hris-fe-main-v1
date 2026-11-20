@@ -40,6 +40,9 @@ const targetRoles = computed(() =>
 );
 const isTargetSuperAdmin = computed(() => targetRoles.value.includes("super-admin"));
 const isTargetAdmin = computed(() => targetRoles.value.includes("admin"));
+const isTargetVendor = computed(
+  () => String(props.data?.job_information?.employment_type || "").toLowerCase() === "vendor"
+);
 const canResetTargetMfa = computed(() => {
   if (!can("mfa.reset-user") || !localMfaEnabled.value) return false;
   if (isTargetSuperAdmin.value || isTargetAdmin.value) {
@@ -122,11 +125,32 @@ const handleResetMfa = async () => {
             <Crown class="w-3 h-3" />
             {{ t("roles.super-admin") }}
           </span>
+          <span
+            v-if="isTargetVendor"
+            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-purple-100 text-purple-800 border border-purple-200"
+          >
+            {{ t("enums.vendor") }}
+          </span>
         </div>
         <p
           class="mt-1 text-[#6B7280] font-['Plus_Jakarta_Sans'] text-[14px] font-normal"
         >
           {{ _.capitalize(data?.job_information?.job_title) }}
+        </p>
+        <p
+          v-if="isTargetVendor && data?.job_information?.vendor_name"
+          class="text-xs text-purple-700 font-medium mt-0.5"
+        >
+          {{ data.job_information.vendor_name }}
+          <span v-if="data?.job_information?.store?.name">
+            • {{ data.job_information.store.name }}
+          </span>
+        </p>
+        <p
+          v-else-if="data?.job_information?.store?.name"
+          class="text-xs text-blue-700 font-medium mt-0.5"
+        >
+          {{ data.job_information.store.name }}
         </p>
       </div>
       <span

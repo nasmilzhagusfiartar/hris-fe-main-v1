@@ -3,8 +3,10 @@ import Statisctics from "@/components/admin/employee/list/Statisctics.vue";
 import CardList from "@/components/admin/employee/list/CardList.vue";
 import { useEmployeeStore } from "@/stores/employee";
 import { useOptionStore } from "@/stores/option";
+import { useStoreStore } from "@/stores/store";
 import { storeToRefs } from "pinia";
 import { ref, onMounted, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { debounce } from "lodash";
 import {
   Search,
@@ -14,18 +16,25 @@ import {
   ChevronDown,
   Upload,
   UserPlus,
+  Store,
+  Tag,
 } from "lucide-vue-next";
 import Pagination from "@/components/admin/team/Pagination.vue";
 import { can } from "@/helpers/permissionHelper";
 import Alert from "@/components/common/Alert.vue";
+
+const { t } = useI18n();
 
 const employeeStore = useEmployeeStore();
 const { employees, meta, loading, success } = storeToRefs(employeeStore);
 const { fetchEmployeesPaginated } = employeeStore;
 
 const optionStore = useOptionStore();
-const { employmentTypes, jobStatuses } = storeToRefs(optionStore);
-const { fetchEmploymentTypes, fetchJobStatuses } = optionStore;
+const { departments, employmentTypes, jobStatuses } = storeToRefs(optionStore);
+const { fetchDepartments, fetchEmploymentTypes, fetchJobStatuses } = optionStore;
+
+const storeStore = useStoreStore();
+const { stores } = storeToRefs(storeStore);
 
 const serverOptions = ref({
   page: 1,
@@ -34,6 +43,9 @@ const serverOptions = ref({
 
 const filters = ref({
   search: null,
+  department: "",
+  store_id: "",
+  vendor_name: "",
   type: "",
   status: "",
 });
@@ -47,8 +59,12 @@ const fetchData = async () => {
 
 onMounted(async () => {
   await fetchData();
-  await fetchEmploymentTypes();
-  await fetchJobStatuses();
+  await Promise.all([
+    fetchDepartments(),
+    fetchEmploymentTypes(),
+    fetchJobStatuses(),
+    storeStore.fetchStores({ is_active: 1 }).catch(() => {}),
+  ]);
 });
 
 watch(
@@ -96,7 +112,61 @@ const handlePerPageChange = (perPage) => {
       </div>
 
       <!-- Filter and Action Buttons -->
-      <div class="flex items-center gap-3">
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- Department Filter -->
+        <div class="relative">
+          <div
+            class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"
+          >
+            <Building class="h-4 w-4 text-gray-400" />
+          </div>
+          <select
+            class="pl-10 pr-8 py-3 border border-[#DCDEDD] rounded-[16px] hover:border-[#0C51D9] hover:border-2 focus:border-[#0C51D9] focus:border-2 transition-all duration-300 bg-white appearance-none"
+            v-model="filters.department"
+          >
+            <option value="">{{ t("employee.allDepartments") }}</option>
+            <option
+              v-for="dept in departments"
+              :key="dept.value"
+              :value="dept.value"
+            >
+              {{ dept.label }}
+            </option>
+          </select>
+          <div
+            class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"
+          >
+            <ChevronDown class="h-4 w-4 text-gray-400" />
+          </div>
+        </div>
+
+        <!-- Store Filter -->
+        <div class="relative">
+          <div
+            class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"
+          >
+            <Store class="h-4 w-4 text-gray-400" />
+          </div>
+          <select
+            class="pl-10 pr-8 py-3 border border-[#DCDEDD] rounded-[16px] hover:border-[#0C51D9] hover:border-2 focus:border-[#0C51D9] focus:border-2 transition-all duration-300 bg-white appearance-none"
+            v-model="filters.store_id"
+          >
+            <option value="">{{ t("employee.allStores") }}</option>
+            <option
+              v-for="store in stores"
+              :key="store.id"
+              :value="store.id"
+            >
+              {{ store.name }}
+            </option>
+          </select>
+          <div
+            class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none"
+          >
+            <ChevronDown class="h-4 w-4 text-gray-400" />
+          </div>
+        </div>
+
         <!-- Type Filter -->
         <div class="relative">
           <div
@@ -122,6 +192,21 @@ const handlePerPageChange = (perPage) => {
           >
             <ChevronDown class="h-4 w-4 text-gray-400" />
           </div>
+        </div>
+
+        <!-- Vendor Name Filter -->
+        <div class="relative">
+          <div
+            class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none"
+          >
+            <Tag class="h-4 w-4 text-gray-400" />
+          </div>
+          <input
+            type="text"
+            v-model="filters.vendor_name"
+            :placeholder="t('employee.filterVendor')"
+            class="w-40 pl-9 pr-3 py-3 border border-[#DCDEDD] rounded-[16px] hover:border-[#0C51D9] hover:border-2 focus:border-[#0C51D9] focus:border-2 transition-all duration-300 bg-white text-sm"
+          />
         </div>
 
         <!-- Status Filter -->

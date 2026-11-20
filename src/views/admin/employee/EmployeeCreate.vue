@@ -55,9 +55,12 @@ const initialStep1 = () => ({
 const initialStep2 = () => ({
   job_title: "",
   team_id: "",
+  department: "",
+  store_id: "",
   years_experience: "",
   status: "",
   employment_type: "",
+  vendor_name: "",
   work_location: "",
   start_date: "",
   monthly_salary: "",
@@ -194,6 +197,7 @@ const validateStep = (step: number): boolean => {
       "years_experience",
       "status",
       "employment_type",
+      "vendor_name",
       "work_location",
       "start_date",
       "monthly_salary",
@@ -222,6 +226,8 @@ const validateStep = (step: number): boolean => {
     if (!s2.status) newErrors.status = ["Employment status is required."];
     if (!s2.employment_type)
       newErrors.employment_type = ["Employment type is required."];
+    if (s2.employment_type === "vendor" && !s2.vendor_name?.trim())
+      newErrors.vendor_name = ["Vendor name is required for vendor employees."];
     if (!s2.work_location)
       newErrors.work_location = ["Work location is required."];
     if (!s2.start_date)
@@ -302,6 +308,7 @@ const validateStep = (step: number): boolean => {
       "years_experience",
       "status",
       "employment_type",
+      "vendor_name",
       "work_location",
       "start_date",
       "monthly_salary",
@@ -460,9 +467,21 @@ const handleSubmit = async () => {
     if (step2Data.value.team_id) {
       formData.append("team_id", step2Data.value.team_id);
     }
+    if (step2Data.value.department) {
+      formData.append("department", step2Data.value.department);
+    }
+    if (step2Data.value.store_id) {
+      formData.append("store_id", step2Data.value.store_id);
+    }
     formData.append("years_experience", step2Data.value.years_experience);
     formData.append("status", step2Data.value.status);
     formData.append("employment_type", step2Data.value.employment_type);
+    if (
+      step2Data.value.employment_type === "vendor" &&
+      step2Data.value.vendor_name
+    ) {
+      formData.append("vendor_name", step2Data.value.vendor_name);
+    }
     formData.append("work_location", step2Data.value.work_location);
     formData.append("start_date", step2Data.value.start_date);
     formData.append(

@@ -15,6 +15,7 @@ import {
   ShieldCheckIcon,
   BriefcaseIcon,
   KeyIcon,
+  StoreIcon,
 } from "lucide-vue-next";
 
 import { can, canOneOf } from "@/helpers/permissionHelper";
@@ -42,6 +43,7 @@ const isEmployee = computed(() => userRoles.value.includes("employee"));
 const isManager = computed(() => userRoles.value.includes("manager"));
 const isHr = computed(() => userRoles.value.includes("hr"));
 const isFinance = computed(() => userRoles.value.includes("finance"));
+const isVendor = computed(() => Boolean(authStore.user?.is_vendor));
 
 const hasFullCtiAccess = computed(() => {
   return (
@@ -249,6 +251,32 @@ const portalSubtitle = computed(() => {
             </span>
           </RouterLink>
 
+          <!-- Stores (Super Admin, Admin, HR) -->
+          <RouterLink
+            v-if="can('store-menu') || isAdmin || isHr"
+            :to="{ name: 'admin.stores' }"
+            class="nav-link border border-[#DCDEDD] rounded-[20px] hover:border-[#0C51D9] hover:border-2 focus:bg-white transition-all duration-300"
+            :class="{
+              'nav-link-active': $route.name?.startsWith('admin.stores'),
+            }"
+            @click="onNavigate"
+          >
+            <StoreIcon
+              class="w-5 h-5 text-gray-600"
+              :class="{
+                'text-white': $route.name?.startsWith('admin.stores'),
+              }"
+            />
+            <span
+              class="text-brand-dark text-base font-medium"
+              :class="{
+                'text-brand-white': $route.name?.startsWith('admin.stores'),
+              }"
+            >
+              {{ t("nav.stores") }}
+            </span>
+          </RouterLink>
+
           <!-- Attendance Management -->
           <RouterLink
             v-if="can('attendance-menu') || isManager || isHr"
@@ -442,9 +470,9 @@ const portalSubtitle = computed(() => {
             </span>
           </RouterLink>
 
-          <!-- My Payslips -->
+          <!-- My Payslips (hidden for vendor sales employees) -->
           <RouterLink
-            v-if="can('payslip-view') || isEmployee"
+            v-if="!isVendor && (can('payslip-view') || isEmployee)"
             :to="{ name: 'employee.payslips' }"
             class="nav-link border border-[#DCDEDD] rounded-[20px] hover:border-[#0C51D9] hover:border-2 focus:bg-white transition-all duration-300"
             :class="{

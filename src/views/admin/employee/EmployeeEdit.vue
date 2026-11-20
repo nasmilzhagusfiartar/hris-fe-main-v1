@@ -48,9 +48,12 @@ const step1Data = ref({
 const step2Data = ref({
   job_title: "",
   team_id: "",
+  department: "",
+  store_id: "",
   years_experience: "",
   status: "",
   employment_type: "",
+  vendor_name: "",
   work_location: "",
   start_date: "",
   monthly_salary: "",
@@ -102,11 +105,16 @@ const loadEmployeeData = async () => {
       // Step 2 - Job Information & Bank Information
       step2Data.value.job_title = employee.job_information?.job_title || "";
       step2Data.value.team_id = employee.job_information?.team_id || "";
+      step2Data.value.department = employee.job_information?.department || "";
+      step2Data.value.store_id = employee.job_information?.store_id
+        ? String(employee.job_information.store_id)
+        : "";
       step2Data.value.years_experience =
         employee.job_information?.years_experience || "";
       step2Data.value.status = employee.job_information?.status || "";
       step2Data.value.employment_type =
         employee.job_information?.employment_type || "";
+      step2Data.value.vendor_name = employee.job_information?.vendor_name || "";
       step2Data.value.work_location =
         employee.job_information?.work_location || "";
       step2Data.value.start_date = employee.job_information?.start_date || "";
@@ -175,10 +183,24 @@ const handleSubmit = async () => {
 
     // Step 2 data (Job Information & Bank Information)
     formData.append("job_title", step2Data.value.job_title);
-    formData.append("team_id", step2Data.value.team_id);
+    if (step2Data.value.team_id) {
+      formData.append("team_id", step2Data.value.team_id);
+    }
+    if (step2Data.value.department) {
+      formData.append("department", step2Data.value.department);
+    }
+    if (step2Data.value.store_id) {
+      formData.append("store_id", step2Data.value.store_id);
+    }
     formData.append("years_experience", step2Data.value.years_experience);
     formData.append("status", step2Data.value.status);
     formData.append("employment_type", step2Data.value.employment_type);
+    if (
+      step2Data.value.employment_type === "vendor" &&
+      step2Data.value.vendor_name
+    ) {
+      formData.append("vendor_name", step2Data.value.vendor_name);
+    }
     formData.append("work_location", step2Data.value.work_location);
     formData.append("start_date", step2Data.value.start_date);
     formData.append(
