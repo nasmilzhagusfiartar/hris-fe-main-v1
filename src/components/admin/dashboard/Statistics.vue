@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import {
   TrendingUpIcon,
   UsersIcon,
@@ -11,6 +12,7 @@ import {
 import QuickActions from "./QuickActions.vue";
 import { useDashboardStore } from "@/stores/dashboard";
 
+const { t } = useI18n();
 const dashboardStore = useDashboardStore();
 
 onMounted(() => {
@@ -41,21 +43,21 @@ const loading = computed(() => dashboardStore.loading);
           >
             <TrendingUpIcon class="w-3 h-3 text-white" />
             <span class="text-brand-white text-xs font-semibold"
-              >+{{ employees.added_this_month }} this month</span
+              >{{ t("dashboard.addedThisMonth", { count: employees.added_this_month }) }}</span
             >
           </div>
         </div>
 
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
           <div>
-            <p class="text-brand-white-90 text-sm font-medium">Our Employees</p>
+            <p class="text-brand-white-90 text-sm font-medium">{{ t("dashboard.ourEmployees") }}</p>
             <p
               class="text-brand-white text-3xl sm:text-5xl font-extrabold leading-none my-4"
             >
               {{ loading ? '...' : employees.total.toLocaleString() }}
             </p>
             <p class="text-brand-white-80 text-base font-normal">
-              Active team members
+              {{ t("dashboard.activeTeamMembers") }}
             </p>
           </div>
           <div
@@ -70,13 +72,13 @@ const loading = computed(() => dashboardStore.loading);
           <div class="flex items-center gap-1">
             <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
             <span class="text-brand-white-70 text-xs font-normal"
-              >Active Status</span
+              >{{ t("dashboard.activeStatus") }}</span
             >
           </div>
           <div class="flex items-center gap-1">
             <StarIcon class="w-3 h-3 text-white opacity-70" />
             <span class="text-brand-white-70 text-xs font-normal"
-              >Top Performers</span
+              >{{ t("dashboard.topPerformers") }}</span
             >
           </div>
         </div>
@@ -90,11 +92,11 @@ const loading = computed(() => dashboardStore.loading);
     >
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-brand-dark text-sm font-medium">Total Teams</p>
+          <p class="text-brand-dark text-sm font-medium">{{ t("dashboard.totalTeams") }}</p>
           <p class="text-brand-dark text-2xl sm:text-3xl font-extrabold leading-tight my-2">
             {{ loading ? '...' : teams.total }}
           </p>
-          <p v-if="teams.new_teams > 0" class="text-success text-sm font-medium">+{{ teams.new_teams }} new teams</p>
+          <p v-if="teams.new_teams > 0" class="text-success text-sm font-medium">{{ t("dashboard.newTeams", { count: teams.new_teams }) }}</p>
         </div>
         <div
           class="w-10 h-10 sm:w-12 sm:h-12 bg-blue-50 rounded-[16px] flex items-center justify-center"
@@ -110,12 +112,12 @@ const loading = computed(() => dashboardStore.loading);
     >
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-brand-dark text-sm font-medium">Attendance Rate</p>
+          <p class="text-brand-dark text-sm font-medium">{{ t("dashboard.attendanceRate") }}</p>
           <p class="text-brand-dark text-2xl sm:text-3xl font-extrabold leading-tight my-2">
             {{ loading ? '...' : attendance.rate }}%
           </p>
           <p v-if="attendance.change !== 0" :class="attendance.change >= 0 ? 'text-success' : 'text-danger'" class="text-sm font-medium">
-            {{ attendance.change >= 0 ? '+' : '' }}{{ attendance.change }}% from last week
+            {{ t("dashboard.fromLastWeek", { sign: attendance.change >= 0 ? '+' : '', change: attendance.change }) }}
           </p>
         </div>
         <div
@@ -133,12 +135,12 @@ const loading = computed(() => dashboardStore.loading);
     >
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-brand-dark text-sm font-medium">Tasks Completed</p>
+          <p class="text-brand-dark text-sm font-medium">{{ t("dashboard.tasksCompleted") }}</p>
           <p class="text-brand-dark text-2xl sm:text-3xl font-extrabold leading-tight my-2">
             {{ loading ? '...' : tasks.completed }}
           </p>
           <p v-if="tasks.change !== 0" :class="tasks.change >= 0 ? 'text-success' : 'text-danger'" class="text-sm font-medium">
-            {{ tasks.change >= 0 ? '+' : '' }}{{ tasks.change }} from yesterday
+            {{ t("dashboard.fromYesterday", { sign: tasks.change >= 0 ? '+' : '', change: tasks.change }) }}
           </p>
         </div>
         <div
@@ -155,11 +157,11 @@ const loading = computed(() => dashboardStore.loading);
     >
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-brand-dark text-sm font-medium">Active Projects</p>
+          <p class="text-brand-dark text-sm font-medium">{{ t("dashboard.activeProjects") }}</p>
           <p class="text-brand-dark text-2xl sm:text-3xl font-extrabold leading-tight my-2">
             {{ loading ? '...' : projects.active }}
           </p>
-          <p v-if="projects.new_projects > 0" class="text-success text-sm font-medium">+{{ projects.new_projects }} new projects</p>
+          <p v-if="projects.new_projects > 0" class="text-success text-sm font-medium">{{ t("dashboard.newProjects", { count: projects.new_projects }) }}</p>
         </div>
         <div
           class="w-10 h-10 sm:w-12 sm:h-12 bg-orange-50 rounded-[16px] flex items-center justify-center"

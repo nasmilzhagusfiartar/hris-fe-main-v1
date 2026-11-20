@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
-import i18n from '@/plugins/i18n'
+import i18n, { updateDocumentTitle } from '@/plugins/i18n'
 import AuthLayout from '@/layouts/Auth.vue'
 import AdminLayout from '@/layouts/Admin.vue'
 import Login from '@/views/auth/Login.vue'
@@ -207,5 +207,12 @@ router.beforeEach(async (to, from, next) => {
   }
 })
 
+
+router.afterEach((to) => {
+  if (typeof window !== 'undefined') {
+    window.__HIP_CURRENT_ROUTE_NAME__ = to.name?.toString() || ''
+  }
+  updateDocumentTitle(to.name)
+})
 
 export default router

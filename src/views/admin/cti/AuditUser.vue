@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from "vue";
 import { useRoute } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { useAuthStore } from "@/stores/auth";
 import { axiosInstance } from "@/plugins/axios";
 import { getImageUrl, handleImageError } from "@/helpers/imageHelper";
@@ -36,6 +37,7 @@ import {
   User as UserIcon,
 } from "lucide-vue-next";
 
+const { t } = useI18n();
 const route = useRoute();
 const authStore = useAuthStore();
 const activeTimezoneLabel = computed(() => getTimezoneLabel());
@@ -374,11 +376,10 @@ onBeforeUnmount(() => {
         </div>
         <div>
           <h1 class="text-xl sm:text-2xl font-bold text-brand-dark">
-            User Audit &amp; Session Activity Logs
+            {{ t("cti.auditTitle") }}
           </h1>
           <p class="mt-0.5 text-sm text-brand-light">
-            Read-only monitoring of active sessions, devices, IP addresses, and
-            HIP HRIS user activity history.
+            {{ t("cti.auditSubtitle") }}
           </p>
         </div>
       </div>
@@ -389,10 +390,10 @@ onBeforeUnmount(() => {
           @click="fetchAuditLogs(currentPage)"
           :disabled="loading"
           class="inline-flex items-center gap-2 px-3.5 py-2.5 border border-[#DCDEDD] rounded-[12px] text-sm font-semibold text-brand-dark bg-white hover:border-[#0C51D9] hover:bg-gray-50 transition-all disabled:opacity-50"
-          aria-label="Reload audit logs"
+          :aria-label="t('common.refresh')"
         >
           <RefreshCw class="w-4 h-4" :class="{ 'animate-spin': loading }" />
-          <span>Refresh</span>
+          <span>{{ t("common.refresh") }}</span>
         </button>
 
         <button
@@ -401,7 +402,7 @@ onBeforeUnmount(() => {
           class="inline-flex items-center gap-2 px-4 py-2.5 rounded-[12px] text-sm font-semibold text-white bg-[#0C51D9] hover:bg-blue-700 transition-all shadow-sm"
         >
           <Printer class="w-4 h-4" />
-          <span>Print Report</span>
+          <span>{{ t("cti.printReport") }}</span>
         </button>
       </div>
     </div>
@@ -412,7 +413,7 @@ onBeforeUnmount(() => {
         <div class="flex items-center gap-2.5">
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
           <h2 class="text-sm font-bold text-gray-700 uppercase tracking-wider">
-            Your Current Session
+            {{ t("cti.yourCurrentSession") }}
           </h2>
         </div>
         <span

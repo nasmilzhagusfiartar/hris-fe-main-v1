@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import i18n from "@/plugins/i18n";
+import { translateApiMessage } from "@/utils/apiMessage";
 
 export const useToastStore = defineStore("toast", {
   state: () => ({
@@ -9,7 +10,8 @@ export const useToastStore = defineStore("toast", {
   actions: {
     addToast({ type = "info", title = "", message = "", duration = 4000 }) {
       const id = Date.now() + Math.random().toString(36).substr(2, 9);
-      const newToast = { id, type, title, message, duration };
+      const translatedMessage = typeof message === "string" ? translateApiMessage(message) : message;
+      const newToast = { id, type, title, message: translatedMessage, duration };
 
       this.toasts.push(newToast);
 

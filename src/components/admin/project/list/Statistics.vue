@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
+import { useI18n } from "vue-i18n";
 import VueApexCharts from "vue3-apexcharts";
 import {
   TrendingUp,
@@ -11,6 +12,7 @@ import {
 import { useProjectStore } from "@/stores/project";
 import { storeToRefs } from "pinia";
 
+const { t } = useI18n();
 const projectStore = useProjectStore();
 const { loadingStatistics } = storeToRefs(projectStore);
 
@@ -163,7 +165,7 @@ const chartSeries = computed(() => [
       >
         <!-- Header with title and icon -->
         <div class="flex items-center justify-between mb-4">
-          <p class="text-brand-dark text-base font-medium">Total Projects</p>
+          <p class="text-brand-dark text-base font-medium">{{ t("project.totalProjects") }}</p>
           <div
             class="w-12 h-12 bg-blue-50 rounded-[16px] flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-300"
           >
@@ -178,7 +180,7 @@ const chartSeries = computed(() => [
           >
             {{ loadingStatistics ? "-" : total }}
           </p>
-          <p class="text-success text-base font-medium">All projects</p>
+          <p class="text-success text-base font-medium">{{ t("project.allProjects") }}</p>
         </div>
       </div>
 
@@ -188,7 +190,7 @@ const chartSeries = computed(() => [
       >
         <!-- Header with title and icon -->
         <div class="flex items-center justify-between mb-4">
-          <p class="text-brand-dark text-base font-medium">Active Projects</p>
+          <p class="text-brand-dark text-base font-medium">{{ t("project.activeProjects") }}</p>
           <div
             class="w-12 h-12 bg-green-50 rounded-[16px] flex items-center justify-center group-hover:bg-green-100 transition-colors duration-300"
           >
@@ -203,7 +205,7 @@ const chartSeries = computed(() => [
           >
             {{ loadingStatistics ? "-" : active }}
           </p>
-          <p class="text-success text-base font-medium">In progress</p>
+          <p class="text-success text-base font-medium">{{ t("project.inProgress") }}</p>
         </div>
       </div>
     </div>
@@ -219,9 +221,9 @@ const chartSeries = computed(() => [
           <TrendingUp class="w-6 h-6 text-purple-600" />
         </div>
         <div class="flex-1">
-          <h3 class="text-brand-dark text-lg font-bold">Project Progress</h3>
+          <h3 class="text-brand-dark text-lg font-bold">{{ t("project.projectProgress") }}</h3>
           <p class="text-brand-light text-sm">
-            Monthly project completion trends
+            {{ t("project.monthlyTrends") }}
           </p>
         </div>
       </div>
@@ -233,8 +235,8 @@ const chartSeries = computed(() => [
           class="h-full flex flex-col items-center justify-center text-center text-gray-500"
         >
           <Briefcase class="w-10 h-10 text-gray-300 mb-2" />
-          <p class="text-sm font-semibold text-gray-600">No project trend data available</p>
-          <p class="text-xs text-gray-400 mt-1">Monthly trends will appear once projects are created.</p>
+          <p class="text-sm font-semibold text-gray-600">{{ t("project.noTrendData") }}</p>
+          <p class="text-xs text-gray-400 mt-1">{{ t("project.noTrendDataSub") }}</p>
         </div>
         <VueApexCharts
           v-else

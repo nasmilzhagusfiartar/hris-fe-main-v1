@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
+import { useI18n } from "vue-i18n";
 import {
   CalendarCheckIcon,
   CheckSquareIcon,
@@ -21,6 +22,7 @@ import { useTaskStore } from "@/stores/task";
 import { useEmployeeStore } from "@/stores/employee";
 import { getTimeAgo } from "@/utils/dateUtils";
 
+const { t } = useI18n();
 const authStore = useAuthStore();
 
 const statistics = ref({
@@ -179,10 +181,10 @@ onMounted(() => {
     <!-- Welcome Message -->
     <div class="mb-4">
       <h2 class="text-brand-dark text-xl sm:text-2xl font-bold">
-        Welcome back, {{ userName }}! 👋
+        {{ t("dashboard.welcomeBack", { name: userName }) }}
       </h2>
       <p class="text-gray-600 text-xs sm:text-sm">
-        Here's your performance overview
+        {{ t("dashboard.performanceOverview") }}
       </p>
     </div>
 
@@ -404,7 +406,7 @@ onMounted(() => {
     <div class="bg-white border border-[#DCDEDD] rounded-[20px] p-4 sm:p-6">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-brand-dark text-base sm:text-lg font-bold">
-          Recent Activities
+          {{ t("dashboard.recentActivities") }}
         </h3>
       </div>
 
@@ -416,15 +418,15 @@ onMounted(() => {
           @click="fetchMyStatistics"
           class="px-4 py-1.5 rounded-lg bg-[#0C51D9] text-white text-xs font-semibold hover:bg-blue-700 cursor-pointer"
         >
-          Retry
+          {{ t("dashboard.retry") }}
         </button>
       </div>
 
       <div v-else-if="recentActivities.length === 0" class="py-8 text-center">
         <Clock3 class="w-8 h-8 text-gray-300 mx-auto mb-2" />
-        <p class="text-sm font-semibold text-gray-600">No recent activities</p>
+        <p class="text-sm font-semibold text-gray-600">{{ t("dashboard.noRecentActivities") }}</p>
         <p class="text-xs text-gray-400 mt-1">
-          Your attendance, leave requests, and task updates will appear here.
+          {{ t("dashboard.noRecentActivitiesSub") }}
         </p>
       </div>
 

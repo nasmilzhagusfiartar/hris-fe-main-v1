@@ -34,6 +34,18 @@ export function getLocale() {
   return i18n.global.locale.value;
 }
 
+export function updateDocumentTitle(routeName) {
+  if (typeof document === "undefined") return;
+  const key = (routeName || "").toString().replace(/\./g, "_");
+  if (key && i18n.global.te(`header.pages.${key}.title`)) {
+    document.title = `${i18n.global.t(`header.pages.${key}.title`)} — HIP HRIS`;
+  } else if (routeName === "login") {
+    document.title = `${i18n.global.t("auth.signIn")} — HIP HRIS`;
+  } else {
+    document.title = "HIP HRIS";
+  }
+}
+
 export function setLocale(locale) {
   if (!SUPPORTED_LOCALES.includes(locale)) return;
   i18n.global.locale.value = locale;
@@ -44,6 +56,9 @@ export function setLocale(locale) {
   }
   if (typeof document !== "undefined") {
     document.documentElement.lang = locale;
+    if (window.__HIP_CURRENT_ROUTE_NAME__) {
+      updateDocumentTitle(window.__HIP_CURRENT_ROUTE_NAME__);
+    }
   }
 }
 
