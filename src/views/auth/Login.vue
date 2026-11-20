@@ -3,6 +3,7 @@ import { useAuthStore } from "@/stores/auth";
 import { ref, watch } from "vue";
 import Alert from "@/components/common/Alert.vue";
 import Input from "@/components/common/form/Input.vue";
+import PasswordInput from "@/components/common/form/PasswordInput.vue";
 import {
   AtSign,
   BuildingIcon,
@@ -31,18 +32,27 @@ const form = ref({
   password: "",
 });
 
+const passwordInputRef = ref<InstanceType<typeof PasswordInput> | null>(null);
 const totpCode = ref("");
 const recoveryCode = ref("");
 const useRecoveryMode = ref(false);
 
 const handleSubmit = async (e?: Event) => {
   if (e) e.preventDefault();
+  passwordInputRef.value?.hide();
   await login(form.value);
 
   if (error.value === "Unauthorized") {
     form.value.password = "";
   }
 };
+
+// Automatically hide password when transitioning to MFA verification step
+watch(mfaRequired, (required) => {
+  if (required) {
+    passwordInputRef.value?.hide();
+  }
+});
 
 const handleMfaSubmit = async () => {
   if (loading.value || mfaLocked.value) return;
@@ -157,10 +167,10 @@ const handleBackToLogin = () => {
             </template>
           </Input>
 
-          <Input
+          <PasswordInput
+            ref="passwordInputRef"
             id="password"
             name="password"
-            type="password"
             v-model="form.password"
             label="Password"
             placeholder="Enter your password"
@@ -170,7 +180,7 @@ const handleBackToLogin = () => {
             <template #icon>
               <Lock class="h-5 w-5 text-gray-400" />
             </template>
-          </Input>
+          </PasswordInput>
 
           <button
             type="submit"

@@ -1,6 +1,6 @@
 <script setup>
-import { ref } from "vue";
-import { can } from "@/helpers/permissionHelper";
+import { ref, computed } from "vue";
+import { can, isSuperAdmin } from "@/helpers/permissionHelper";
 import { getImageUrl, handleImageError } from "@/helpers/imageHelper";
 import { axiosInstance } from "@/plugins/axios";
 import { useToastStore } from "@/stores/toast";
@@ -14,6 +14,7 @@ import {
   ShieldCheck,
   ShieldOff,
   RotateCcw,
+  Crown,
 } from "lucide-vue-next";
 import { useRouter } from "vue-router";
 
@@ -29,6 +30,21 @@ const props = defineProps({
 
 const resettingMfa = ref(false);
 const localMfaEnabled = ref(!!props.data?.user?.mfa_enabled);
+
+const targetRoles = computed(() =>
+  (props.data?.user?.roles || []).map((r) =>
+    typeof r === "string" ? r.toLowerCase() : (r?.name || "").toLowerCase()
+  )
+);
+const isTargetSuperAdmin = computed(() => targetRoles.value.includes("super-admin"));
+const isTargetAdmin = computed(() => targetRoles.value.includes("admin"));
+const canResetTargetMfa = computed(() => {
+  if (!can("mfa.reset-user") || !localMfaEnabled.value) return false;
+  if (isTargetSuperAdmin.value || isTargetAdmin.value) {
+    return isSuperAdmin();
+  }
+  return true;
+});
 
 const goToEdit = () => {
   router.push({ name: "admin.employees.edit", params: { id: props.data.id } });
@@ -91,11 +107,20 @@ const handleResetMfa = async () => {
     </div>
     <div class="flex items-center justify-between mb-3">
       <div class="text-left">
-        <h4
-          class="text-[#0C1C3C] font-['Plus_Jakarta_Sans'] text-[16px] font-bold"
-        >
-          {{ data?.user?.name }}
-        </h4>
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <h4
+            class="text-[#0C1C3C] font-['Plus_Jakarta_Sans'] text-[16px] font-bold"
+          >
+            {{ data?.user?.name }}
+          </h4>
+          <span
+            v-if="isTargetSuperAdmin"
+            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300"
+          >
+            <Crown class="w-3 h-3" />
+            Super Admin
+          </span>
+        </div>
         <p
           class="mt-1 text-[#6B7280] font-['Plus_Jakarta_Sans'] text-[14px] font-normal"
         >
@@ -144,7 +169,7 @@ const handleResetMfa = async () => {
         </span>
 
         <button
-          v-if="can('mfa.reset-user') && localMfaEnabled"
+          v-if="canResetTargetMfa"
           type="button"
           @click="handleResetMfa"
           :disabled="resettingMfa"
@@ -159,7 +184,7 @@ const handleResetMfa = async () => {
       <button
         @click="goToEdit"
         class="flex-1 border border-[#DCDEDD] rounded-[8px] hover:border-[#0C51D9] hover:border-2 hover:bg-gray-50 transition-all duration-300 px-4 py-3 flex items-center justify-center gap-2"
-        v-if="can('employee-edit')"
+        v-if="can('employee-edit') && !isTargetSuperAdmin"
       >
         <Edit class="w-4 h-4 text-gray-600" />
         <span class="text-brand-dark text-sm font-semibold">Edit</span>

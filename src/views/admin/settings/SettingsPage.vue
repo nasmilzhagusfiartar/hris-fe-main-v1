@@ -10,6 +10,7 @@ import { useSettingsStore } from "@/stores/settings";
 import { useAuthStore } from "@/stores/auth";
 import { can } from "@/helpers/permissionHelper";
 import Input from "@/components/common/form/Input.vue";
+import PasswordInput from "@/components/common/form/PasswordInput.vue";
 import Select from "@/components/common/form/Select.vue";
 import TextArea from "@/components/common/form/TextArea.vue";
 import Alert from "@/components/common/Alert.vue";
@@ -25,10 +26,10 @@ const userRoles = computed(() =>
 );
 
 const canEditCompany = computed(() => {
-  if (userRoles.value.includes("employee") && !userRoles.value.some((r) => ["admin", "hr", "manager"].includes(r))) {
+  if (userRoles.value.includes("employee") && !userRoles.value.some((r) => ["super-admin", "admin", "hr", "manager"].includes(r))) {
     return false;
   }
-  return can("setting-edit") || userRoles.value.some((r) => ["admin", "hr", "manager"].includes(r));
+  return can("setting-edit") || userRoles.value.some((r) => ["super-admin", "admin", "hr", "manager"].includes(r));
 });
 
 const tabs = computed(() => {
@@ -85,7 +86,14 @@ const toggleNotification = async (key) => {
   }
 };
 
+const currentPasswordRef = ref(null);
+const newPasswordRef = ref(null);
+const confirmPasswordRef = ref(null);
+
 const submitPasswordChange = async () => {
+  currentPasswordRef.value?.hide();
+  newPasswordRef.value?.hide();
+  confirmPasswordRef.value?.hide();
   try {
     await settingsStore.changePassword(passwordForm);
     passwordForm.current_password = "";
@@ -251,26 +259,29 @@ const submitPasswordChange = async () => {
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <Input
+        <PasswordInput
+          ref="currentPasswordRef"
           id="current_password"
-          type="password"
           label="Current Password"
           v-model="passwordForm.current_password"
+          autocomplete="current-password"
           required
         />
         <div></div>
-        <Input
+        <PasswordInput
+          ref="newPasswordRef"
           id="new_password"
-          type="password"
           label="New Password"
           v-model="passwordForm.new_password"
+          autocomplete="new-password"
           required
         />
-        <Input
+        <PasswordInput
+          ref="confirmPasswordRef"
           id="new_password_confirmation"
-          type="password"
           label="Confirm New Password"
           v-model="passwordForm.new_password_confirmation"
+          autocomplete="new-password"
           required
         />
       </div>

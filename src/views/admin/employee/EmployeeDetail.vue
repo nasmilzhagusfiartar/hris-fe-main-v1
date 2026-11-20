@@ -32,6 +32,7 @@ import {
   User,
   Clock,
   AlertTriangle,
+  Crown,
 } from "lucide-vue-next";
 
 const route = useRoute();
@@ -69,6 +70,13 @@ const statusBadgeClass = computed(() => {
 
 const statusText = computed(() => {
   return getJobStatusText(employee.value?.job_information?.status);
+});
+
+const isTargetSuperAdmin = computed(() => {
+  const roles = (employee.value?.user?.roles || []).map((r: any) =>
+    typeof r === "string" ? r.toLowerCase() : (r?.name || "").toLowerCase()
+  );
+  return roles.includes("super-admin");
 });
 
 // Actions
@@ -141,10 +149,17 @@ onMounted(() => {
           </span>
         </div>
         <div class="flex-1">
-          <div class="flex items-center gap-4 mb-2">
+          <div class="flex items-center gap-4 mb-2 flex-wrap">
             <h1 class="text-brand-dark text-3xl font-extrabold">
               {{ employee.user?.name }}
             </h1>
+            <span
+              v-if="isTargetSuperAdmin"
+              class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-bold bg-amber-100 text-amber-800 border border-amber-300"
+            >
+              <Crown class="w-4 h-4" />
+              Super Admin
+            </span>
             <span
               :class="
                 getLevelColor(capitalize(employee.job_information?.skill_level))
@@ -179,6 +194,7 @@ onMounted(() => {
         </div>
         <div class="flex gap-3">
           <button
+            v-if="!isTargetSuperAdmin"
             @click="editEmployee"
             class="btn-primary rounded-[8px] border border-[#2151A0] hover:brightness-110 focus:ring-2 focus:ring-[#0C51D9] transition-all duration-300 blue-gradient blue-btn-shadow px-6 py-3 flex items-center gap-2"
           >
@@ -658,8 +674,8 @@ onMounted(() => {
       </div>
     </div>
 
-    <!-- Danger Zone -->
-    <div class="bg-white border border-[#FEE2E2] rounded-[16px] p-6">
+    <!-- Danger Zone (hidden for Super Admin accounts) -->
+    <div v-if="!isTargetSuperAdmin" class="bg-white border border-[#FEE2E2] rounded-[16px] p-6">
       <div class="flex items-center gap-3 mb-6">
         <div
           class="w-12 h-12 bg-red-50 rounded-[12px] flex items-center justify-center"

@@ -4,6 +4,7 @@ import { onBeforeRouteLeave } from "vue-router";
 import { axiosInstance } from "@/plugins/axios";
 import { useAuthStore } from "@/stores/auth";
 import { useToastStore } from "@/stores/toast";
+import PasswordInput from "@/components/common/form/PasswordInput.vue";
 import {
   ShieldCheck,
   ShieldAlert,
@@ -43,6 +44,7 @@ const copiedRecovery = ref(false);
 // Disable / Regenerate modal state
 const actionModal = ref(null); // 'disable' | 'regenerate' | null
 const actionPassword = ref("");
+const actionPasswordRef = ref(null);
 const actionCode = ref("");
 const actionLoading = ref(false);
 const actionError = ref("");
@@ -178,6 +180,7 @@ const openActionModal = (type) => {
 };
 
 const closeActionModal = () => {
+  actionPasswordRef.value?.hide();
   actionModal.value = null;
   actionPassword.value = "";
   actionCode.value = "";
@@ -185,6 +188,7 @@ const closeActionModal = () => {
 };
 
 const submitActionModal = async () => {
+  actionPasswordRef.value?.hide();
   actionError.value = "";
   const cleanCode = actionCode.value.replace(/\D/g, "");
   if (!actionPassword.value || cleanCode.length !== 6) {
@@ -531,21 +535,16 @@ onMounted(fetchStatus);
             {{ actionError }}
           </div>
 
-          <div>
-            <label class="block text-xs font-semibold text-gray-700 mb-1">
-              Current Password
-            </label>
-            <div class="relative">
-              <Lock class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                v-model="actionPassword"
-                type="password"
-                required
-                placeholder="Enter your password"
-                class="w-full pl-10 pr-3 py-2.5 text-sm border border-[#DCDEDD] rounded-xl focus:outline-none focus:border-[#0C51D9]"
-              />
-            </div>
-          </div>
+          <PasswordInput
+            ref="actionPasswordRef"
+            id="mfa-action-password"
+            name="password"
+            v-model="actionPassword"
+            label="Current Password"
+            placeholder="Enter your password"
+            :required="true"
+            :compact="true"
+          />
 
           <div>
             <label class="block text-xs font-semibold text-gray-700 mb-1">

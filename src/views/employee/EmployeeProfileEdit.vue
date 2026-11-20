@@ -4,6 +4,7 @@ import { useRoute } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import { storeToRefs } from "pinia";
 import Input from "@/components/common/form/Input.vue";
+import PasswordInput from "@/components/common/form/PasswordInput.vue";
 import MfaSecuritySection from "@/components/employee/MfaSecuritySection.vue";
 import { User as UserIcon, Mail, Lock, Upload, ShieldCheck } from "lucide-vue-next";
 
@@ -32,6 +33,8 @@ const form = ref({
 });
 
 const photoInput = ref(null);
+const newPasswordRef = ref(null);
+const confirmPasswordRef = ref(null);
 
 const init = async () => {
   if (!user.value) {
@@ -55,6 +58,8 @@ const handlePhotoSelect = (e) => {
 };
 
 const handleSubmit = async () => {
+  newPasswordRef.value?.hide();
+  confirmPasswordRef.value?.hide();
   await updateProfile(form.value);
 };
 </script>
@@ -148,35 +153,37 @@ const handleSubmit = async () => {
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div class="mb-4">
-            <Input
+            <PasswordInput
+              ref="newPasswordRef"
               id="password"
               name="password"
-              type="password"
               v-model="form.password"
               label="New Password"
               placeholder="Enter new password (optional)"
+              autocomplete="new-password"
               :error="error?.password?.join(', ')"
             >
               <template #icon>
                 <Lock class="h-5 w-5 text-gray-400" />
               </template>
-            </Input>
+            </PasswordInput>
           </div>
 
           <div class="mb-4">
-            <Input
+            <PasswordInput
+              ref="confirmPasswordRef"
               id="password_confirmation"
               name="password_confirmation"
-              type="password"
               v-model="form.password_confirmation"
               label="Confirm Password"
               placeholder="Confirm new password"
+              autocomplete="new-password"
               :error="error?.password_confirmation?.join(', ')"
             >
               <template #icon>
                 <Lock class="h-5 w-5 text-gray-400" />
               </template>
-            </Input>
+            </PasswordInput>
           </div>
         </div>
 

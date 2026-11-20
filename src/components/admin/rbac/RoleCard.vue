@@ -1,4 +1,5 @@
 <script setup>
+import { computed } from "vue";
 import {
   ShieldCheck,
   Shield,
@@ -14,8 +15,9 @@ import {
   Headphones,
   Database,
   Users,
+  Lock,
 } from "lucide-vue-next";
-import { capitalize } from "@/utils/formatUtils";
+import { formatRoleLabel } from "@/constants/labels";
 
 const props = defineProps({
   role: {
@@ -30,9 +32,16 @@ const props = defineProps({
 
 const emit = defineEmits(["managePermissions", "editRole", "deleteRole"]);
 
+const isSuperAdminRole = computed(() => {
+  return (
+    Boolean(props.role?.is_super_admin) ||
+    (props.role?.name || "").toLowerCase() === "super-admin"
+  );
+});
+
 const getRoleIcon = (roleName) => {
   const name = (roleName || "").toLowerCase();
-  if (name.includes("admin") || name.includes("superadmin")) return Crown;
+  if (name === "super-admin" || name.includes("admin") || name.includes("superadmin")) return Crown;
   if (name.includes("manager") || name.includes("lead") || name.includes("supervisor")) return Briefcase;
   if (name.includes("hr") || name.includes("human")) return UserCog;
   if (name.includes("finance") || name.includes("accounting")) return Coins;
@@ -45,6 +54,7 @@ const getRoleIcon = (roleName) => {
 
 const getRoleGradient = (roleName) => {
   const name = (roleName || "").toLowerCase();
+  if (name === "super-admin") return "linear-gradient(135deg, #d97706, #b45309)";
   if (name.includes("admin") || name.includes("superadmin")) return "linear-gradient(135deg, #ef4444, #be123c)";
   if (name.includes("manager")) return "linear-gradient(135deg, #2563eb, #4338ca)";
   if (name.includes("hr") || name.includes("human")) return "linear-gradient(135deg, #059669, #0f766e)";
@@ -79,8 +89,8 @@ const getRoleGradient = (roleName) => {
             />
           </div>
           <div>
-            <h4 class="text-brand-dark text-base font-bold capitalize">
-              {{ role.name }}
+            <h4 class="text-brand-dark text-base font-bold">
+              {{ formatRoleLabel(role.name) }}
             </h4>
             <p class="text-brand-light text-xs font-normal mt-0.5">
               Guard: <span class="font-mono text-gray-600 font-medium">{{ role.guard_name }}</span>
@@ -89,7 +99,14 @@ const getRoleGradient = (roleName) => {
         </div>
 
         <span
-          v-if="role.is_system_role"
+          v-if="isSuperAdminRole"
+          class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300 shrink-0"
+        >
+          <Crown class="w-3.5 h-3.5" />
+          Super Admin
+        </span>
+        <span
+          v-else-if="role.is_system_role"
           class="px-2.5 py-1 rounded-md text-xs font-semibold bg-[#EBF8FF] text-[#1E40AF] shrink-0"
         >
           System
@@ -163,7 +180,11 @@ const getRoleGradient = (roleName) => {
       <div class="border-b border-[#DCDEDD] my-4"></div>
 
       <!-- Action Buttons -->
-      <div class="flex items-center gap-2">
+      <div v-if="isSuperAdminRole" class="flex items-center justify-center gap-2 py-2.5 px-3 rounded-[8px] bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold">
+        <Lock class="w-3.5 h-3.5" />
+        <span>Protected Role (Full System Access)</span>
+      </div>
+      <div v-else class="flex items-center gap-2">
         <button
           type="button"
           @click="emit('managePermissions', role)"

@@ -26,6 +26,7 @@ import {
 import { ref, computed, onMounted, watch } from "vue";
 import { useTeamStore } from "@/stores/team";
 import { useOptionStore } from "@/stores/option";
+import { isSuperAdmin } from "@/helpers/permissionHelper";
 import { storeToRefs } from "pinia";
 import RightSidebarStep2 from "@/components/admin/employee/create/RightSidebarStep2.vue";
 
@@ -40,6 +41,25 @@ const emit = defineEmits(["update:modelValue"]);
 const form = computed({
   get: () => props.modelValue,
   set: (value) => emit("update:modelValue", value),
+});
+
+const isEditingSuperAdmin = computed(() => {
+  return String(form.value?.role || "").toLowerCase() === "super-admin";
+});
+
+const roleOptions = computed(() => {
+  const base = [
+    { value: "hr", label: "HR" },
+    { value: "finance", label: "Finance" },
+    { value: "employee", label: "Employee" },
+    { value: "manager", label: "Manager" },
+    { value: "security", label: "Security" },
+    { value: "admin", label: "Admin" },
+  ];
+  if (isSuperAdmin()) {
+    base.unshift({ value: "super-admin", label: "Super Admin" });
+  }
+  return base;
 });
 
 // Team store
@@ -146,17 +166,21 @@ watch(
 
           <!-- Role -->
           <div class="mb-4">
+            <div v-if="isEditingSuperAdmin">
+              <label class="block text-brand-dark text-base font-semibold mb-1">Role *</label>
+              <div class="w-full px-4 py-3 border border-amber-300 bg-amber-50 rounded-[16px] flex items-center gap-2 text-amber-800 font-semibold text-sm">
+                <Crown class="h-5 w-5 text-amber-600" />
+                <span>Super Admin (Protected — cannot be changed)</span>
+              </div>
+            </div>
             <Select
+              v-else
               id="role"
               name="role"
               v-model="form.role"
               label="Role *"
               placeholder="Select role"
-              :options="[
-                { value: 'hr', label: 'HR' },
-                { value: 'finance', label: 'Finance' },
-                { value: 'employee', label: 'Employee' },
-              ]"
+              :options="roleOptions"
               :error="errors?.role?.join(', ')"
               required
             >

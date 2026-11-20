@@ -62,7 +62,7 @@ const userRoles = computed<string[]>(() => {
 const isEmployeeOnly = computed(() => {
   return (
     userRoles.value.includes("employee") &&
-    !userRoles.value.some((r) => ["manager", "admin", "hr", "finance"].includes(r))
+    !userRoles.value.some((r) => ["super-admin", "manager", "admin", "hr", "finance"].includes(r))
   );
 });
 
@@ -169,7 +169,7 @@ const menuCatalog = [
     subtitle: "Management • Manage user roles",
     keywords: ["roles", "access control", "rbac"],
     route: { name: "admin.roles" },
-    roles: ["manager", "admin"],
+    roles: ["super-admin"],
   },
   {
     id: "menu-permissions",
@@ -177,7 +177,7 @@ const menuCatalog = [
     subtitle: "Management • System module permission list",
     keywords: ["permissions", "access", "rbac"],
     route: { name: "admin.permissions" },
-    roles: ["manager", "admin"],
+    roles: ["super-admin"],
   },
   {
     id: "menu-settings",

@@ -164,6 +164,16 @@ export const GENDER_LABELS = {
   female: 'Female',
 };
 
+export const ROLE_LABELS = {
+  'super-admin': 'Super Admin',
+  admin: 'Admin',
+  security: 'Security',
+  manager: 'Manager',
+  hr: 'HR',
+  finance: 'Finance',
+  employee: 'Employee',
+};
+
 export const ALL_ENUM_LABELS = {
   ...STATUS_LABELS,
   ...LEAVE_TYPE_LABELS,
@@ -175,6 +185,7 @@ export const ALL_ENUM_LABELS = {
   ...PROJECT_TYPE_LABELS,
   ...ACCOUNT_TYPE_LABELS,
   ...GENDER_LABELS,
+  ...ROLE_LABELS,
 };
 
 export const formatStatusLabel = (status) => {
@@ -223,6 +234,12 @@ export const formatGenderLabel = (gender) => {
   if (!gender) return '-';
   const key = String(gender).toLowerCase().trim();
   return GENDER_LABELS[key] || gender;
+};
+
+export const formatRoleLabel = (role) => {
+  if (!role) return '-';
+  const key = String(role).toLowerCase().trim();
+  return ROLE_LABELS[key] || formatEnumLabel(role);
 };
 
 export const formatEnumLabel = (val) => {

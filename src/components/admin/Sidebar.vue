@@ -33,7 +33,8 @@ const userRoles = computed(() => {
   );
 });
 
-const isAdmin = computed(() => userRoles.value.includes("admin"));
+const isSuperAdmin = computed(() => userRoles.value.includes("super-admin"));
+const isAdmin = computed(() => userRoles.value.includes("admin") || isSuperAdmin.value);
 const isSecurity = computed(() => userRoles.value.includes("security"));
 const isEmployee = computed(() => userRoles.value.includes("employee"));
 const isManager = computed(() => userRoles.value.includes("manager"));
@@ -108,6 +109,7 @@ const hasOthersAccess = computed(() => {
 
 // Portal title
 const portalSubtitle = computed(() => {
+  if (isSuperAdmin.value) return "Super Admin Portal";
   if (isAdmin.value) return "Admin Portal";
   if (isSecurity.value) return "Security Portal";
   if (isEmployee.value) return "Employee Portal";
@@ -323,9 +325,9 @@ const portalSubtitle = computed(() => {
             </span>
           </RouterLink>
 
-          <!-- Roles (Manager Only) -->
+          <!-- Roles (Super Admin Only) -->
           <RouterLink
-            v-if="isManager"
+            v-if="isSuperAdmin"
             :to="{ name: 'admin.roles' }"
             class="nav-link border border-[#DCDEDD] rounded-[20px] hover:border-[#0C51D9] hover:border-2 focus:bg-white transition-all duration-300"
             :class="{
@@ -349,9 +351,9 @@ const portalSubtitle = computed(() => {
             </span>
           </RouterLink>
 
-          <!-- Permissions (Manager Only) -->
+          <!-- Permissions (Super Admin Only) -->
           <RouterLink
-            v-if="isManager"
+            v-if="isSuperAdmin"
             :to="{ name: 'admin.permissions' }"
             class="nav-link border border-[#DCDEDD] rounded-[20px] hover:border-[#0C51D9] hover:border-2 focus:bg-white transition-all duration-300"
             :class="{

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Input, TextArea } from "@/components/common/form";
+import { Input, PasswordInput, TextArea } from "@/components/common/form";
 import {
   User,
   Mail,
@@ -189,37 +189,37 @@ const deletePhoto = () => {
           </div>
 
           <div class="mb-4">
-            <Input
+            <PasswordInput
               id="password"
               name="password"
-              type="password"
               v-model="form.password"
               label="Password *"
               placeholder="Enter password (min. 8 characters)"
+              autocomplete="new-password"
               :error="errors?.password?.join(', ')"
               required
             >
               <template #icon>
                 <Lock class="h-5 w-5 text-gray-400" />
               </template>
-            </Input>
+            </PasswordInput>
           </div>
 
           <div class="mb-4">
-            <Input
+            <PasswordInput
               id="password_confirmation"
               name="password_confirmation"
-              type="password"
               v-model="form.password_confirmation"
               label="Confirm Password *"
               placeholder="Confirm password"
+              autocomplete="new-password"
               :error="errors?.password_confirmation?.join(', ')"
               required
             >
               <template #icon>
                 <Lock class="h-5 w-5 text-gray-400" />
               </template>
-            </Input>
+            </PasswordInput>
           </div>
 
           <div class="mb-4 md:col-span-2">

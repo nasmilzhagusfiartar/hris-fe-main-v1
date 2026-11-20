@@ -8,7 +8,7 @@ export default [
     component: RoleList,
     meta: {
       requiresAuth: true,
-      role: "manager",
+      role: "super-admin",
     },
   },
   {
@@ -17,7 +17,7 @@ export default [
     component: PermissionList,
     meta: {
       requiresAuth: true,
-      role: "manager",
+      role: "super-admin",
     },
   },
 ];

@@ -169,6 +169,10 @@ router.beforeEach(async (to, from, next) => {
           typeof p === 'string' ? p : (p?.name || '')
         )
 
+        if (userRoles.includes('super-admin')) {
+          return next()
+        }
+
         if (to.meta.role && !userRoles.includes(to.meta.role.toLowerCase())) {
           const toast = useToastStore()
           toast.error(LABELS.NO_ACCESS)

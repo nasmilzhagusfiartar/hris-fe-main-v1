@@ -801,6 +801,7 @@ const userRoles = computed(() =>
 const hasFullBrandProtectionAccess = computed(() => {
   return (
     can('cti.brand-protection.view') ||
+    userRoles.value.includes('super-admin') ||
     userRoles.value.includes('admin') ||
     userRoles.value.includes('security')
   );
