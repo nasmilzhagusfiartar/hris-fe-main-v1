@@ -152,6 +152,16 @@ router.beforeEach(async (to, from, next) => {
           await authStore.checkAuth()
         }
 
+        // Enforce mandatory MFA setup for enforced roles before accessing any other page
+        if (authStore.user?.mfa_setup_required && to.name !== 'employee.profile.edit') {
+          const toast = useToastStore()
+          toast.warning('Please complete MFA setup before accessing other pages.')
+          return next({
+            name: 'employee.profile.edit',
+            query: { tab: 'security', enforce_mfa: '1' },
+          })
+        }
+
         const userRoles = (authStore.user?.roles || []).map(r =>
           typeof r === 'string' ? r.toLowerCase() : (r?.name || '').toLowerCase()
         )

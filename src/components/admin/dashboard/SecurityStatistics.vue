@@ -19,6 +19,8 @@ const stats = ref({
   expiring_ssl_count: 0,
   breached_emails_count: 0,
   failed_logins_24h_count: 0,
+  users_without_mfa_count: 0,
+  mfa_failed_24h_count: 0,
   recent_brand_threats: [],
   recent_breaches: [],
 });
@@ -74,8 +76,8 @@ onMounted(() => {
       </button>
     </div>
 
-    <!-- 4 CTI Metric Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- 6 CTI & MFA Metric Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       <!-- 1. Suspicious Domains -->
       <div
         class="bg-white border border-[#DCDEDD] rounded-[20px] p-5 hover:border-[#0C51D9] transition-all"
@@ -164,6 +166,50 @@ onMounted(() => {
           {{ loading ? "..." : stats.failed_logins_24h_count }}
         </p>
         <p class="text-sm text-brand-light mt-1">Failed Login Attempts</p>
+      </div>
+
+      <!-- 5. Users Without MFA -->
+      <div
+        class="bg-white border border-[#DCDEDD] rounded-[20px] p-5 hover:border-[#0C51D9] transition-all"
+      >
+        <div class="flex items-center justify-between mb-3">
+          <div
+            class="w-12 h-12 rounded-[14px] bg-orange-50 flex items-center justify-center"
+          >
+            <AlertTriangle class="w-6 h-6 text-orange-600" />
+          </div>
+          <span
+            class="px-2.5 py-1 rounded-full text-xs font-bold bg-orange-50 text-orange-700"
+          >
+            MFA Coverage
+          </span>
+        </div>
+        <p class="text-3xl font-extrabold text-brand-dark">
+          {{ loading ? "..." : stats.users_without_mfa_count }}
+        </p>
+        <p class="text-sm text-brand-light mt-1">Users Without MFA</p>
+      </div>
+
+      <!-- 6. MFA Failed (24h) -->
+      <div
+        class="bg-white border border-[#DCDEDD] rounded-[20px] p-5 hover:border-[#0C51D9] transition-all"
+      >
+        <div class="flex items-center justify-between mb-3">
+          <div
+            class="w-12 h-12 rounded-[14px] bg-purple-50 flex items-center justify-center"
+          >
+            <ShieldAlert class="w-6 h-6 text-purple-600" />
+          </div>
+          <span
+            class="px-2.5 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-700"
+          >
+            Last 24 Hours
+          </span>
+        </div>
+        <p class="text-3xl font-extrabold text-brand-dark">
+          {{ loading ? "..." : stats.mfa_failed_24h_count }}
+        </p>
+        <p class="text-sm text-brand-light mt-1">MFA Failed Attempts (24h)</p>
       </div>
     </div>
 

@@ -78,6 +78,13 @@ const activityOptions = [
   { value: "login", label: "Login" },
   { value: "logout", label: "Logout" },
   { value: "failed_login", label: "Failed Login" },
+  { value: "mfa_enabled", label: "MFA Enabled" },
+  { value: "mfa_disabled", label: "MFA Disabled" },
+  { value: "mfa_success", label: "MFA Verified" },
+  { value: "mfa_failed", label: "MFA Failed" },
+  { value: "mfa_recovery_used", label: "MFA Recovery Used" },
+  { value: "mfa_locked", label: "MFA Locked" },
+  { value: "mfa_reset", label: "MFA Reset" },
   { value: "create", label: "Create" },
   { value: "update", label: "Update" },
   { value: "delete", label: "Delete" },
@@ -255,6 +262,13 @@ const getActivityBadgeClass = (type) => {
     delete: "bg-red-50 text-red-700 border-red-200",
     failed_login: "bg-rose-100 text-rose-800 border-rose-300",
     access: "bg-indigo-50 text-indigo-700 border-indigo-200",
+    mfa_enabled: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    mfa_disabled: "bg-amber-50 text-amber-800 border-amber-200",
+    mfa_success: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    mfa_failed: "bg-rose-100 text-rose-800 border-rose-300",
+    mfa_recovery_used: "bg-purple-50 text-purple-700 border-purple-200",
+    mfa_locked: "bg-red-100 text-red-800 border-red-300",
+    mfa_reset: "bg-orange-50 text-orange-800 border-orange-200",
   };
   return map[type] || "bg-gray-100 text-gray-700 border-gray-200";
 };
@@ -268,6 +282,13 @@ const getActivityIcon = (type) => {
     delete: Trash2,
     failed_login: ShieldAlert,
     access: Activity,
+    mfa_enabled: ShieldCheck,
+    mfa_disabled: ShieldAlert,
+    mfa_success: ShieldCheck,
+    mfa_failed: ShieldAlert,
+    mfa_recovery_used: ShieldCheck,
+    mfa_locked: ShieldAlert,
+    mfa_reset: RefreshCw,
   };
   return map[type] || Activity;
 };

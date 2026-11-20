@@ -1,11 +1,24 @@
 <script setup>
+import { ref } from "vue";
 import { can } from "@/helpers/permissionHelper";
 import { getImageUrl, handleImageError } from "@/helpers/imageHelper";
+import { axiosInstance } from "@/plugins/axios";
+import { useToastStore } from "@/stores/toast";
 import _ from "lodash";
-import { Building, User, Calendar, Eye, Edit } from "lucide-vue-next";
+import {
+  Building,
+  User,
+  Calendar,
+  Eye,
+  Edit,
+  ShieldCheck,
+  ShieldOff,
+  RotateCcw,
+} from "lucide-vue-next";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
+const toast = useToastStore();
 
 const props = defineProps({
   data: {
@@ -13,6 +26,9 @@ const props = defineProps({
     required: true,
   },
 });
+
+const resettingMfa = ref(false);
+const localMfaEnabled = ref(!!props.data?.user?.mfa_enabled);
 
 const goToEdit = () => {
   router.push({ name: "admin.employees.edit", params: { id: props.data.id } });
@@ -23,6 +39,32 @@ const goToDetail = () => {
     name: "admin.employees.detail",
     params: { id: props.data.id },
   });
+};
+
+const handleResetMfa = async () => {
+  const userId = props.data?.user?.id;
+  if (!userId || resettingMfa.value) return;
+  if (
+    !confirm(
+      `Are you sure you want to reset MFA for ${props.data?.user?.name || "this user"}?`
+    )
+  ) {
+    return;
+  }
+
+  resettingMfa.value = true;
+  try {
+    await axiosInstance.post(`/users/${userId}/mfa/reset`);
+    localMfaEnabled.value = false;
+    if (props.data?.user) {
+      props.data.user.mfa_enabled = false;
+    }
+    toast.success(`MFA reset successfully for ${props.data?.user?.name}.`);
+  } catch (err) {
+    toast.error(err?.response?.data?.message || "Failed to reset user MFA.");
+  } finally {
+    resettingMfa.value = false;
+  }
 };
 </script>
 
@@ -85,6 +127,32 @@ const goToDetail = () => {
         <span
           >{{ data?.job_information?.years_experience }} years experience</span
         >
+      </div>
+      <!-- MFA Status Badge & Admin Reset -->
+      <div class="flex items-center justify-between gap-2 pt-1">
+        <span
+          class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold"
+          :class="
+            localMfaEnabled
+              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+              : 'bg-gray-100 text-gray-600 border border-gray-200'
+          "
+        >
+          <ShieldCheck v-if="localMfaEnabled" class="w-3.5 h-3.5" />
+          <ShieldOff v-else class="w-3.5 h-3.5" />
+          <span>{{ localMfaEnabled ? "MFA: Enabled" : "MFA: Disabled" }}</span>
+        </span>
+
+        <button
+          v-if="can('mfa.reset-user') && localMfaEnabled"
+          type="button"
+          @click="handleResetMfa"
+          :disabled="resettingMfa"
+          class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors cursor-pointer disabled:opacity-50"
+        >
+          <RotateCcw class="w-3 h-3" :class="{ 'animate-spin': resettingMfa }" />
+          <span>{{ resettingMfa ? "Resetting..." : "Reset MFA" }}</span>
+        </button>
       </div>
     </div>
     <div class="flex gap-2">

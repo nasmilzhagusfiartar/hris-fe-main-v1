@@ -289,6 +289,31 @@
             No data breach records found for this email.
           </div>
         </div>
+
+        <!-- MFA Recommendation Banner when user's email is breached and MFA is not enabled -->
+        <div
+          v-if="showMfaRecommendation"
+          class="bg-amber-50 border border-amber-300 rounded-xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+        >
+          <div class="flex items-start gap-3">
+            <LockIcon class="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
+            <div>
+              <h4 class="text-sm font-bold text-amber-950">
+                Security Recommendation: Enable MFA
+              </h4>
+              <p class="text-xs text-amber-800 mt-1">
+                Your account email ({{ authStore.user?.email }}) was found in a known data breach and MFA is not enabled yet. Enable Multi-Factor Authentication immediately to protect your account.
+              </p>
+            </div>
+          </div>
+          <RouterLink
+            :to="{ name: 'employee.profile.edit', query: { tab: 'security' } }"
+            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition-colors shrink-0"
+          >
+            <LockIcon class="w-4 h-4" />
+            <span>Enable MFA</span>
+          </RouterLink>
+        </div>
       </div>
 
       <!-- Tabel Riwayat Pengecekan Kebocoran -->
@@ -786,6 +811,23 @@ const canCheckAnyEmail = computed(() => {
     can('cti.email-breach.check-any') ||
     hasFullBrandProtectionAccess.value
   );
+});
+
+const showMfaRecommendation = computed(() => {
+  const userEmail = (authStore.user?.email || '').toLowerCase().trim();
+  if (!userEmail || authStore.user?.mfa_enabled) return false;
+
+  const currentBreached =
+    currentBreachResult.value?.is_breached &&
+    (currentBreachResult.value?.email || '').toLowerCase().trim() === userEmail;
+
+  const historyBreached = (breachChecks.value || []).some(
+    (item) =>
+      item?.is_breached &&
+      (item?.email || '').toLowerCase().trim() === userEmail
+  );
+
+  return Boolean(currentBreached || historyBreached);
 });
 
 const tabs = [

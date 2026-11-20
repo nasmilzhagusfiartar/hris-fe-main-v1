@@ -1,13 +1,26 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
+import { useRoute } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import { storeToRefs } from "pinia";
 import Input from "@/components/common/form/Input.vue";
-import { User as UserIcon, Mail, Lock, Upload } from "lucide-vue-next";
+import MfaSecuritySection from "@/components/employee/MfaSecuritySection.vue";
+import { User as UserIcon, Mail, Lock, Upload, ShieldCheck } from "lucide-vue-next";
 
+const route = useRoute();
 const authStore = useAuthStore();
 const { user, loading, error, success } = storeToRefs(authStore);
 const { updateProfile, checkAuth } = authStore;
+
+const activeTab = ref(route.query.tab === "security" ? "security" : "profile");
+
+watch(
+  () => route.query.tab,
+  (tab) => {
+    if (tab === "security") activeTab.value = "security";
+    else if (tab === "profile") activeTab.value = "profile";
+  }
+);
 
 const form = ref({
   name: "",
@@ -47,8 +60,41 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <div class="p-5">
-    <div class="bg-white border border-[#DCDEDD] rounded-[20px] p-6 mb-6">
+  <div class="p-5 space-y-6">
+    <!-- Tab Switcher: Profile & Security -->
+    <div class="bg-white border border-[#DCDEDD] rounded-[16px] p-4 flex items-center gap-2 flex-wrap">
+      <button
+        type="button"
+        @click="activeTab = 'profile'"
+        :class="
+          activeTab === 'profile'
+            ? 'px-5 py-2.5 rounded-[12px] bg-[#0C51D9] text-white font-semibold text-sm transition-all cursor-pointer inline-flex items-center gap-2'
+            : 'px-5 py-2.5 rounded-[12px] border border-[#DCDEDD] bg-white text-brand-dark font-medium text-sm hover:border-[#0C51D9] transition-all cursor-pointer inline-flex items-center gap-2'
+        "
+      >
+        <UserIcon class="w-4 h-4" />
+        <span>Profile</span>
+      </button>
+
+      <button
+        type="button"
+        @click="activeTab = 'security'"
+        :class="
+          activeTab === 'security'
+            ? 'px-5 py-2.5 rounded-[12px] bg-[#0C51D9] text-white font-semibold text-sm transition-all cursor-pointer inline-flex items-center gap-2'
+            : 'px-5 py-2.5 rounded-[12px] border border-[#DCDEDD] bg-white text-brand-dark font-medium text-sm hover:border-[#0C51D9] transition-all cursor-pointer inline-flex items-center gap-2'
+        "
+      >
+        <ShieldCheck class="w-4 h-4" />
+        <span>Security</span>
+      </button>
+    </div>
+
+    <!-- Security Tab (MFA Management) -->
+    <MfaSecuritySection v-if="activeTab === 'security'" />
+
+    <!-- Profile Tab -->
+    <div v-else class="bg-white border border-[#DCDEDD] rounded-[20px] p-6 mb-6">
       <div class="flex items-center gap-3 mb-6">
         <div
           class="w-12 h-12 bg-blue-50 rounded-[12px] flex items-center justify-center"
