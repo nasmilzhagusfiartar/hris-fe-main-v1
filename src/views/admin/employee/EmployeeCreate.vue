@@ -125,67 +125,67 @@ const validateStep = (step: number): boolean => {
     step1Keys.forEach((k) => delete newErrors[k]);
 
     const s1 = step1Data.value;
-    if (!s1.name?.trim()) newErrors.name = ["Nama lengkap wajib diisi."];
+    if (!s1.name?.trim()) newErrors.name = ["Full name is required."];
 
     if (!s1.email?.trim()) {
-      newErrors.email = ["Email wajib diisi."];
+      newErrors.email = ["Email is required."];
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s1.email.trim())) {
       newErrors.email = [
-        "Format email tidak valid (contoh: user@company.com).",
+        "Invalid email format (e.g., user@company.com).",
       ];
     }
 
     if (!s1.password) {
-      newErrors.password = ["Password wajib diisi."];
+      newErrors.password = ["Password is required."];
     } else if (s1.password.length < 8) {
-      newErrors.password = ["Password minimal harus 8 karakter."];
+      newErrors.password = ["Password must be at least 8 characters."];
     }
 
     if (!s1.password_confirmation) {
-      newErrors.password_confirmation = ["Konfirmasi password wajib diisi."];
+      newErrors.password_confirmation = ["Password confirmation is required."];
     } else if (s1.password !== s1.password_confirmation) {
       newErrors.password_confirmation = [
-        "Konfirmasi password tidak cocok dengan password.",
+        "Password confirmation does not match password.",
       ];
     }
 
     if (!s1.identity_number?.trim()) {
-      newErrors.identity_number = ["Nomor identitas (NIK/KTP) wajib diisi."];
+      newErrors.identity_number = ["Identity number (NIK/ID) is required."];
     }
 
     if (!s1.phone?.trim()) {
-      newErrors.phone = ["Nomor telepon wajib diisi."];
+      newErrors.phone = ["Phone number is required."];
     }
 
     if (!s1.date_of_birth) {
-      newErrors.date_of_birth = ["Tanggal lahir wajib diisi."];
+      newErrors.date_of_birth = ["Date of birth is required."];
     } else {
       const dob = new Date(s1.date_of_birth);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       if (dob >= today) {
-        newErrors.date_of_birth = ["Tanggal lahir harus sebelum hari ini."];
+        newErrors.date_of_birth = ["Date of birth must be before today."];
       }
     }
 
     if (!s1.place_of_birth?.trim()) {
-      newErrors.place_of_birth = ["Tempat lahir wajib diisi."];
+      newErrors.place_of_birth = ["Place of birth is required."];
     }
 
     if (!s1.gender) {
-      newErrors.gender = ["Jenis kelamin wajib dipilih."];
+      newErrors.gender = ["Gender is required."];
     }
 
     if (!s1.address?.trim()) {
-      newErrors.address = ["Alamat wajib diisi."];
+      newErrors.address = ["Address is required."];
     }
 
     if (!s1.city?.trim()) {
-      newErrors.city = ["Kota wajib diisi."];
+      newErrors.city = ["City is required."];
     }
 
     if (!s1.postal_code?.trim()) {
-      newErrors.postal_code = ["Kode pos wajib diisi."];
+      newErrors.postal_code = ["Postal code is required."];
     }
   } else if (step === 2) {
     const step2Keys = [
@@ -206,41 +206,41 @@ const validateStep = (step: number): boolean => {
     step2Keys.forEach((k) => delete newErrors[k]);
 
     const s2 = step2Data.value;
-    if (!s2.job_title?.trim()) newErrors.job_title = ["Job title wajib diisi."];
-    if (!s2.role) newErrors.role = ["Role wajib dipilih."];
+    if (!s2.job_title?.trim()) newErrors.job_title = ["Job title is required."];
+    if (!s2.role) newErrors.role = ["Role is required."];
 
     if (
       s2.years_experience === "" ||
       s2.years_experience === null ||
       s2.years_experience === undefined
     ) {
-      newErrors.years_experience = ["Pengalaman kerja (tahun) wajib diisi."];
+      newErrors.years_experience = ["Years of experience is required."];
     } else if (Number(s2.years_experience) < 0) {
-      newErrors.years_experience = ["Pengalaman kerja minimal 0 tahun."];
+      newErrors.years_experience = ["Years of experience must be at least 0."];
     }
 
-    if (!s2.status) newErrors.status = ["Status pekerjaan wajib dipilih."];
+    if (!s2.status) newErrors.status = ["Employment status is required."];
     if (!s2.employment_type)
-      newErrors.employment_type = ["Tipe pekerjaan wajib dipilih."];
+      newErrors.employment_type = ["Employment type is required."];
     if (!s2.work_location)
-      newErrors.work_location = ["Lokasi kerja wajib dipilih."];
+      newErrors.work_location = ["Work location is required."];
     if (!s2.start_date)
-      newErrors.start_date = ["Tanggal mulai kerja wajib diisi."];
+      newErrors.start_date = ["Start date is required."];
 
     const salaryNum = normalizeRupiah(s2.monthly_salary);
     if (!salaryNum || Number(salaryNum) <= 0) {
-      newErrors.monthly_salary = ["Gaji bulanan wajib diisi lebih dari 0."];
+      newErrors.monthly_salary = ["Monthly salary must be greater than 0."];
     }
 
     if (!s2.skill_level)
-      newErrors.skill_level = ["Skill level wajib dipilih."];
-    if (!s2.bank_name) newErrors.bank_name = ["Nama bank wajib dipilih."];
+      newErrors.skill_level = ["Skill level is required."];
+    if (!s2.bank_name) newErrors.bank_name = ["Bank name is required."];
     if (!s2.account_number?.trim())
-      newErrors.account_number = ["Nomor rekening wajib diisi."];
+      newErrors.account_number = ["Account number is required."];
     if (!s2.account_holder_name?.trim())
-      newErrors.account_holder_name = ["Nama pemilik rekening wajib diisi."];
+      newErrors.account_holder_name = ["Account holder name is required."];
     if (!s2.account_type)
-      newErrors.account_type = ["Tipe rekening wajib dipilih."];
+      newErrors.account_type = ["Account type is required."];
   } else if (step === 3) {
     const step3Keys = [
       "emergency_contact_name",
@@ -254,25 +254,25 @@ const validateStep = (step: number): boolean => {
 
     const s3 = step3Data.value;
     if (!s3.emergency_contact_name?.trim()) {
-      newErrors.emergency_contact_name = ["Nama kontak darurat wajib diisi."];
+      newErrors.emergency_contact_name = ["Emergency contact name is required."];
       newErrors["emergency_contacts.0.full_name"] = [
-        "Nama kontak darurat wajib diisi.",
+        "Emergency contact name is required.",
       ];
     }
     if (!s3.emergency_contact_relationship?.trim()) {
       newErrors.emergency_contact_relationship = [
-        "Hubungan kontak darurat wajib diisi.",
+        "Emergency contact relationship is required.",
       ];
       newErrors["emergency_contacts.0.relationship"] = [
-        "Hubungan kontak darurat wajib diisi.",
+        "Emergency contact relationship is required.",
       ];
     }
     if (!s3.emergency_contact_phone?.trim()) {
       newErrors.emergency_contact_phone = [
-        "Nomor telepon kontak darurat wajib diisi.",
+        "Emergency contact phone number is required.",
       ];
       newErrors["emergency_contacts.0.phone"] = [
-        "Nomor telepon kontak darurat wajib diisi.",
+        "Emergency contact phone number is required.",
       ];
     }
   }
@@ -321,8 +321,8 @@ const validateStep = (step: number): boolean => {
 
   if (hasError) {
     toast.error(
-      `Mohon lengkapi dan periksa kembali data pada Step ${step} sebelum melanjutkan.`,
-      "Validasi Belum Lengkap"
+      `Please complete and review all required fields in Step ${step} before continuing.`,
+      "Incomplete Validation"
     );
     return false;
   }
@@ -362,7 +362,7 @@ const saveDraft = debounce(() => {
     };
     localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draftPayload));
   } catch (err) {
-    console.error("Gagal menyimpan draft employee:", err);
+    console.error("Failed to save employee draft:", err);
   }
 }, 400);
 
@@ -388,16 +388,16 @@ const restoreDraft = () => {
     if (parsed.currentStep && parsed.currentStep <= totalSteps) {
       handleGoToStep(parsed.currentStep);
     }
-    toast.info("Draft data isian sebelumnya berhasil dipulihkan.", "Draft Dipulihkan");
+    toast.info("Your previous form draft has been restored.", "Draft Restored");
   } catch (err) {
-    console.error("Gagal memulihkan draft employee:", err);
+    console.error("Failed to restore employee draft:", err);
   }
 };
 
 const handleResetForm = () => {
   if (
     confirm(
-      "Apakah Anda yakin ingin mengosongkan semua data dan menghapus draft isian?"
+      "Are you sure you want to clear all fields and delete the saved draft?"
     )
   ) {
     localStorage.removeItem(DRAFT_STORAGE_KEY);
@@ -407,7 +407,7 @@ const handleResetForm = () => {
     clientErrors.value = {};
     if (employeeStore.error) employeeStore.error = null;
     handleGoToStep(1);
-    toast.success("Draft isian form berhasil direset.", "Form Direset");
+    toast.success("Form draft has been reset.", "Form Reset");
   }
 };
 
@@ -507,14 +507,14 @@ const handleSubmit = async () => {
 
     // Clean up draft storage on success
     localStorage.removeItem(DRAFT_STORAGE_KEY);
-    toast.success("Employee berhasil ditambahkan!", "Berhasil");
+    toast.success("Employee added successfully!", "Success");
 
     // Redirect to success page on success
     router.push({ name: "admin.employees.success" });
   } catch (err: any) {
     console.error("Error creating employee:", err);
 
-    let errorSummary = "Gagal membuat employee. Mohon periksa detail isian.";
+    let errorSummary = "Failed to create employee. Please check the form details.";
     if (error.value) {
       if (typeof error.value === "object") {
         const firstMsg = Object.values(error.value).flat()[0];
@@ -523,7 +523,7 @@ const handleSubmit = async () => {
         errorSummary = error.value;
       }
     }
-    toast.error(errorSummary, "Gagal Menambahkan Employee");
+    toast.error(errorSummary, "Failed to Add Employee");
 
     // Show error modal with detailed list
     showErrorModal.value = true;
@@ -584,7 +584,7 @@ const closeErrorModal = () => {
             <span
               class="text-[11px] bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full font-medium"
             >
-              Draft tersimpan otomatis
+              Draft auto-saved
             </span>
           </div>
           <p class="text-brand-light text-xs font-normal mt-1">
@@ -605,7 +605,7 @@ const closeErrorModal = () => {
           <button
             type="button"
             @click="handleResetForm"
-            title="Bersihkan form dan hapus draft"
+            title="Clear form and delete draft"
             class="border border-gray-200 text-gray-600 hover:text-red-600 hover:border-red-200 hover:bg-red-50 rounded-[8px] transition-all duration-300 px-4 py-3 flex items-center gap-1.5 text-sm font-medium"
           >
             <RotateCcw class="w-3.5 h-3.5" />

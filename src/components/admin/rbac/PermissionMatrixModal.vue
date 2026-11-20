@@ -178,7 +178,7 @@ const handleSave = () => {
             <div>
               <div class="flex items-center gap-2">
                 <h2 class="text-brand-dark text-lg font-bold">
-                  Kelola Permission
+                  Manage Permissions
                 </h2>
                 <span
                   class="px-2 py-1 rounded-md text-xs font-semibold bg-blue-100 text-[#0C51D9]"
@@ -193,7 +193,7 @@ const handleSave = () => {
                 </span>
               </div>
               <p class="text-brand-light text-xs mt-1">
-                Pilih hak akses (permission) yang diizinkan untuk role ini.
+                Select the permissions allowed for this role.
               </p>
             </div>
           </div>
@@ -215,7 +215,7 @@ const handleSave = () => {
           <div class="w-full sm:w-80">
             <SearchInput
               v-model="searchQuery"
-              placeholder="Cari permission atau modul..."
+              placeholder="Search permissions or modules..."
               input-class="py-2 text-sm bg-white border border-[#DCDEDD] rounded-xl focus:outline-none focus:border-[#0C51D9] focus:ring-1 focus:ring-[#0C51D9] transition-all"
             />
           </div>
@@ -225,7 +225,7 @@ const handleSave = () => {
             class="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto"
           >
             <div class="text-xs font-semibold text-brand-dark">
-              Terpilih:
+              Selected:
               <span class="text-[#0C51D9] font-bold text-sm">
                 {{ selectedPermissions.length }}
               </span>
@@ -239,7 +239,7 @@ const handleSave = () => {
                 class="px-3 py-1 text-xs font-medium text-[#0C51D9] hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
               >
                 <CheckSquare class="w-4 h-4" />
-                <span>Pilih Semua</span>
+                <span>Select All</span>
               </button>
               <button
                 type="button"
@@ -247,7 +247,7 @@ const handleSave = () => {
                 class="px-3 py-1 text-xs font-medium text-gray-600 hover:bg-gray-200 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
               >
                 <Square class="w-4 h-4" />
-                <span>Kosongkan</span>
+                <span>Clear</span>
               </button>
             </div>
           </div>
@@ -261,10 +261,10 @@ const handleSave = () => {
           >
             <Filter class="w-10 h-10 text-gray-300 mx-auto mb-2" />
             <p class="text-brand-dark font-semibold text-base">
-              Tidak ada permission yang cocok
+              No matching permissions found
             </p>
             <p class="text-gray-500 text-xs mt-1">
-              Coba kata kunci pencarian yang lain.
+              Try a different search keyword.
             </p>
           </div>
 
@@ -289,11 +289,11 @@ const handleSave = () => {
                   }"
                 ></span>
                 <h4 class="text-brand-dark text-sm font-bold capitalize">
-                  Modul {{ groupName }}
+                  {{ groupName }} Module
                 </h4>
                 <span class="text-xs text-brand-light font-medium">
                   ({{ getGroupSelectedCount(permissions) }} /
-                  {{ permissions.length }} dipilih)
+                  {{ permissions.length }} selected)
                 </span>
               </div>
 
@@ -304,7 +304,7 @@ const handleSave = () => {
                   @click="handleSelectAllInGroup(permissions)"
                   class="text-[11px] font-semibold text-[#0C51D9] hover:bg-blue-50 px-2 py-1 rounded transition-colors cursor-pointer"
                 >
-                  Pilih Semua
+                  Select All
                 </button>
                 <span class="text-gray-300">•</span>
                 <button
@@ -312,7 +312,7 @@ const handleSave = () => {
                   @click="handleDeselectAllInGroup(permissions)"
                   class="text-[11px] font-semibold text-gray-500 hover:bg-gray-200 px-2 py-1 rounded transition-colors cursor-pointer"
                 >
-                  Kosongkan
+                  Clear
                 </button>
               </div>
             </div>
@@ -363,7 +363,7 @@ const handleSave = () => {
                     {{ perm.name }}
                   </p>
                   <p v-if="perm.action" class="text-[10px] text-gray-500 capitalize mt-1">
-                    Aksi: {{ perm.action }}
+                    Action: {{ perm.action }}
                   </p>
                 </div>
               </label>
@@ -376,7 +376,7 @@ const handleSave = () => {
           class="px-6 py-4 border-t border-[#DCDEDD] bg-white flex items-center justify-between shrink-0"
         >
           <div class="text-xs text-gray-500">
-            Perubahan akan langsung berlaku untuk user dengan role ini.
+            Changes will take effect immediately for users with this role.
           </div>
 
           <div class="flex items-center gap-3">
@@ -386,7 +386,7 @@ const handleSave = () => {
               :disabled="saving"
               class="px-5 py-3 rounded-2xl border border-[#DCDEDD] hover:bg-gray-50 text-sm font-semibold text-brand-dark transition-all duration-200 cursor-pointer disabled:opacity-50"
             >
-              Batal
+              Cancel
             </button>
             <button
               type="button"
@@ -395,7 +395,7 @@ const handleSave = () => {
               class="btn-primary px-6 py-3 rounded-2xl border border-[#2151A0] blue-gradient blue-btn-shadow hover:brightness-110 focus:ring-2 focus:ring-[#0C51D9] text-white text-sm font-semibold transition-all duration-200 flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
               <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
-              <span>{{ saving ? "Menyimpan..." : "Simpan Perubahan" }}</span>
+              <span>{{ saving ? "Saving..." : "Save Changes" }}</span>
             </button>
           </div>
         </div>

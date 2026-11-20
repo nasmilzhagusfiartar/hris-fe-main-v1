@@ -33,7 +33,7 @@ export const useCtiStore = defineStore("cti", {
       try {
         const response = await axiosInstance.post('/cti/breach-checks', { email });
         this.currentBreachResult = response.data.data;
-        this.success = response.data.message || 'Pengecekan email berhasil.';
+        this.success = response.data.message || 'Email check completed successfully.';
         return response.data.data;
       } catch (error) {
         this.error = handleError(error);
@@ -49,7 +49,7 @@ export const useCtiStore = defineStore("cti", {
 
       try {
         const response = await axiosInstance.post('/cti/breach-checks/check-all');
-        this.success = response.data.message || 'Pengecekan seluruh karyawan berhasil diantrikan.';
+        this.success = response.data.message || 'Bulk employee breach check queued successfully.';
         return response.data.data;
       } catch (error) {
         this.error = handleError(error);
@@ -88,7 +88,7 @@ export const useCtiStore = defineStore("cti", {
       try {
         const response = await axiosInstance.post('/cti/brand-scans', { domain });
         this.currentBrandScan = response.data.data;
-        this.success = response.data.message || 'Scan brand berhasil diantrikan.';
+        this.success = response.data.message || 'Brand scan queued successfully.';
         return response.data.data;
       } catch (error) {
         this.error = handleError(error);
@@ -128,7 +128,7 @@ export const useCtiStore = defineStore("cti", {
 
       try {
         const response = await axiosInstance.post(`/cti/brand-scan-results/${resultId}/urlscan`);
-        this.success = response.data.message || 'Scan urlscan berhasil dimulai.';
+        this.success = response.data.message || 'Urlscan started successfully.';
         return response.data.data;
       } catch (error) {
         this.error = handleError(error);

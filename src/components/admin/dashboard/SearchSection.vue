@@ -71,70 +71,70 @@ const menuCatalog = [
   {
     id: "menu-dashboard",
     title: "Dashboard Overview",
-    subtitle: "Halaman Utama • Ringkasan statistik & metrik",
-    keywords: ["dashboard", "beranda", "home", "utama", "statistik"],
+    subtitle: "Home • Statistics & key metrics summary",
+    keywords: ["dashboard", "home", "overview", "statistics"],
     route: { name: "admin.dashboard" },
     roles: ["manager", "admin", "hr", "finance", "employee"],
   },
   {
     id: "menu-employees",
-    title: "Employees (Daftar Karyawan)",
-    subtitle: "Manajemen • Kelola data seluruh karyawan",
-    keywords: ["employees", "karyawan", "pegawai", "staff", "sdm"],
+    title: "Employees",
+    subtitle: "Management • Manage all employee records",
+    keywords: ["employees", "staff", "hr", "directory"],
     route: { name: "admin.employees" },
     roles: ["manager", "admin", "hr"],
     permission: "employee-menu",
   },
   {
     id: "menu-employee-create",
-    title: "Add New Employee (Tambah Karyawan)",
-    subtitle: "Form • Tambah profil karyawan baru",
-    keywords: ["add employee", "tambah karyawan", "buat karyawan", "rekrut"],
+    title: "Add New Employee",
+    subtitle: "Form • Create a new employee profile",
+    keywords: ["add employee", "create employee", "new employee", "recruit"],
     route: { name: "admin.employees.create" },
     roles: ["manager", "admin", "hr"],
     permission: "employee-create",
   },
   {
     id: "menu-teams",
-    title: "Our Teams (Departemen & Tim)",
-    subtitle: "Manajemen • Kelola tim dan unit departemen",
-    keywords: ["teams", "tim", "departemen", "department", "divisi"],
+    title: "Our Teams",
+    subtitle: "Management • Manage teams and department units",
+    keywords: ["teams", "department", "division", "organization"],
     route: { name: "admin.teams" },
     roles: ["manager", "admin", "hr"],
     permission: "team-menu",
   },
   {
     id: "menu-team-create",
-    title: "Create New Team (Buat Tim)",
-    subtitle: "Form • Buat tim atau unit organisasi baru",
-    keywords: ["create team", "buat tim", "tambah tim"],
+    title: "Create New Team",
+    subtitle: "Form • Create a new team or organizational unit",
+    keywords: ["create team", "add team", "new team"],
     route: { name: "admin.team.create" },
     roles: ["manager", "admin", "hr"],
     permission: "team-create",
   },
   {
     id: "menu-attendances",
-    title: "Attendance & Leave Management (Absensi & Cuti)",
-    subtitle: "Manajemen • Kelola kehadiran dan persetujuan cuti",
-    keywords: ["attendance", "absensi", "kehadiran", "cuti", "leave", "izin"],
+    title: "Attendance & Leave Management",
+    subtitle: "Management • Manage attendance and leave approvals",
+    keywords: ["attendance", "leave", "approval", "clock"],
     route: { name: "admin.attendances" },
     roles: ["manager", "admin", "hr", "finance"],
     permission: "attendance-menu",
   },
   {
     id: "menu-projects",
-    title: "Projects & Tasks (Proyek)",
-    subtitle: "Manajemen • Kelola proyek dan papan tugas",
-    keywords: ["projects", "proyek", "tasks", "tugas", "kanban"],
+    title: "Projects & Tasks",
+    subtitle: "Management • Manage projects and task boards",
+    keywords: ["projects", "tasks", "kanban", "board"],
     route: { name: "admin.projects" },
     roles: ["manager", "admin", "hr"],
     permission: "project-menu",
   },
   {
     id: "menu-payroll",
-    title: "Payroll (Penggajian)",
-    subtitle: "Manajemen • Kelola penggajian dan pembayaran gaji",
-    keywords: ["payroll", "gaji", "penggajian", "salary", "finance"],
+    title: "Payroll",
+    subtitle: "Management • Manage payroll and salary disbursements",
+    keywords: ["payroll", "salary", "finance", "payment"],
     route: { name: "admin.payroll.dashboard" },
     roles: ["manager", "admin", "finance"],
     permission: "payroll-menu",
@@ -142,88 +142,88 @@ const menuCatalog = [
   {
     id: "menu-brand-protection",
     title: "Brand Protection & Email Breach (CTI)",
-    subtitle: "Cyber Threat Intel • Monitor domain, SSL, DNS & kebocoran email",
+    subtitle: "Cyber Threat Intel • Monitor domains, SSL, DNS & email breaches",
     keywords: ["brand protection", "cti", "breach", "typosquatting", "ssl", "dns", "email"],
     route: { name: "admin.cti.brand-protection" },
-    roles: ["manager", "admin", "hr"],
+    roles: ["manager", "admin", "hr", "security"],
   },
   {
     id: "menu-audit-user",
     title: "Audit User & Session Info",
-    subtitle: "Cyber Threat Intel • Informasi sesi & perangkat pengguna",
+    subtitle: "Cyber Threat Intel • User session & device information",
     keywords: ["audit", "session", "user", "log", "cti"],
     route: { name: "admin.cti.audit-user" },
-    roles: ["manager", "admin", "hr"],
+    roles: ["manager", "admin", "hr", "security"],
   },
   {
     id: "menu-reports",
-    title: "Reports (Laporan Analitik)",
-    subtitle: "Others • Laporan eksekutif & cetak PDF",
-    keywords: ["reports", "laporan", "analitik", "pdf", "cetak"],
+    title: "Reports",
+    subtitle: "Others • Executive reports & PDF export",
+    keywords: ["reports", "analytics", "pdf", "export"],
     route: { name: "admin.reports" },
     roles: ["manager", "admin", "hr", "finance"],
   },
   {
     id: "menu-roles",
     title: "Roles & Access Control",
-    subtitle: "Manajemen • Kelola role pengguna",
-    keywords: ["roles", "hak akses", "rbac", "jabatan"],
+    subtitle: "Management • Manage user roles",
+    keywords: ["roles", "access control", "rbac"],
     route: { name: "admin.roles" },
     roles: ["manager", "admin"],
   },
   {
     id: "menu-permissions",
     title: "Permissions",
-    subtitle: "Manajemen • Daftar izin modul sistem",
-    keywords: ["permissions", "izin", "rbac"],
+    subtitle: "Management • System module permission list",
+    keywords: ["permissions", "access", "rbac"],
     route: { name: "admin.permissions" },
     roles: ["manager", "admin"],
   },
   {
     id: "menu-settings",
-    title: "Settings (Pengaturan Sistem)",
-    subtitle: "Others • Konfigurasi aplikasi HIP HRIS",
-    keywords: ["settings", "pengaturan", "konfigurasi"],
+    title: "Settings",
+    subtitle: "Others • HIP HRIS application configuration",
+    keywords: ["settings", "configuration", "preferences"],
     route: { name: "admin.settings" },
     roles: ["manager", "admin", "hr"],
   },
   {
     id: "menu-clock",
-    title: "Clock In / Out (Absen Masuk & Pulang)",
-    subtitle: "Workspace • Catat kehadiran harian Anda",
-    keywords: ["clock in", "clock out", "absen", "check in", "check out", "hadir"],
+    title: "Clock In / Clock Out",
+    subtitle: "Workspace • Record your daily attendance",
+    keywords: ["clock in", "clock out", "check in", "check out", "attendance"],
     route: { name: "employee.attendance.clock" },
     roles: ["employee", "manager", "admin", "hr", "finance"],
   },
   {
     id: "menu-my-attendance",
-    title: "My Attendance & Leave Request (Absensi & Cuti Saya)",
-    subtitle: "Workspace • Riwayat kehadiran & pengajuan cuti pribadi",
-    keywords: ["my attendance", "absensi saya", "cuti saya", "request leave", "ajukan cuti"],
+    title: "My Attendance & Leave Request",
+    subtitle: "Workspace • Personal attendance history & leave requests",
+    keywords: ["my attendance", "leave request", "request leave"],
     route: { name: "employee.attendance.my-attendances" },
     roles: ["employee", "manager", "admin", "hr", "finance"],
   },
   {
     id: "menu-my-payslips",
-    title: "My Payslips (Slip Gaji Saya)",
-    subtitle: "Workspace • Lihat dan unduh slip gaji bulanan",
-    keywords: ["payslips", "slip gaji", "gaji saya", "salary"],
+    title: "My Payslips",
+    subtitle: "Workspace • View and download monthly payslips",
+    keywords: ["payslips", "salary", "payroll"],
     route: { name: "employee.payslips" },
     roles: ["employee", "manager", "admin", "hr", "finance"],
   },
   {
     id: "menu-my-team",
-    title: "My Team (Tim Saya)",
-    subtitle: "Workspace • Lihat anggota tim dan proyek tim Anda",
-    keywords: ["my team", "tim saya", "anggota tim"],
+    title: "My Team",
+    subtitle: "Workspace • View your team members and team projects",
+    keywords: ["my team", "team members"],
     route: { name: "employee.team" },
     roles: ["employee", "manager", "admin", "hr", "finance"],
   },
   {
     id: "menu-my-profile",
-    title: "My Profile (Profil Saya)",
-    subtitle: "Workspace • Kelola data diri dan akun",
-    keywords: ["profile", "profil saya", "akun", "password"],
+    title: "My Profile",
+    subtitle: "Workspace • Manage personal information and account",
+    keywords: ["profile", "account", "password"],
     route: { name: "employee.profile" },
     roles: ["employee", "manager", "admin", "hr", "finance"],
   },
@@ -250,7 +250,7 @@ const matchedMenuResults = computed<SearchResultItem[]>(() => {
     })
     .slice(0, 6)
     .map((item) => ({
-      category: "Menu & Halaman",
+      category: "Menus & Pages",
       id: item.id,
       title: item.title,
       subtitle: item.subtitle,
@@ -318,7 +318,7 @@ const executeSearch = async () => {
     }
     errorMessage.value =
       err?.response?.data?.message ||
-      "Gagal memuat hasil pencarian. Silakan coba lagi.";
+      "Failed to load search results. Please try again.";
     apiResults.value = [];
   } finally {
     loading.value = false;
@@ -421,7 +421,7 @@ const getFlatIndex = (item: SearchResultItem) => {
 
 const getCategoryIcon = (category: string) => {
   switch (category) {
-    case "Menu & Halaman":
+    case "Menus & Pages":
       return CompassIcon;
     case "Employees":
       return UsersIcon;
@@ -479,7 +479,7 @@ onUnmounted(() => {
           aria-label="Global search"
           class="w-full pl-12 pr-20 py-3 border border-[#DCDEDD] rounded-[16px] text-sm sm:text-base text-brand-dark hover:border-[#0C51D9] focus:border-[#0C51D9] focus:ring-2 focus:ring-blue-100 focus:outline-none focus:bg-white transition-all duration-200"
           style="padding-left: 3rem; padding-right: 5rem;"
-          placeholder="Cari karyawan, tim, proyek, tugas, absensi, atau halaman... (Ctrl+K)"
+          placeholder="Search employees, teams, projects, tasks, attendance, or pages... (Ctrl+K)"
           @focus="searchQuery.trim().length >= 2 && (isOpen = true)"
           @keydown="handleKeydown"
         />
@@ -492,7 +492,7 @@ onUnmounted(() => {
           <button
             v-if="searchQuery"
             type="button"
-            aria-label="Bersihkan pencarian"
+            aria-label="Clear search"
             class="w-6 h-6 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
             @click="clearSearch"
           >
@@ -521,7 +521,7 @@ onUnmounted(() => {
           </div>
           <select
             v-model="selectedDepartment"
-            aria-label="Filter departemen"
+            aria-label="Filter by department"
             class="w-full sm:w-auto pl-10 pr-8 py-3 border border-[#DCDEDD] rounded-[16px] text-sm font-medium text-brand-dark hover:border-[#0C51D9] focus:border-[#0C51D9] focus:outline-none transition-all duration-200 bg-white appearance-none cursor-pointer"
             style="padding-left: 2.5rem; padding-right: 2rem;"
           >
@@ -585,7 +585,7 @@ onUnmounted(() => {
       v-if="isOpen && searchQuery.trim().length >= 2"
       class="absolute left-0 right-0 top-full mt-2 bg-white border border-[#DCDEDD] rounded-[20px] shadow-xl overflow-hidden z-50 max-h-[420px] flex flex-col"
       role="listbox"
-      aria-label="Hasil pencarian global"
+      aria-label="Global search results"
     >
       <!-- Loading State -->
       <div
@@ -593,7 +593,7 @@ onUnmounted(() => {
         class="p-8 flex items-center justify-center gap-3 text-gray-500 text-sm font-medium"
       >
         <Loader2Icon class="w-5 h-5 text-[#0C51D9] animate-spin" />
-        <span>Mencari "{{ searchQuery.trim() }}"...</span>
+        <span>Searching "{{ searchQuery.trim() }}"...</span>
       </div>
 
       <!-- Error State -->
@@ -612,10 +612,10 @@ onUnmounted(() => {
       >
         <SearchIcon class="w-8 h-8 text-gray-300 mx-auto mb-2" />
         <p class="text-brand-dark text-sm font-semibold">
-          Tidak ada hasil untuk "{{ searchQuery.trim() }}"
+          No results for "{{ searchQuery.trim() }}"
         </p>
         <p class="text-gray-500 text-xs mt-1">
-          Coba kata kunci lain atau ubah filter departemen/status.
+          Try a different keyword or adjust the department/status filter.
         </p>
       </div>
 
@@ -630,7 +630,7 @@ onUnmounted(() => {
             class="px-4 py-1.5 flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-gray-400"
           >
             <span>{{ category }}</span>
-            <span>{{ items.length }} hasil</span>
+            <span>{{ items.length }} result(s)</span>
           </div>
 
           <button
@@ -686,12 +686,12 @@ onUnmounted(() => {
         class="px-4 py-2 bg-gray-50 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-500"
       >
         <div class="flex items-center gap-3">
-          <span><strong class="font-semibold">↑↓</strong> Navigasi</span>
-          <span><strong class="font-semibold">Enter</strong> Buka</span>
-          <span><strong class="font-semibold">Esc</strong> Tutup</span>
+          <span><strong class="font-semibold">↑↓</strong> Navigate</span>
+          <span><strong class="font-semibold">Enter</strong> Open</span>
+          <span><strong class="font-semibold">Esc</strong> Close</span>
         </div>
         <span v-if="loading" class="text-[#0C51D9] font-medium">
-          Memperbarui...
+          Updating...
         </span>
       </div>
     </div>

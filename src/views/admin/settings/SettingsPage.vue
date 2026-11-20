@@ -104,17 +104,17 @@ const submitPasswordChange = async () => {
       <p class="text-brand-light text-sm mt-1">
         {{
           canEditCompany
-            ? "Kelola informasi perusahaan, preferensi notifikasi, dan keamanan akun."
-            : "Kelola preferensi notifikasi dan keamanan akun Anda."
+            ? "Manage company information, notification preferences, and account security."
+            : "Manage your notification preferences and account security."
         }}
       </p>
     </div>
 
-    <Alert v-if="success" type="success" title="Berhasil" :message="success" :show="!!success" />
+    <Alert v-if="success" type="success" title="Success" :message="success" :show="!!success" />
     <Alert
       v-if="error && typeof error === 'string'"
       type="danger"
-      title="Gagal memuat atau menyimpan pengaturan"
+      title="Failed to load or save settings"
       :message="error"
       :show="!!error"
     />
@@ -151,7 +151,7 @@ const submitPasswordChange = async () => {
         </div>
         <div>
           <h3 class="text-brand-dark text-lg font-bold">Company Information</h3>
-          <p class="text-brand-light text-sm">Informasi ini digunakan di header, slip gaji, dan laporan.</p>
+          <p class="text-brand-light text-sm">This information is used in headers, payslips, and reports.</p>
         </div>
       </div>
 
@@ -206,18 +206,18 @@ const submitPasswordChange = async () => {
         </div>
         <div>
           <h3 class="text-brand-dark text-lg font-bold">Notification Preferences</h3>
-          <p class="text-brand-light text-sm">Atur notifikasi mana yang ingin kamu terima.</p>
+          <p class="text-brand-light text-sm">Choose which notifications you want to receive.</p>
         </div>
       </div>
 
       <div class="space-y-3">
         <div
           v-for="(item, key) in {
-            email_leave_request: 'Email saat ada pengajuan cuti baru',
-            email_payroll_processed: 'Email saat payroll selesai diproses',
-            email_attendance_alert: 'Email saat ada keterlambatan absensi',
-            push_task_assigned: 'Notifikasi saat ada task baru ditugaskan',
-            push_task_due_soon: 'Notifikasi saat task mendekati deadline',
+            email_leave_request: 'Email when a new leave request is submitted',
+            email_payroll_processed: 'Email when payroll processing is completed',
+            email_attendance_alert: 'Email when there is a late attendance alert',
+            push_task_assigned: 'Notification when a new task is assigned',
+            push_task_due_soon: 'Notification when a task is approaching its deadline',
           }"
           :key="key"
           class="flex items-center justify-between p-4 border border-[#DCDEDD] rounded-[12px]"
@@ -246,7 +246,7 @@ const submitPasswordChange = async () => {
         </div>
         <div>
           <h3 class="text-brand-dark text-lg font-bold">Change Password</h3>
-          <p class="text-brand-light text-sm">Gunakan password yang kuat dan unik untuk keamanan akun.</p>
+          <p class="text-brand-light text-sm">Use a strong and unique password to keep your account secure.</p>
         </div>
       </div>
 

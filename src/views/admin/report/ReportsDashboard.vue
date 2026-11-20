@@ -208,7 +208,7 @@ const exportPdf = async () => {
       <div>
         <h1 class="text-brand-dark text-2xl font-bold">Reports</h1>
         <p class="text-brand-light text-sm mt-1">
-          Ringkasan performa perusahaan dari attendance, payroll, hingga employee.
+          Company performance summary across attendance, payroll, and employees.
         </p>
       </div>
 
@@ -217,9 +217,9 @@ const exportPdf = async () => {
           v-model="period"
           class="border border-[#DCDEDD] rounded-[12px] px-4 py-2.5 text-sm font-medium text-brand-dark hover:border-[#0C51D9] focus:border-[#0C51D9] transition-all duration-300 cursor-pointer"
         >
-          <option value="last_6_months">6 Bulan Terakhir</option>
-          <option value="last_3_months">3 Bulan Terakhir</option>
-          <option value="this_year">Tahun Ini</option>
+          <option value="last_6_months">Last 6 Months</option>
+          <option value="last_3_months">Last 3 Months</option>
+          <option value="this_year">This Year</option>
         </select>
 
         <button
@@ -246,7 +246,7 @@ const exportPdf = async () => {
     <Alert
       v-if="error && typeof error === 'string'"
       type="danger"
-      title="Gagal memuat laporan"
+      title="Failed to load reports"
       :message="error"
     />
 
@@ -378,7 +378,7 @@ const exportPdf = async () => {
             :options="attendanceTrendOptions"
             :series="attendanceTrendSeries"
           />
-          <p v-else-if="loading" class="text-sm text-gray-500 py-8 text-center">Memuat grafik kehadiran...</p>
+          <p v-else-if="loading" class="text-sm text-gray-500 py-8 text-center">Loading attendance chart...</p>
         </div>
         <div class="bg-white border border-[#DCDEDD] rounded-[16px] p-6 lg:col-span-2">
           <h3 class="text-brand-dark text-lg font-bold mb-4">Attendance Rate by Department</h3>
@@ -389,7 +389,7 @@ const exportPdf = async () => {
             :options="attendanceByDeptOptions"
             :series="attendanceByDeptSeries"
           />
-          <p v-else-if="!loading" class="text-sm text-gray-500 py-8 text-center">Belum ada data kehadiran per departemen.</p>
+          <p v-else-if="!loading" class="text-sm text-gray-500 py-8 text-center">No attendance data by department available.</p>
         </div>
       </div>
 
@@ -397,8 +397,8 @@ const exportPdf = async () => {
       <div class="bg-white border border-[#DCDEDD] rounded-[16px] p-6">
         <div class="flex items-center justify-between mb-4">
           <div>
-            <h3 class="text-brand-dark text-lg font-bold">Ringkasan Kehadiran per Karyawan</h3>
-            <p class="text-brand-light text-xs mt-0.5">Rekapitulasi hadir, terlambat, izin/cuti, sakit, dan alpa</p>
+            <h3 class="text-brand-dark text-lg font-bold">Employee Attendance Summary</h3>
+            <p class="text-brand-light text-xs mt-0.5">Summary of present, late, leave, sick, and absent records</p>
           </div>
         </div>
 
@@ -406,19 +406,19 @@ const exportPdf = async () => {
           <table class="w-full text-left border-collapse text-sm">
             <thead>
               <tr class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-600 uppercase">
-                <th class="py-3 px-4">Karyawan</th>
-                <th class="py-3 px-4">Tim / Departemen</th>
-                <th class="py-3 px-4 text-center">Hadir</th>
-                <th class="py-3 px-4 text-center">Telat</th>
-                <th class="py-3 px-4 text-center">Izin / Cuti</th>
-                <th class="py-3 px-4 text-center">Sakit</th>
-                <th class="py-3 px-4 text-center">Alpa</th>
+                <th class="py-3 px-4">Employee</th>
+                <th class="py-3 px-4">Team / Department</th>
+                <th class="py-3 px-4 text-center">Present</th>
+                <th class="py-3 px-4 text-center">Late</th>
+                <th class="py-3 px-4 text-center">Leave / Permission</th>
+                <th class="py-3 px-4 text-center">Sick</th>
+                <th class="py-3 px-4 text-center">Absent</th>
                 <th class="py-3 px-4 text-right">Rate</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
               <tr v-if="!attendanceReport?.employees_summary?.length">
-                <td colspan="8" class="py-8 text-center text-gray-500">Tidak ada data ringkasan kehadiran karyawan.</td>
+                <td colspan="8" class="py-8 text-center text-gray-500">No employee attendance summary data available.</td>
               </tr>
               <tr
                 v-for="emp in attendanceReport?.employees_summary || []"

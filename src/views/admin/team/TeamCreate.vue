@@ -67,10 +67,10 @@ const handleSubmit = async () => {
   await createTeam(form.value);
 
   if (success.value) {
-    toast.success(success.value || "Tim berhasil dibuat!", "Berhasil");
+    toast.success(success.value || "Team created successfully!", "Success");
     router.push({ name: "admin.teams" });
   } else if (error.value) {
-    let errorMsg = "Gagal membuat tim. Silakan periksa formulir kembali.";
+    let errorMsg = "Failed to create team. Please check the form again.";
     if (typeof error.value === "object" && error.value !== null) {
       const messages = Object.values(error.value).flat();
       if (messages.length > 0) {
@@ -79,7 +79,7 @@ const handleSubmit = async () => {
     } else if (typeof error.value === "string") {
       errorMsg = error.value;
     }
-    toast.error(errorMsg, "Gagal Membuat Tim");
+    toast.error(errorMsg, "Failed to Create Team");
   }
 };
 
@@ -89,8 +89,8 @@ const handleTeamIconSelect = (e) => {
   if (file) {
     if (file.size > 2 * 1024 * 1024) {
       toast.error(
-        "Ukuran icon tidak boleh lebih dari 2048 KB (2 MB).",
-        "Ukuran File Terlalu Besar"
+        "Icon size must not exceed 2048 KB (2 MB).",
+        "File Size Too Large"
       );
       if (teamIconInput.value) {
         teamIconInput.value.value = "";

@@ -13,7 +13,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   modelValue: "",
-  placeholder: "Cari...",
+  placeholder: "Search...",
   clearable: true,
   disabled: false,
   inputClass:
@@ -82,7 +82,7 @@ defineExpose({ focus, inputRef });
     <button
       v-if="props.clearable && props.modelValue"
       type="button"
-      aria-label="Hapus pencarian"
+      aria-label="Clear search"
       class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer"
       style="top: 50%; transform: translateY(-50%); right: 12px;"
       @click="onClear"

@@ -133,7 +133,7 @@ const getRoleGradient = (roleName) => {
       <div class="space-y-2 mb-2">
         <div class="flex items-center gap-1.5 text-xs text-brand-light mb-1.5">
           <Layers class="w-3.5 h-3.5 text-gray-500" />
-          <span class="font-medium">Hak Akses Terpasang:</span>
+          <span class="font-medium">Assigned Permissions:</span>
         </div>
         <div class="flex flex-wrap gap-1.5 min-h-[32px]">
           <template v-if="role.permissions && role.permissions.length > 0">
@@ -148,11 +148,11 @@ const getRoleGradient = (roleName) => {
               v-if="role.permissions.length > 3"
               class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-blue-50 text-[#0C51D9]"
             >
-              +{{ role.permissions.length - 3 }} lainnya
+              +{{ role.permissions.length - 3 }} more
             </span>
           </template>
           <span v-else class="text-xs text-gray-400 italic">
-            Belum ada permission terpasang
+            No permissions assigned yet
           </span>
         </div>
       </div>
@@ -171,7 +171,7 @@ const getRoleGradient = (roleName) => {
         >
           <Key class="w-4 h-4 text-gray-600 group-hover:text-[#0C51D9] transition-colors" />
           <span class="text-brand-dark text-sm font-semibold group-hover:text-[#0C51D9] transition-colors">
-            Kelola Permissions
+            Manage Permissions
           </span>
         </button>
 
@@ -180,7 +180,7 @@ const getRoleGradient = (roleName) => {
           <button
             type="button"
             @click="emit('editRole', role)"
-            title="Ubah Nama Role"
+            title="Edit Role Name"
             class="border border-[#DCDEDD] rounded-[8px] hover:border-[#0C51D9] hover:border-2 hover:bg-gray-50 transition-all duration-300 p-2.5 flex items-center justify-center text-gray-600 hover:text-[#0C51D9] cursor-pointer"
           >
             <Edit class="w-4 h-4" />
@@ -188,7 +188,7 @@ const getRoleGradient = (roleName) => {
           <button
             type="button"
             @click="emit('deleteRole', role)"
-            title="Hapus Role"
+            title="Delete Role"
             class="border border-[#DCDEDD] rounded-[8px] hover:border-red-500 hover:border-2 hover:bg-red-50 transition-all duration-300 p-2.5 flex items-center justify-center text-gray-600 hover:text-red-600 cursor-pointer"
           >
             <Trash2 class="w-4 h-4" />

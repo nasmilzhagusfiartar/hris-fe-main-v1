@@ -51,10 +51,10 @@
             <thead>
               <tr class="bg-gray-100 text-gray-700">
                 <th class="p-4 border-b border-gray-300 font-semibold">Domain</th>
-                <th class="p-4 border-b border-gray-300 font-semibold">Kategori</th>
-                <th class="p-4 border-b border-gray-300 font-semibold">Sumber</th>
+                <th class="p-4 border-b border-gray-300 font-semibold">Category</th>
+                <th class="p-4 border-b border-gray-300 font-semibold">Source</th>
                 <th class="p-4 border-b border-gray-300 font-semibold">Status</th>
-                <th class="p-4 border-b border-gray-300 font-semibold w-24 text-center">Aksi</th>
+                <th class="p-4 border-b border-gray-300 font-semibold w-24 text-center">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -83,7 +83,7 @@
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-xl font-bold text-gray-900">Subdomain Discovery & Threats</h3>
           <select v-model="filterCategory" class="border border-gray-300 rounded-lg py-2 px-4 text-sm font-semibold bg-white shadow-sm focus:ring-blue-500 focus:border-blue-500">
-            <option value="">Semua Kategori</option>
+            <option value="">All Categories</option>
             <option value="Subdomain">Subdomain</option>
             <option value="Impersonation">Impersonation</option>
             <option value="Phishing">Phishing</option>
@@ -95,10 +95,10 @@
             <thead>
               <tr class="bg-gray-100 text-gray-700">
                 <th class="p-4 border-b border-gray-300 font-semibold">Subdomain / Threat</th>
-                <th class="p-4 border-b border-gray-300 font-semibold">Kategori</th>
-                <th class="p-4 border-b border-gray-300 font-semibold">Sumber</th>
+                <th class="p-4 border-b border-gray-300 font-semibold">Category</th>
+                <th class="p-4 border-b border-gray-300 font-semibold">Source</th>
                 <th class="p-4 border-b border-gray-300 font-semibold">Status</th>
-                <th class="p-4 border-b border-gray-300 font-semibold w-24 text-center">Aksi</th>
+                <th class="p-4 border-b border-gray-300 font-semibold w-24 text-center">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -118,7 +118,7 @@
                 </td>
               </tr>
               <tr v-if="filteredImpersonations.length === 0">
-                <td colspan="5" class="p-8 text-center text-gray-500 font-medium">Tidak ada data untuk kategori ini.</td>
+                <td colspan="5" class="p-8 text-center text-gray-500 font-medium">No data available for this category.</td>
               </tr>
             </tbody>
           </table>
@@ -138,14 +138,14 @@
               <th class="p-4 border-b border-gray-300 font-semibold">Subject (CN)</th>
               <th class="p-4 border-b border-gray-300 font-semibold">Status</th>
               <th class="p-4 border-b border-gray-300 font-semibold">Expired</th>
-              <th class="p-4 border-b border-gray-300 font-semibold">Sisa Waktu</th>
-              <th class="p-4 border-b border-gray-300 font-semibold w-24 text-center">Aksi</th>
+              <th class="p-4 border-b border-gray-300 font-semibold">Time Remaining</th>
+              <th class="p-4 border-b border-gray-300 font-semibold w-24 text-center">Action</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(ssl, i) in sslMonitorData" :key="i" class="hover:bg-blue-50/50">
               <td class="p-4 border-b border-gray-200 font-medium text-gray-900">{{ ssl.domain }}</td>
-              <td class="p-4 border-b border-gray-200 text-gray-700">{{ ssl.issuer || 'Memuat...' }}</td>
+              <td class="p-4 border-b border-gray-200 text-gray-700">{{ ssl.issuer || 'Loading...' }}</td>
               <td class="p-4 border-b border-gray-200 text-gray-700">{{ ssl.subject || '-' }}</td>
               <td class="p-4 border-b border-gray-200">
                 <span v-if="ssl.status === 'VALID'" class="bg-green-100 text-green-800 text-xs px-2.5 py-1 rounded-md font-semibold">VALID</span>
@@ -205,8 +205,8 @@
             <p class="text-gray-500 text-sm mt-1">
               {{
                 canCheckAnyEmail
-                  ? "Periksa kebocoran data (Data Breach) pada email perusahaan atau lakukan pengecekan massal seluruh karyawan."
-                  : "Periksa status kebocoran data (Data Breach) untuk alamat email akun Anda sendiri."
+                  ? "Check for data breaches on company emails or run a bulk check for all employees."
+                  : "Check the data breach status for your own account email address."
               }}
             </p>
           </div>
@@ -217,7 +217,7 @@
             class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 transition-colors shadow-sm disabled:opacity-50"
           >
             <RefreshCwIcon class="w-4 h-4" :class="{'animate-spin': loadingCheckAll}" />
-            <span>{{ loadingCheckAll ? 'Mengantrikan...' : 'Cek Semua Karyawan' }}</span>
+            <span>{{ loadingCheckAll ? 'Queuing...' : 'Check All Employees' }}</span>
           </button>
         </div>
 
@@ -229,7 +229,7 @@
               @keyup.enter="handleCheckSingleEmail"
               type="email" 
               :readonly="!canCheckAnyEmail"
-              placeholder="Masukkan email (contoh: karyawan@herointiputra.com)" 
+              placeholder="Enter email (e.g., employee@herointiputra.com)" 
               class="w-full border border-gray-300 rounded-xl py-3 px-4 text-base focus:ring-blue-500 focus:border-blue-500 shadow-sm read-only:bg-gray-100 read-only:text-gray-700"
             >
           </div>
@@ -239,7 +239,7 @@
             class="w-full sm:w-auto bg-blue-600 text-white font-bold rounded-xl px-6 py-3 text-base hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2 shadow-sm"
           >
             <RefreshCwIcon class="w-4 h-4" :class="{'animate-spin': loadingBreachCheck}" />
-            <span>{{ loadingBreachCheck ? 'Memeriksa...' : 'Cek Email' }}</span>
+            <span>{{ loadingBreachCheck ? 'Checking...' : 'Check Email' }}</span>
           </button>
         </div>
 
@@ -247,7 +247,7 @@
         <div v-if="queuedCount !== null" class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 flex items-center gap-3 text-indigo-900">
           <UsersIcon class="w-5 h-5 text-indigo-600 flex-shrink-0" />
           <div class="text-sm font-medium">
-            Pengecekan masal berhasil diantrikan untuk <span class="font-bold">{{ queuedCount }}</span> email karyawan.
+            Bulk check successfully queued for <span class="font-bold">{{ queuedCount }}</span> employee emails.
           </div>
         </div>
 
@@ -257,20 +257,20 @@
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
             <div class="flex items-center gap-3">
               <span v-if="currentBreachResult.is_breached" class="flex items-center gap-1.5 bg-red-600 text-white font-bold text-xs px-3 py-1.5 rounded-full shadow-sm">
-                <ShieldAlertIcon class="w-4 h-4" /> BOCOR
+                <ShieldAlertIcon class="w-4 h-4" /> BREACHED
               </span>
               <span v-else class="flex items-center gap-1.5 bg-green-600 text-white font-bold text-xs px-3 py-1.5 rounded-full shadow-sm">
-                <CheckCircleIcon class="w-4 h-4" /> AMAN
+                <CheckCircleIcon class="w-4 h-4" /> SAFE
               </span>
               <span class="font-bold text-gray-900 text-lg">{{ currentBreachResult.email }}</span>
             </div>
             <div class="text-xs text-gray-500 font-medium">
-              Terakhir diperiksa: {{ formatDateTime(currentBreachResult.checked_at) }}
+              Last checked: {{ formatDateTime(currentBreachResult.checked_at) }}
             </div>
           </div>
 
           <div v-if="currentBreachResult.is_breached" class="space-y-2">
-            <p class="text-xs font-bold text-red-800 uppercase tracking-wider">Terdeteksi pada kebocoran data berikut:</p>
+            <p class="text-xs font-bold text-red-800 uppercase tracking-wider">Detected in the following data breaches:</p>
             <div class="flex flex-wrap gap-2">
               <span 
                 v-for="(breach, bIdx) in currentBreachResult.breaches" 
@@ -280,13 +280,13 @@
                 {{ breach }}
               </span>
               <span v-if="!currentBreachResult.breaches || currentBreachResult.breaches.length === 0" class="text-xs text-red-600 italic">
-                Terdeteksi breach (detail nama insiden tidak tersedia).
+                Breach detected (incident name details unavailable).
               </span>
             </div>
           </div>
           <div v-else class="text-sm text-green-800 font-medium flex items-center gap-2">
             <CheckCircleIcon class="w-4 h-4 text-green-600" />
-            Tidak ditemukan catatan kebocoran data untuk email ini.
+            No data breach records found for this email.
           </div>
         </div>
       </div>
@@ -295,13 +295,13 @@
       <div class="bg-white border border-gray-300 rounded-2xl shadow-sm overflow-hidden">
         <div class="p-5 border-b border-gray-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h4 class="text-lg font-bold text-gray-900">Riwayat Pengecekan Email</h4>
-            <p class="text-xs text-gray-500 mt-0.5">Daftar seluruh riwayat audit kebocoran email yang pernah dilakukan.</p>
+            <h4 class="text-lg font-bold text-gray-900">Email Check History</h4>
+            <p class="text-xs text-gray-500 mt-0.5">Complete audit history of previous email breach checks.</p>
           </div>
           <div v-if="canCheckAnyEmail" class="w-full md:w-72">
             <SearchInput
               v-model="breachSearchQuery"
-              placeholder="Cari email..."
+              placeholder="Search email..."
               input-class="py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-100 focus:border-blue-500 bg-gray-50 focus:bg-white transition-colors"
               @input="onBreachSearchChange"
               @clear="onBreachSearchChange"
@@ -315,9 +315,9 @@
               <tr class="bg-gray-100 text-gray-700 text-xs uppercase tracking-wider">
                 <th class="p-4 border-b border-gray-300 font-bold w-12 text-center">No</th>
                 <th class="p-4 border-b border-gray-300 font-bold">Email</th>
-                <th class="p-4 border-b border-gray-300 font-bold">Status Kebocoran</th>
-                <th class="p-4 border-b border-gray-300 font-bold">Daftar Breach</th>
-                <th class="p-4 border-b border-gray-300 font-bold">Waktu Cek</th>
+                <th class="p-4 border-b border-gray-300 font-bold">Breach Status</th>
+                <th class="p-4 border-b border-gray-300 font-bold">Breach List</th>
+                <th class="p-4 border-b border-gray-300 font-bold">Checked At</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-200 text-sm">
@@ -325,13 +325,13 @@
                 <td colspan="5" class="p-8 text-center text-gray-500">
                   <div class="flex items-center justify-center gap-2">
                     <RefreshCwIcon class="w-5 h-5 animate-spin text-blue-600" />
-                    <span>Memuat data riwayat...</span>
+                    <span>Loading history...</span>
                   </div>
                 </td>
               </tr>
               <tr v-else-if="breachChecks.length === 0">
                 <td colspan="5" class="p-8 text-center text-gray-500 font-medium">
-                  Belum ada riwayat pengecekan kebocoran email.
+                  No email breach check history available.
                 </td>
               </tr>
               <tr v-else v-for="(item, idx) in breachChecks" :key="item.id || idx" class="hover:bg-blue-50/40 transition-colors">
@@ -341,10 +341,10 @@
                 <td class="p-4 font-semibold text-gray-900">{{ item.email }}</td>
                 <td class="p-4">
                   <span v-if="item.is_breached" class="bg-red-100 text-red-800 text-xs px-2.5 py-1 rounded-md font-bold inline-flex items-center gap-1">
-                    <ShieldAlertIcon class="w-3.5 h-3.5" /> BOCOR
+                    <ShieldAlertIcon class="w-3.5 h-3.5" /> BREACHED
                   </span>
                   <span v-else class="bg-green-100 text-green-800 text-xs px-2.5 py-1 rounded-md font-bold inline-flex items-center gap-1">
-                    <CheckCircleIcon class="w-3.5 h-3.5" /> AMAN
+                    <CheckCircleIcon class="w-3.5 h-3.5" /> SAFE
                   </span>
                 </td>
                 <td class="p-4">
@@ -387,7 +387,7 @@
               Typosquatting & Impersonation Scanner
             </h3>
             <p class="text-gray-500 text-sm mt-1">
-              Deteksi domain tiruan (combosquatting, bitsquatting, homoglyphs) dan analisis reputasi web via urlscan.io.
+              Detect lookalike domains (combosquatting, bitsquatting, homoglyphs) and analyze web reputation via urlscan.io.
             </p>
           </div>
         </div>
@@ -395,7 +395,7 @@
         <!-- Scan Controller -->
         <div class="flex flex-col sm:flex-row items-center gap-4">
           <div class="w-full sm:w-72">
-            <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Pilih Domain Target</label>
+            <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Select Target Domain</label>
             <select 
               v-model="selectedBrandDomain" 
               :disabled="isScanningBrand"
@@ -411,80 +411,80 @@
               class="w-full sm:w-auto bg-blue-600 text-white font-bold rounded-xl px-8 py-3 text-base hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2 shadow-sm"
             >
               <RefreshCwIcon class="w-5 h-5" :class="{'animate-spin': isScanningBrand}" />
-              <span>{{ isScanningBrand ? 'Memproses Scan...' : 'Jalankan Scan' }}</span>
+              <span>{{ isScanningBrand ? 'Scanning...' : 'Run Scan' }}</span>
             </button>
           </div>
         </div>
 
-        <!-- Loading Riwayat Scan Terakhir -->
+        <!-- Loading Latest Scan History -->
         <div v-if="loadingLatestBrandScan && !isScanningBrand"
           class="bg-gray-50 border border-gray-200 rounded-xl p-5 flex items-center gap-3 text-gray-600">
           <RefreshCwIcon class="w-5 h-5 text-blue-600 animate-spin flex-shrink-0" />
-          <span class="text-sm font-medium">Memuat riwayat scan terakhir untuk <strong class="text-gray-900">{{ selectedBrandDomain }}</strong>...</span>
+          <span class="text-sm font-medium">Loading latest scan history for <strong class="text-gray-900">{{ selectedBrandDomain }}</strong>...</span>
         </div>
 
-        <!-- Progress Indicator saat pending / running -->
+        <!-- Progress Indicator when pending / running -->
         <div v-if="isScanningBrand || (brandScanStatus && (brandScanStatus.status === 'pending' || brandScanStatus.status === 'running'))" 
           class="bg-blue-50 border border-blue-200 rounded-xl p-5 flex items-center gap-4">
           <RefreshCwIcon class="w-6 h-6 text-blue-600 animate-spin flex-shrink-0" />
           <div>
-            <p class="text-sm font-bold text-blue-900">Scan typosquatting sedang berjalan...</p>
+            <p class="text-sm font-bold text-blue-900">Typosquatting scan in progress...</p>
             <p class="text-xs text-blue-700 mt-0.5">
-              Domain: <span class="font-mono font-semibold">{{ brandScanStatus?.domain || selectedBrandDomain }}</span> | Status: <span class="uppercase font-semibold">{{ brandScanStatus?.status || 'running' }}</span>. Sistem sedang melakukan polling otomatis tiap 5 detik.
+              Domain: <span class="font-mono font-semibold">{{ brandScanStatus?.domain || selectedBrandDomain }}</span> | Status: <span class="uppercase font-semibold">{{ brandScanStatus?.status || 'running' }}</span>. System is automatically polling every 5 seconds.
             </p>
           </div>
         </div>
 
-        <!-- Error Banner jika scan failed -->
+        <!-- Error Banner when scan failed -->
         <div v-if="brandScanStatus && brandScanStatus.status === 'failed'" 
           class="bg-red-50 border border-red-200 rounded-xl p-5 flex items-center gap-4">
           <ShieldAlertIcon class="w-6 h-6 text-red-600 flex-shrink-0" />
           <div>
-            <p class="text-sm font-bold text-red-900">Scan Typosquatting Gagal</p>
+            <p class="text-sm font-bold text-red-900">Typosquatting Scan Failed</p>
             <p class="text-xs text-red-700 mt-0.5 font-medium">
-              {{ brandScanStatus.error || 'Terjadi kesalahan pada backend saat menjalankan scan.' }}
+              {{ brandScanStatus.error || 'A backend error occurred while running the scan.' }}
             </p>
           </div>
         </div>
       </div>
 
-      <!-- Empty State jika domain belum pernah di-scan sama sekali -->
+      <!-- Empty State when domain has never been scanned -->
       <div v-if="!loadingLatestBrandScan && !isScanningBrand && !brandScanStatus"
         class="bg-white border border-dashed border-gray-300 rounded-2xl shadow-sm p-12 text-center space-y-3">
         <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto border border-blue-100">
           <GlobeIcon class="w-7 h-7" />
         </div>
-        <h4 class="text-lg font-bold text-gray-900">Belum Ada Riwayat Scan untuk {{ selectedBrandDomain }}</h4>
+        <h4 class="text-lg font-bold text-gray-900">No Scan History for {{ selectedBrandDomain }}</h4>
         <p class="text-sm text-gray-500 max-w-md mx-auto">
-          Klik tombol <strong class="text-gray-800">Jalankan Scan</strong> di atas untuk mulai memindai potensi domain tiruan (typosquatting) pada <span class="font-mono font-semibold text-gray-800">{{ selectedBrandDomain }}</span>.
+          Click the <strong class="text-gray-800">Run Scan</strong> button above to start scanning for potential lookalike domains (typosquatting) on <span class="font-mono font-semibold text-gray-800">{{ selectedBrandDomain }}</span>.
         </p>
       </div>
 
-      <!-- Hasil Scan -->
+      <!-- Scan Results -->
       <div v-if="brandScanStatus && brandScanStatus.status === 'done'" class="space-y-4">
-        <!-- Kasus 1: Results Kosong -->
+        <!-- Case 1: Empty Results -->
         <div v-if="!brandScanStatus.results || brandScanStatus.results.length === 0" 
           class="bg-white border border-gray-300 rounded-2xl shadow-sm p-12 text-center space-y-3">
           <div class="w-16 h-16 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto border border-green-200">
             <CheckCircleIcon class="w-8 h-8" />
           </div>
-          <h4 class="text-xl font-bold text-gray-900">Tidak ditemukan domain tiruan yang aktif</h4>
+          <h4 class="text-xl font-bold text-gray-900">No Active Lookalike Domains Found</h4>
           <p class="text-sm text-gray-500 max-w-md mx-auto">
-            Pemeriksaan typosquatting untuk domain <span class="font-bold text-gray-800">{{ brandScanStatus.domain }}</span> tidak mendeteksi adanya domain permutasi yang aktif.
+            The typosquatting check for <span class="font-bold text-gray-800">{{ brandScanStatus.domain }}</span> detected no active permutation domains.
           </p>
         </div>
 
-        <!-- Kasus 2: Results Ada -->
+        <!-- Case 2: Results Present -->
         <div v-else class="bg-white border border-gray-300 rounded-2xl shadow-sm overflow-hidden">
           <div class="p-5 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gray-50/50">
             <div>
               <h4 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-                Hasil Scan Domain: {{ brandScanStatus.domain }}
+                Domain Scan Results: {{ brandScanStatus.domain }}
                 <span class="bg-blue-100 text-blue-800 text-xs px-2.5 py-0.5 rounded-full font-bold">
-                  {{ brandScanStatus.total_found ?? brandScanStatus.results.length }} Ditemukan
+                  {{ brandScanStatus.total_found ?? brandScanStatus.results.length }} Found
                 </span>
               </h4>
-              <p class="text-xs text-gray-500 mt-1">Waktu scan: {{ formatDateTime(brandScanStatus.created_at) }}</p>
+              <p class="text-xs text-gray-500 mt-1">Scan time: {{ formatDateTime(brandScanStatus.created_at) }}</p>
             </div>
           </div>
 
@@ -496,8 +496,8 @@
                   <th class="p-4 border-b border-gray-300 font-bold">Fuzzer</th>
                   <th class="p-4 border-b border-gray-300 font-bold">DNS A (IP)</th>
                   <th class="p-4 border-b border-gray-300 font-bold">DNS MX</th>
-                  <th class="p-4 border-b border-gray-300 font-bold">Analisis urlscan</th>
-                  <th class="p-4 border-b border-gray-300 font-bold text-center w-36">Aksi</th>
+                  <th class="p-4 border-b border-gray-300 font-bold">urlscan Analysis</th>
+                  <th class="p-4 border-b border-gray-300 font-bold text-center w-36">Action</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-200 text-sm">
@@ -543,7 +543,7 @@
                         <span v-else class="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded font-bold">
                           CLEAN
                         </span>
-                        <span class="text-xs text-gray-600 font-semibold">Skor: {{ res.urlscan_score ?? 0 }}</span>
+                        <span class="text-xs text-gray-600 font-semibold">Score: {{ res.urlscan_score ?? 0 }}</span>
                       </div>
                       <div class="text-xs text-gray-500">
                         IP: <span class="font-mono">{{ res.urlscan_ip || '-' }}</span> ({{ res.urlscan_country || '-' }})
@@ -567,9 +567,9 @@
                       </div>
                     </div>
 
-                    <!-- Status Kosong -->
+                    <!-- Empty Status -->
                     <div v-else class="text-xs text-gray-400 italic">
-                      Belum di-scan
+                      Not scanned yet
                     </div>
                   </td>
                   <td class="p-4 text-center">
@@ -607,7 +607,7 @@
           <!-- Top Info Bar -->
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-              <p class="text-xs font-bold text-gray-500 uppercase">Kategori</p>
+              <p class="text-xs font-bold text-gray-500 uppercase">Category</p>
               <p class="mt-1 font-bold text-gray-900">{{ selectedDomain.category }}</p>
             </div>
             <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
@@ -615,12 +615,12 @@
               <p class="mt-1 font-mono text-blue-600 font-bold">{{ activeIp || 'Resolving...' }}</p>
             </div>
             <div class="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
-              <p class="text-xs font-bold text-gray-500 uppercase">Sumber</p>
+              <p class="text-xs font-bold text-gray-500 uppercase">Source</p>
               <p class="mt-1 font-bold text-gray-900">{{ selectedDomain.source }}</p>
             </div>
             <button @click="enrichDomain(selectedDomain.name)" :disabled="isEnriching" class="bg-blue-600 text-white font-bold rounded-lg shadow-sm hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center transition-colors">
               <RefreshCwIcon class="w-5 h-5 mr-2" :class="{'animate-spin': isEnriching}" />
-              {{ isEnriching ? 'Memuat Data...' : 'Enrich & Scan' }}
+              {{ isEnriching ? 'Loading Data...' : 'Enrich & Scan' }}
             </button>
           </div>
 
@@ -644,7 +644,7 @@
                 </div>
               </div>
               <div v-else class="h-24 flex items-center justify-center bg-gray-50 border border-dashed border-gray-300 rounded-lg">
-                <p class="text-sm font-semibold text-gray-500">Tekan 'Enrich & Scan'</p>
+                <p class="text-sm font-semibold text-gray-500">Click 'Enrich &amp; Scan'</p>
               </div>
             </div>
             
@@ -665,7 +665,7 @@
                 </div>
               </div>
               <div v-else class="h-24 flex items-center justify-center bg-gray-50 border border-dashed border-gray-300 rounded-lg">
-                <p class="text-sm font-semibold text-gray-500">Tekan 'Enrich & Scan'</p>
+                <p class="text-sm font-semibold text-gray-500">Click 'Enrich &amp; Scan'</p>
               </div>
             </div>
             
@@ -678,7 +678,7 @@
                 <pre class="text-xs text-green-400 font-mono whitespace-pre-wrap">{{ whoisData }}</pre>
               </div>
               <div v-else class="h-24 flex items-center justify-center bg-gray-50 border border-dashed border-gray-300 rounded-lg">
-                <p class="text-sm font-semibold text-gray-500">Tekan 'Enrich & Scan'</p>
+                <p class="text-sm font-semibold text-gray-500">Click 'Enrich &amp; Scan'</p>
               </div>
             </div>
 
@@ -693,7 +693,7 @@
         <div class="flex items-center justify-between bg-gray-100 border-b border-gray-300 px-6 py-4">
           <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
             <LockIcon class="w-6 h-6" :class="selectedSsl.status === 'VALID' ? 'text-green-600' : 'text-red-600'" />
-            Detail Sertifikat SSL
+            SSL Certificate Detail
           </h3>
           <button @click="selectedSsl = null" class="text-gray-500 hover:text-red-600 bg-white p-1 rounded border border-gray-300">
             <XIcon class="w-6 h-6" />
@@ -707,7 +707,7 @@
               <p class="mt-1 text-lg font-bold text-gray-900">{{ selectedSsl.domain }}</p>
             </div>
             <div class="bg-white border border-gray-300 rounded-lg p-4">
-              <p class="text-xs font-bold text-gray-500 uppercase">Issuer (Penerbit)</p>
+              <p class="text-xs font-bold text-gray-500 uppercase">Issuer</p>
               <p class="mt-1 text-sm font-bold text-gray-900">{{ selectedSsl.issuer }}</p>
             </div>
             <div class="bg-white border border-gray-300 rounded-lg p-4">
@@ -716,11 +716,11 @@
             </div>
             <div class="grid grid-cols-2 gap-4">
               <div class="bg-white border border-gray-300 rounded-lg p-4">
-                <p class="text-xs font-bold text-gray-500 uppercase">Berlaku Sejak</p>
+                <p class="text-xs font-bold text-gray-500 uppercase">Valid From</p>
                 <p class="mt-1 text-sm font-bold text-gray-900">{{ selectedSsl.not_before || '-' }}</p>
               </div>
               <div class="bg-white border border-gray-300 rounded-lg p-4">
-                <p class="text-xs font-bold text-gray-500 uppercase">Kedaluwarsa</p>
+                <p class="text-xs font-bold text-gray-500 uppercase">Expires On</p>
                 <p class="mt-1 text-lg font-black" :class="selectedSsl.status === 'VALID' ? 'text-green-600' : 'text-red-600'">{{ selectedSsl.expired || '-' }}</p>
               </div>
             </div>
@@ -818,13 +818,15 @@ const formatDateTime = (dateStr) => {
   try {
     const d = new Date(dateStr);
     if (isNaN(d.getTime())) return dateStr;
-    return d.toLocaleString('id-ID', {
+    return `${d.toLocaleString('en-GB', {
       year: 'numeric',
       month: 'short',
-      day: 'numeric',
+      day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-    });
+      hour12: false,
+      timeZone: 'Asia/Jakarta',
+    })} WIB`;
   } catch (e) {
     return dateStr;
   }
@@ -880,13 +882,13 @@ const handleCheckSingleEmail = async () => {
   try {
     const res = await ctiStore.checkEmailBreach(breachEmailInput.value);
     if (res.is_breached) {
-      toast.warning(`Email ${res.email} terdeteksi pernah mengalami kebocoran data!`);
+      toast.warning(`Email ${res.email} was detected in a data breach!`);
     } else {
-      toast.success(`Email ${res.email} aman dari kebocoran data.`);
+      toast.success(`Email ${res.email} is safe from known data breaches.`);
     }
     fetchBreachHistory();
   } catch (err) {
-    toast.error(typeof err === 'string' ? err : (err?.response?.data?.message || 'Gagal memeriksa email.'));
+    toast.error(typeof err === 'string' ? err : (err?.response?.data?.message || 'Failed to check email.'));
   }
 };
 
@@ -894,10 +896,10 @@ const handleCheckAllEmployees = async () => {
   try {
     const res = await ctiStore.checkAllEmployeesBreach();
     queuedCount.value = res?.queued ?? 0;
-    toast.success(`Pengecekan masal berhasil diantrikan untuk ${queuedCount.value} email karyawan.`);
+    toast.success(`Bulk check successfully queued for ${queuedCount.value} employee emails.`);
     fetchBreachHistory();
   } catch (err) {
-    toast.error(typeof err === 'string' ? err : (err?.response?.data?.message || 'Gagal mengantrikan pengecekan semua karyawan.'));
+    toast.error(typeof err === 'string' ? err : (err?.response?.data?.message || 'Failed to queue bulk employee check.'));
   }
 };
 
@@ -933,12 +935,12 @@ const startUrlscanPolling = (result) => {
   urlscanIntervals[resultId] = setInterval(async () => {
     urlscanAttempts.value[resultId] = (urlscanAttempts.value[resultId] || 0) + 1;
 
-    // Maksimal 24 kali percobaan (~2 menit dengan polling interval 5 detik)
+    // Maximum 24 attempts (~2 minutes with 5-second polling interval)
     if (urlscanAttempts.value[resultId] >= 24) {
       clearInterval(urlscanIntervals[resultId]);
       delete urlscanIntervals[resultId];
       result.urlscan_status = 'timeout';
-      toast.warning(`Pemeriksaan urlscan untuk ${result.domain} timeout setelah 2 menit.`);
+      toast.warning(`Urlscan check for ${result.domain} timed out after 2 minutes.`);
       return;
     }
 
@@ -950,14 +952,14 @@ const startUrlscanPolling = (result) => {
           clearInterval(urlscanIntervals[resultId]);
           delete urlscanIntervals[resultId];
           if (resData.urlscan_status === 'done') {
-            toast.success(`Urlscan selesai untuk ${result.domain}`);
+            toast.success(`Urlscan completed for ${result.domain}.`);
           } else {
-            toast.error(`Urlscan gagal untuk ${result.domain}`);
+            toast.error(`Urlscan failed for ${result.domain}.`);
           }
         }
       }
     } catch (e) {
-      // Abaikan error jaringan sementara, polling berlanjut hingga timeout
+      // Ignore transient network errors, continue polling until timeout
     }
   }, 5000);
 };
@@ -1015,7 +1017,7 @@ const startBrandScan = async () => {
   try {
     const scan = await ctiStore.createBrandScan(selectedBrandDomain.value);
     brandScanStatus.value = scan;
-    toast.success(`Scan untuk domain ${selectedBrandDomain.value} berhasil diantrikan.`);
+    toast.success(`Scan for domain ${selectedBrandDomain.value} successfully queued.`);
 
     if (scan.status === 'pending' || scan.status === 'running') {
       pollBrandScan(scan.id);
@@ -1024,7 +1026,7 @@ const startBrandScan = async () => {
     }
   } catch (err) {
     isScanningBrand.value = false;
-    toast.error(typeof err === 'string' ? err : (err?.response?.data?.message || 'Gagal memulai brand scan.'));
+    toast.error(typeof err === 'string' ? err : (err?.response?.data?.message || 'Failed to start brand scan.'));
   }
 };
 
@@ -1041,19 +1043,19 @@ const pollBrandScan = (scanId) => {
         if (updated.status === 'done') {
           const count = updated.total_found ?? (updated.results?.length || 0);
           if (count === 0) {
-            toast.info(`Scan selesai. Tidak ditemukan domain tiruan yang aktif.`);
+            toast.info(`Scan completed. No active lookalike domains found.`);
           } else {
-            toast.success(`Scan selesai. Ditemukan ${count} domain tiruan.`);
+            toast.success(`Scan completed. Found ${count} lookalike domain(s).`);
           }
         } else {
-          toast.error(updated.error || 'Scan gagal diselesaikan.');
+          toast.error(updated.error || 'Scan failed to complete.');
         }
       }
     } catch (err) {
       clearInterval(brandScanPollInterval);
       brandScanPollInterval = null;
       isScanningBrand.value = false;
-      toast.error('Gagal mengambil status scan.');
+      toast.error('Failed to retrieve scan status.');
     }
   }, 5000);
 };
@@ -1065,10 +1067,10 @@ const runUrlscan = async (result) => {
   try {
     const updated = await ctiStore.triggerUrlscan(resultId);
     result.urlscan_status = updated.urlscan_status || 'pending';
-    toast.success(`Urlscan untuk domain ${result.domain} berhasil dimulai.`);
+    toast.success(`Urlscan for domain ${result.domain} started successfully.`);
     startUrlscanPolling(result);
   } catch (err) {
-    toast.error(typeof err === 'string' ? err : (err?.response?.data?.message || 'Gagal memulai urlscan.'));
+    toast.error(typeof err === 'string' ? err : (err?.response?.data?.message || 'Failed to start urlscan.'));
   }
 };
 
@@ -1098,7 +1100,7 @@ const filteredImpersonations = computed(() => {
 });
 
 const sslMonitorData = ref(domainsList.map(d => ({
-  domain: d, issuer: '', subject: '', status: 'PENDING', expired: '', not_before: '', sisaWaktu: '', terakhirCek: 'Baru Saja'
+  domain: d, issuer: '', subject: '', status: 'PENDING', expired: '', not_before: '', sisaWaktu: '', terakhirCek: 'Just now'
 })));
 
 const dnsMonitorData = ref(domainsList.map(d => ({
@@ -1177,7 +1179,7 @@ const calculateSisaWaktu = (expDate) => {
   const diffTime = expDate - new Date();
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   if (diffDays < 0) return 'Expired';
-  return `${diffDays} hari`;
+  return `${diffDays} days`;
 };
 
 const loadSslData = async () => {
@@ -1212,7 +1214,7 @@ const loadSslData = async () => {
         sslMonitorData.value[i].expired = expDate.toLocaleDateString();
         sslMonitorData.value[i].status = expDate > new Date() ? 'VALID' : 'INVALID';
         sslMonitorData.value[i].sisaWaktu = calculateSisaWaktu(expDate);
-        sslMonitorData.value[i].terakhirCek = 'Baru Saja';
+        sslMonitorData.value[i].terakhirCek = 'Just now';
       } else {
         sslMonitorData.value[i].status = 'INVALID';
         sslMonitorData.value[i].sisaWaktu = '-';

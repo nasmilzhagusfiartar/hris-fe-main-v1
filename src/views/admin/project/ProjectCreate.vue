@@ -92,7 +92,7 @@ const handleSubmit = async () => {
     if (new Date(form.value.end_date) <= new Date(form.value.start_date)) {
       toast.error(
         "The End Date field must be a date after Start Date.",
-        "Validasi Tanggal Project"
+        "Project Date Validation"
       );
       return;
     }
@@ -104,10 +104,10 @@ const handleSubmit = async () => {
   await createProject(payload);
 
   if (success.value) {
-    toast.success(success.value || "Project berhasil dibuat!", "Berhasil");
+    toast.success(success.value || "Project created successfully!", "Success");
     router.push({ name: "admin.projects" });
   } else if (error.value) {
-    let errorMsg = "Gagal membuat project. Silakan periksa kembali isian form.";
+    let errorMsg = "Failed to create project. Please check your form inputs.";
     if (typeof error.value === "object" && error.value !== null) {
       const messages = Object.values(error.value).flat();
       if (messages.length > 0) {
@@ -116,7 +116,7 @@ const handleSubmit = async () => {
     } else if (typeof error.value === "string") {
       errorMsg = error.value;
     }
-    toast.error(errorMsg, "Validasi Gagal");
+    toast.error(errorMsg, "Validation Failed");
   }
 };
 
@@ -124,7 +124,7 @@ const handleProjectPhotoSelect = (e) => {
   const file = e.target.files[0];
   if (file) {
     if (file.size > 2 * 1024 * 1024) {
-      toast.error("Ukuran file foto project maksimal 2MB.", "Ukuran Terlalu Besar");
+      toast.error("Project photo file size must not exceed 2MB.", "File Too Large");
       if (projectPhotoInput.value) projectPhotoInput.value.value = "";
       return;
     }

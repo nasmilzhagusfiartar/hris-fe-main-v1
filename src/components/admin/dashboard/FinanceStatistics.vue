@@ -52,13 +52,13 @@ onMounted(() => {
           <span
             class="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700"
           >
-            Bulan Ini
+            This Month
           </span>
         </div>
         <p class="text-2xl font-extrabold text-brand-dark">
           {{ loading ? "..." : formatRupiahCompact(stats.total_amount) }}
         </p>
-        <p class="text-sm text-brand-light mt-1">Total Gaji Bulan Ini</p>
+        <p class="text-sm text-brand-light mt-1">Total Payroll This Month</p>
       </div>
 
       <div class="bg-white border border-[#DCDEDD] rounded-[20px] p-5">
@@ -77,7 +77,7 @@ onMounted(() => {
         <p class="text-2xl font-extrabold text-brand-dark">
           {{ loading ? "..." : stats.paid_payrolls }}
         </p>
-        <p class="text-sm text-brand-light mt-1">Periode Payroll Dibayar</p>
+        <p class="text-sm text-brand-light mt-1">Paid Payroll Periods</p>
       </div>
 
       <div class="bg-white border border-[#DCDEDD] rounded-[20px] p-5">
@@ -96,7 +96,7 @@ onMounted(() => {
         <p class="text-2xl font-extrabold text-brand-dark">
           {{ loading ? "..." : stats.pending_payrolls }}
         </p>
-        <p class="text-sm text-brand-light mt-1">Payroll Menunggu Pembayaran</p>
+        <p class="text-sm text-brand-light mt-1">Pending Payroll Payments</p>
       </div>
 
       <div class="bg-white border border-[#DCDEDD] rounded-[20px] p-5">
@@ -109,13 +109,13 @@ onMounted(() => {
           <span
             class="px-2.5 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-700"
           >
-            Rata-rata
+            Average
           </span>
         </div>
         <p class="text-2xl font-extrabold text-brand-dark">
           {{ loading ? "..." : formatRupiahCompact(stats.average_salary) }}
         </p>
-        <p class="text-sm text-brand-light mt-1">Rata-rata Gaji Bersih</p>
+        <p class="text-sm text-brand-light mt-1">Average Net Salary</p>
       </div>
     </div>
 

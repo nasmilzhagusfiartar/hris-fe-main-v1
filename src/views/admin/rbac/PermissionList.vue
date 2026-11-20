@@ -59,7 +59,7 @@ onMounted(async () => {
       rbacStore.fetchRoles(),
     ]);
   } catch (error) {
-    toast.error("Gagal memuat data permissions", "Error");
+    toast.error("Failed to load permissions.", "Error");
   }
 });
 
@@ -69,9 +69,9 @@ const handleRefresh = async () => {
       rbacStore.fetchGroupedPermissions(),
       rbacStore.fetchRoles(),
     ]);
-    toast.success("Data permissions berhasil diperbarui", "Sukses");
+    toast.success("Permissions data refreshed successfully.", "Success");
   } catch (error) {
-    toast.error("Gagal memperbarui data", "Error");
+    toast.error("Failed to refresh data.", "Error");
   }
 };
 
@@ -79,14 +79,14 @@ const copyToClipboard = async (text) => {
   try {
     await navigator.clipboard.writeText(text);
     copiedPermission.value = text;
-    toast.success(`Key "${text}" berhasil disalin.`, "Disalin");
+    toast.success(`Key "${text}" copied to clipboard.`, "Copied");
     setTimeout(() => {
       if (copiedPermission.value === text) {
         copiedPermission.value = null;
       }
     }, 2000);
   } catch (err) {
-    toast.error("Gagal menyalin text.", "Error");
+    toast.error("Failed to copy text.", "Error");
   }
 };
 
@@ -327,22 +327,22 @@ const handleSavePermission = async (payload) => {
       // Edit mode
       await rbacStore.updatePermission(payload.id, payload.name);
       toast.success(
-        `Permission berhasil diperbarui menjadi "${payload.name}".`,
-        "Permission Diperbarui"
+        `Permission updated to "${payload.name}".`,
+        "Permission Updated"
       );
     } else {
       // Create mode
       await rbacStore.createPermission(payload);
       toast.success(
-        `Permission "${payload}" berhasil ditambahkan.`,
-        "Permission Baru Dibuat"
+        `Permission "${payload}" added successfully.`,
+        "Permission Created"
       );
     }
     isCreateModalOpen.value = false;
     editingPermission.value = null;
   } catch (error) {
     toast.error(
-      rbacStore.error?.message || "Gagal menyimpan permission.",
+      rbacStore.error?.message || "Failed to save permission.",
       "Error"
     );
   }
@@ -364,7 +364,7 @@ const handleSavePermission = async (payload) => {
               {{ loading ? "..." : allPermissionsList.length }}
             </p>
             <p class="text-brand-light text-xs font-normal">
-              Hak akses dalam sistem
+              Access rights in the system
             </p>
           </div>
           <div
@@ -386,7 +386,7 @@ const handleSavePermission = async (payload) => {
               {{ loading ? "..." : availableModules.length }}
             </p>
             <p class="text-emerald-600 text-xs font-semibold">
-              Kategori fitur terhubung
+              Connected feature categories
             </p>
           </div>
           <div
@@ -408,7 +408,7 @@ const handleSavePermission = async (payload) => {
               {{ loading ? "..." : roles.length }}
             </p>
             <p class="text-purple-600 text-xs font-semibold">
-              Menerima penugasan permission
+              Receiving permission assignments
             </p>
           </div>
           <div
@@ -550,7 +550,7 @@ const handleSavePermission = async (payload) => {
         <KeyRound class="w-12 h-12 text-gray-300 mx-auto mb-3" />
         <p class="text-brand-dark text-base font-bold">No permissions found</p>
         <p class="text-brand-light text-sm mt-1">
-          Tidak ada permission yang sesuai dengan kriteria pencarian.
+          No permissions match the current search criteria.
         </p>
       </div>
 
@@ -587,7 +587,7 @@ const handleSavePermission = async (payload) => {
             <button
               type="button"
               class="p-2 rounded-[10px] text-gray-400 hover:text-gray-600 hover:bg-gray-200/60 transition-all duration-200 cursor-pointer"
-              :title="collapsedModules[moduleName] ? 'Buka modul' : 'Tutup modul'"
+              :title="collapsedModules[moduleName] ? 'Expand module' : 'Collapse module'"
             >
               <ChevronDown
                 class="w-5 h-5 transition-transform duration-200"
@@ -650,7 +650,7 @@ const handleSavePermission = async (payload) => {
                         type="button"
                         @click="copyToClipboard(p.name)"
                         class="text-gray-400 hover:text-[#0C51D9] transition-colors p-1 cursor-pointer shrink-0 rounded-md hover:bg-blue-50"
-                        title="Salin permission key"
+                        title="Copy permission key"
                       >
                         <Check
                           v-if="copiedPermission === p.name"
@@ -688,7 +688,7 @@ const handleSavePermission = async (payload) => {
                       </span>
                     </template>
                     <span v-else class="text-[11px] text-gray-400 italic">
-                      Belum ada role
+                      No roles assigned
                     </span>
                   </div>
                 </div>

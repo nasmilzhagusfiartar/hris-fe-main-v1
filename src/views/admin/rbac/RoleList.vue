@@ -84,7 +84,7 @@ onMounted(async () => {
       rbacStore.fetchGroupedPermissions(),
     ]);
   } catch (error) {
-    toast.error("Gagal memuat data roles", "Error");
+    toast.error("Failed to load roles.", "Error");
   }
 });
 
@@ -94,9 +94,9 @@ const handleRefresh = async () => {
       rbacStore.fetchRoles(),
       rbacStore.fetchGroupedPermissions(),
     ]);
-    toast.success("Data roles berhasil diperbarui", "Sukses");
+    toast.success("Roles data refreshed successfully.", "Success");
   } catch (error) {
-    toast.error("Gagal memperbarui data", "Error");
+    toast.error("Failed to refresh data.", "Error");
   }
 };
 
@@ -112,15 +112,15 @@ const handleSavePermissions = async (selectedPermissions) => {
   try {
     await rbacStore.assignPermissions(activeRole.value.id, selectedPermissions);
     toast.success(
-      `Permission untuk role "${activeRole.value.name}" berhasil disimpan.`,
-      "Berhasil Disimpan"
+      `Permissions for role "${activeRole.value.name}" saved successfully.`,
+      "Success"
     );
     isMatrixModalOpen.value = false;
     activeRole.value = null;
   } catch (error) {
     toast.error(
-      rbacStore.error?.message || "Gagal menyimpan permission ke role.",
-      "Error Simpan"
+      rbacStore.error?.message || "Failed to save permissions for role.",
+      "Save Error"
     );
   }
 };
@@ -141,16 +141,16 @@ const handleSaveRole = async (roleName) => {
     if (editingRole.value) {
       await rbacStore.updateRole(editingRole.value.id, roleName);
       toast.success(
-        `Nama role berhasil diubah menjadi "${roleName}".`,
-        "Role Diperbarui"
+        `Role name updated to "${roleName}".`,
+        "Role Updated"
       );
       isRoleModalOpen.value = false;
       editingRole.value = null;
     } else {
       const created = await rbacStore.createRole(roleName);
       toast.success(
-        `Role "${roleName}" berhasil dibuat. Silakan atur permission-nya.`,
-        "Role Dibuat"
+        `Role "${roleName}" created successfully. Please configure its permissions.`,
+        "Role Created"
       );
       isRoleModalOpen.value = false;
 
@@ -162,8 +162,8 @@ const handleSaveRole = async (roleName) => {
     }
   } catch (error) {
     toast.error(
-      rbacStore.error?.message || "Gagal menyimpan role.",
-      "Error Role"
+      rbacStore.error?.message || "Failed to save role.",
+      "Role Error"
     );
   }
 };
@@ -179,15 +179,15 @@ const handleConfirmDeleteRole = async () => {
   try {
     await rbacStore.deleteRole(deletingRole.value.id);
     toast.success(
-      `Role "${deletingRole.value.name}" berhasil dihapus.`,
-      "Role Dihapus"
+      `Role "${deletingRole.value.name}" deleted successfully.`,
+      "Role Deleted"
     );
     isDeleteModalOpen.value = false;
     deletingRole.value = null;
   } catch (error) {
     toast.error(
-      rbacStore.error?.message || "Gagal menghapus role ini.",
-      "Error Hapus"
+      rbacStore.error?.message || "Failed to delete this role.",
+      "Delete Error"
     );
   }
 };
@@ -208,7 +208,7 @@ const handleConfirmDeleteRole = async () => {
               {{ loading ? "..." : roles.length }}
             </p>
             <p class="text-brand-light text-xs font-normal">
-              Peran terdaftar di sistem
+              Registered roles in the system
             </p>
           </div>
           <div
@@ -230,7 +230,7 @@ const handleConfirmDeleteRole = async () => {
               {{ loading ? "..." : systemRolesCount }}
             </p>
             <p class="text-emerald-600 text-xs font-semibold">
-              Dilindungi oleh sistem
+              Protected by system
             </p>
           </div>
           <div
@@ -252,7 +252,7 @@ const handleConfirmDeleteRole = async () => {
               {{ loading ? "..." : customRolesCount }}
             </p>
             <p class="text-purple-600 text-xs font-semibold">
-              Dapat diubah & dihapus
+              Editable &amp; deletable
             </p>
           </div>
           <div
@@ -274,7 +274,7 @@ const handleConfirmDeleteRole = async () => {
               {{ loading ? "..." : totalAvailablePermissions }}
             </p>
             <p class="text-brand-light text-xs font-normal">
-              Hak akses dalam matriks
+              Access rights in matrix
             </p>
           </div>
           <div
@@ -391,7 +391,7 @@ const handleConfirmDeleteRole = async () => {
         <Shield class="w-12 h-12 text-gray-300 mx-auto mb-3" />
         <p class="text-brand-dark text-base font-bold">No roles found</p>
         <p class="text-brand-light text-sm mt-1">
-          Tidak ada role yang sesuai dengan filter pencarian.
+          No roles match the current search filter.
         </p>
       </div>
 
@@ -435,7 +435,7 @@ const handleConfirmDeleteRole = async () => {
     <ConfirmationModal
       :show="isDeleteModalOpen"
       title="Delete Role"
-      :message="`Apakah Anda yakin ingin menghapus role '${deletingRole?.name}'? Tindakan ini tidak dapat dibatalkan.`"
+      :message="`Are you sure you want to delete the role '${deletingRole?.name}'? This action cannot be undone.`"
       confirmText="Yes, Delete"
       cancelText="Cancel"
       type="danger"

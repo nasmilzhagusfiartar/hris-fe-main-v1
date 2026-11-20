@@ -1,3 +1,5 @@
+import { formatEnumLabel } from "@/constants/labels";
+
 export const formatCurrency = (amount) => {
   if (!amount) return "";
   return new Intl.NumberFormat("en-US", {
@@ -7,12 +9,12 @@ export const formatCurrency = (amount) => {
 };
 
 export const formatRupiah = (amount) => {
-  if (!amount) return "Rp 0";
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(amount);
+  const n = Number(amount);
+  if (!n) return "Rp 0";
+  const sign = n < 0 ? "-" : "";
+  return `${sign}Rp ${new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 0,
+  }).format(Math.abs(n))}`;
 };
 
 export const formatRupiahCompact = (amount) => {
@@ -32,8 +34,7 @@ export const formatRupiahCompact = (amount) => {
 
 export const capitalize = (str) => {
   if (!str) return "-";
-  const cleaned = String(str).replace(/[_-]/g, " ");
-  return lodashCapitalize(cleaned);
+  return formatEnumLabel(String(str));
 };
 
 export const getJobStatusText = (status) => {
@@ -45,4 +46,3 @@ export const getJobStatusText = (status) => {
   };
   return map[status] || capitalize(status);
 };
-import { capitalize as lodashCapitalize } from "lodash";

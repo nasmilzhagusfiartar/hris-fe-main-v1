@@ -74,14 +74,14 @@ const copiedKey = ref(null);
 let debounceTimer = null;
 
 const activityOptions = [
-  { value: "all", label: "Semua Aktivitas" },
+  { value: "all", label: "All Activities" },
   { value: "login", label: "Login" },
   { value: "logout", label: "Logout" },
-  { value: "failed_login", label: "Login Gagal" },
-  { value: "create", label: "Create (Tambah)" },
-  { value: "update", label: "Update (Ubah)" },
-  { value: "delete", label: "Delete (Hapus)" },
-  { value: "access", label: "Access (Lihat)" },
+  { value: "failed_login", label: "Failed Login" },
+  { value: "create", label: "Create" },
+  { value: "update", label: "Update" },
+  { value: "delete", label: "Delete" },
+  { value: "access", label: "Access" },
 ];
 
 // Current user display helpers
@@ -176,7 +176,7 @@ const fetchAuditLogs = async (page = 1) => {
   } catch (err) {
     error.value =
       err?.response?.data?.message ||
-      "Gagal memuat data log aktivitas audit user. Silakan coba lagi.";
+      "Failed to load user audit activity logs. Please try again.";
   } finally {
     loading.value = false;
   }
@@ -351,11 +351,11 @@ onBeforeUnmount(() => {
         </div>
         <div>
           <h1 class="text-xl sm:text-2xl font-bold text-brand-dark">
-            Audit User &amp; Log Aktivitas Sesi
+            User Audit &amp; Session Activity Logs
           </h1>
           <p class="mt-0.5 text-sm text-brand-light">
-            Pemantauan read-only untuk sesi aktif, perangkat, alamat IP, dan
-            riwayat aktivitas pengguna HIP HRIS.
+            Read-only monitoring of active sessions, devices, IP addresses, and
+            HIP HRIS user activity history.
           </p>
         </div>
       </div>
@@ -366,7 +366,7 @@ onBeforeUnmount(() => {
           @click="fetchAuditLogs(currentPage)"
           :disabled="loading"
           class="inline-flex items-center gap-2 px-3.5 py-2.5 border border-[#DCDEDD] rounded-[12px] text-sm font-semibold text-brand-dark bg-white hover:border-[#0C51D9] hover:bg-gray-50 transition-all disabled:opacity-50"
-          aria-label="Muat ulang data audit"
+          aria-label="Reload audit logs"
         >
           <RefreshCw class="w-4 h-4" :class="{ 'animate-spin': loading }" />
           <span>Refresh</span>
@@ -378,7 +378,7 @@ onBeforeUnmount(() => {
           class="inline-flex items-center gap-2 px-4 py-2.5 rounded-[12px] text-sm font-semibold text-white bg-[#0C51D9] hover:bg-blue-700 transition-all shadow-sm"
         >
           <Printer class="w-4 h-4" />
-          <span>Cetak Laporan</span>
+          <span>Print Report</span>
         </button>
       </div>
     </div>
@@ -389,13 +389,13 @@ onBeforeUnmount(() => {
         <div class="flex items-center gap-2.5">
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
           <h2 class="text-sm font-bold text-gray-700 uppercase tracking-wider">
-            Informasi Sesi Anda Saat Ini
+            Your Current Session Information
           </h2>
         </div>
         <span
           class="text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full"
         >
-          Sesi Aktif
+          Active Session
         </span>
       </div>
 
@@ -435,7 +435,7 @@ onBeforeUnmount(() => {
           class="lg:col-span-4 bg-gray-50/80 border border-gray-200/80 rounded-[14px] p-4 flex flex-col justify-between gap-2"
         >
           <div class="flex items-center justify-between gap-2">
-            <span class="text-xs font-medium text-gray-500">Perangkat &amp; Browser</span>
+            <span class="text-xs font-medium text-gray-500">Device &amp; Browser</span>
             <span
               class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold border"
               :class="getDeviceBadgeClass(currentDevice.device_type)"
@@ -458,8 +458,8 @@ onBeforeUnmount(() => {
             </div>
           </div>
           <div class="text-xs text-gray-500 flex items-center justify-between pt-1 border-t border-gray-200/70">
-            <span>Zona Waktu: <strong class="text-gray-700">{{ browserTimezone }}</strong></span>
-            <span>Layar: <strong class="text-gray-700 font-mono">{{ screenRes }}</strong></span>
+            <span>Timezone: <strong class="text-gray-700">{{ browserTimezone }}</strong></span>
+            <span>Screen: <strong class="text-gray-700 font-mono">{{ screenRes }}</strong></span>
           </div>
         </div>
 
@@ -469,7 +469,7 @@ onBeforeUnmount(() => {
         >
           <div class="flex items-center justify-between gap-2">
             <span class="text-xs font-semibold text-gray-600">
-              Raw User Agent Sesi Ini
+              Current Session Raw User Agent
             </span>
             <button
               type="button"
@@ -483,7 +483,7 @@ onBeforeUnmount(() => {
             >
               <Check v-if="copiedKey === 'current-ua'" class="w-3.5 h-3.5" />
               <Copy v-else class="w-3.5 h-3.5" />
-              <span>{{ copiedKey === "current-ua" ? "Tersalin" : "Copy" }}</span>
+              <span>{{ copiedKey === "current-ua" ? "Copied" : "Copy" }}</span>
             </button>
           </div>
           <p
@@ -502,15 +502,15 @@ onBeforeUnmount(() => {
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
             <h3 class="text-lg font-bold text-brand-dark">
-              Tabel Log Aktivitas Pengguna
+              User Activity Log Table
             </h3>
             <p class="text-xs text-brand-light">
-              Menampilkan riwayat akses terbaru di atas (Waktu dalam WIB)
+              Showing most recent access history first (Time in WIB)
             </p>
           </div>
 
           <div class="flex items-center gap-2 text-xs text-gray-500">
-            <span>Total Log:</span>
+            <span>Total Logs:</span>
             <span class="font-bold text-gray-900 bg-gray-100 px-2.5 py-1 rounded-full">
               {{ meta.total || 0 }}
             </span>
@@ -521,7 +521,7 @@ onBeforeUnmount(() => {
           <!-- Search User / Email / IP -->
           <div class="sm:col-span-2 lg:col-span-4">
             <label class="block text-xs font-semibold text-gray-600 mb-1">
-              Cari User / Email / IP Address
+              Search User / Email / IP Address
             </label>
             <div class="relative">
               <Search
@@ -530,7 +530,7 @@ onBeforeUnmount(() => {
               <input
                 v-model="searchQuery"
                 type="text"
-                placeholder="Ketik nama user, email, atau IP..."
+                placeholder="Type user name, email, or IP..."
                 class="w-full pl-10 pr-9 py-2 text-sm border border-[#DCDEDD] rounded-[12px] focus:outline-none focus:border-[#0C51D9] focus:ring-2 focus:ring-blue-100 transition-all"
               />
               <button
@@ -538,7 +538,7 @@ onBeforeUnmount(() => {
                 type="button"
                 @click="searchQuery = ''"
                 class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-0.5"
-                aria-label="Hapus pencarian"
+                aria-label="Clear search"
               >
                 <X class="w-4 h-4" />
               </button>
@@ -548,7 +548,7 @@ onBeforeUnmount(() => {
           <!-- Filter Activity Type -->
           <div class="lg:col-span-3">
             <label class="block text-xs font-semibold text-gray-600 mb-1">
-              Jenis Aktivitas
+              Activity Type
             </label>
             <div class="relative">
               <Filter
@@ -572,7 +572,7 @@ onBeforeUnmount(() => {
           <!-- Date Range: Start Date -->
           <div class="lg:col-span-2">
             <label class="block text-xs font-semibold text-gray-600 mb-1">
-              Dari Tanggal
+              Start Date
             </label>
             <div class="relative">
               <input
@@ -587,7 +587,7 @@ onBeforeUnmount(() => {
           <!-- Date Range: End Date -->
           <div class="lg:col-span-2">
             <label class="block text-xs font-semibold text-gray-600 mb-1">
-              Sampai Tanggal
+              End Date
             </label>
             <div class="relative">
               <input
@@ -606,7 +606,7 @@ onBeforeUnmount(() => {
               @click="resetFilters"
               :disabled="!hasActiveFilters"
               class="w-full py-2 px-3 text-xs font-semibold rounded-[12px] border border-[#DCDEDD] text-gray-700 bg-gray-50 hover:bg-gray-100 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-              title="Reset semua filter"
+              title="Reset all filters"
             >
               Reset
             </button>
@@ -621,7 +621,7 @@ onBeforeUnmount(() => {
       >
         <AlertTriangle class="w-10 h-10 text-red-600 mx-auto mb-2" />
         <h4 class="text-base font-bold text-red-900 mb-1">
-          Gagal Memuat Log Aktivitas
+          Failed to Load Activity Logs
         </h4>
         <p class="text-sm text-red-700 mb-4">{{ error }}</p>
         <button
@@ -630,7 +630,7 @@ onBeforeUnmount(() => {
           class="inline-flex items-center gap-2 px-4 py-2 rounded-[10px] text-sm font-semibold bg-red-600 text-white hover:bg-red-700 transition-all"
         >
           <RefreshCw class="w-4 h-4" />
-          <span>Coba Lagi</span>
+          <span>Try Again</span>
         </button>
       </div>
 
@@ -711,11 +711,10 @@ onBeforeUnmount(() => {
       >
         <ShieldCheck class="w-12 h-12 text-gray-300 mx-auto mb-3" />
         <h4 class="text-base font-bold text-gray-800 mb-1">
-          Tidak Ada Data Log Aktivitas
+          No Activity Log Data
         </h4>
         <p class="text-sm text-gray-500 max-w-md mx-auto mb-4">
-          Belum ada catatan log aktivitas yang sesuai dengan filter atau kata
-          kunci pencarian yang Anda masukkan.
+          No activity logs match the filter or search keywords you entered.
         </p>
         <button
           v-if="hasActiveFilters"
@@ -723,7 +722,7 @@ onBeforeUnmount(() => {
           @click="resetFilters"
           class="inline-flex items-center gap-2 px-4 py-2 rounded-[10px] text-xs font-semibold bg-[#0C51D9] text-white hover:bg-blue-700 transition-all"
         >
-          Reset Filter
+          Reset Filters
         </button>
       </div>
 
@@ -743,7 +742,7 @@ onBeforeUnmount(() => {
                     scope="col"
                     class="py-3.5 px-4 text-xs font-bold text-gray-600 uppercase tracking-wider w-[175px] min-w-[165px]"
                   >
-                    Waktu Akses
+                    Access Time
                   </th>
                   <th
                     scope="col"
@@ -767,13 +766,13 @@ onBeforeUnmount(() => {
                     scope="col"
                     class="py-3.5 px-4 text-xs font-bold text-gray-600 uppercase tracking-wider min-w-[240px]"
                   >
-                    Aktivitas
+                    Activity
                   </th>
                   <th
                     scope="col"
                     class="py-3.5 px-4 text-xs font-bold text-gray-600 uppercase tracking-wider w-[110px] min-w-[100px] text-center"
                   >
-                    Aksi
+                    Action
                   </th>
                 </tr>
               </thead>
@@ -850,7 +849,7 @@ onBeforeUnmount(() => {
                       :title="
                         log.user_agent
                           ? `Raw User Agent:\n${log.user_agent}`
-                          : 'User Agent tidak tersedia'
+                          : 'User Agent unavailable'
                       "
                     >
                       <div class="flex items-center gap-1.5 flex-wrap">
@@ -909,12 +908,12 @@ onBeforeUnmount(() => {
                             :is="getActivityIcon(log.activity?.type)"
                             class="w-3 h-3 shrink-0"
                           />
-                          <span>{{ log.activity?.label || "Aktivitas" }}</span>
+                          <span>{{ log.activity?.label || "Activity" }}</span>
                         </span>
                         <span
                           class="text-[11px] font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded"
                         >
-                          {{ log.activity?.module || "Sistem" }}
+                          {{ log.activity?.module || "System" }}
                         </span>
                       </div>
                       <p class="text-xs text-gray-700 line-clamp-1">
@@ -923,13 +922,13 @@ onBeforeUnmount(() => {
                     </div>
                   </td>
 
-                  <!-- 6. Kolom Aksi (Detail) -->
+                  <!-- 6. Action Column (Detail) -->
                   <td class="py-3.5 px-4 align-middle text-center whitespace-nowrap">
                     <button
                       type="button"
                       @click="openDetailModal(log)"
                       class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-[10px] text-xs font-semibold text-[#0C51D9] bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-colors"
-                      :aria-label="`Lihat detail log ${log.user?.name || ''}`"
+                      :aria-label="`View log detail for ${log.user?.name || ''}`"
                     >
                       <Eye class="w-3.5 h-3.5" />
                       <span>Detail</span>
@@ -1041,14 +1040,14 @@ onBeforeUnmount(() => {
         >
           <div class="flex items-center gap-3 text-xs text-gray-600">
             <span>
-              Menampilkan
+              Showing
               <strong class="text-gray-900">{{ meta.from || 0 }}</strong> –
-              <strong class="text-gray-900">{{ meta.to || 0 }}</strong> dari
-              <strong class="text-gray-900">{{ meta.total || 0 }}</strong> log
+              <strong class="text-gray-900">{{ meta.to || 0 }}</strong> of
+              <strong class="text-gray-900">{{ meta.total || 0 }}</strong> logs
             </span>
 
             <div class="flex items-center gap-1.5">
-              <label for="audit-per-page" class="text-gray-500">Baris:</label>
+              <label for="audit-per-page" class="text-gray-500">Rows:</label>
               <select
                 id="audit-per-page"
                 v-model.number="perPage"
@@ -1127,7 +1126,7 @@ onBeforeUnmount(() => {
             </div>
             <div>
               <h3 id="audit-detail-title" class="text-base font-bold text-gray-900">
-                Detail Log Aktivitas User
+                User Activity Log Detail
               </h3>
               <p class="text-xs text-gray-500 font-mono">
                 ID: {{ selectedLog.id }} • #{{ selectedLog.sequence }}
@@ -1139,7 +1138,7 @@ onBeforeUnmount(() => {
             type="button"
             @click="closeDetailModal"
             class="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:text-gray-800 hover:border-gray-400 transition-colors"
-            aria-label="Tutup modal detail"
+            aria-label="Close detail modal"
           >
             <X class="w-4 h-4" />
           </button>
@@ -1166,7 +1165,7 @@ onBeforeUnmount(() => {
                 <span
                   class="text-xs font-semibold text-gray-700 bg-white border border-gray-200 px-2.5 py-0.5 rounded-md"
                 >
-                  Modul: {{ selectedLog.activity?.module }}
+                  Module: {{ selectedLog.activity?.module }}
                 </span>
               </div>
               <p class="text-sm font-semibold text-gray-900 pt-1">
@@ -1191,7 +1190,7 @@ onBeforeUnmount(() => {
             <div class="border border-gray-200 rounded-[14px] p-4 space-y-3">
               <div class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wider">
                 <UserIcon class="w-3.5 h-3.5 text-blue-600" />
-                <span>Informasi Pengguna</span>
+                <span>User Information</span>
               </div>
               <div class="flex items-center gap-3">
                 <img
@@ -1228,7 +1227,7 @@ onBeforeUnmount(() => {
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wider">
                   <Monitor class="w-3.5 h-3.5 text-indigo-600" />
-                  <span>Hasil Parsing Device</span>
+                  <span>Parsed Device Info</span>
                 </div>
                 <span
                   class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-semibold border"
@@ -1244,13 +1243,13 @@ onBeforeUnmount(() => {
 
               <div class="space-y-1.5 text-xs pt-1">
                 <div class="flex justify-between">
-                  <span class="text-gray-500">Browser &amp; Versi:</span>
+                  <span class="text-gray-500">Browser &amp; Version:</span>
                   <span class="font-semibold text-gray-900">
                     {{ selectedLog.device?.browser_label || "-" }}
                   </span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-gray-500">Sistem Operasi:</span>
+                  <span class="text-gray-500">Operating System:</span>
                   <span class="font-semibold text-gray-900">
                     {{ selectedLog.device?.os_label || "-" }}
                   </span>
@@ -1272,10 +1271,10 @@ onBeforeUnmount(() => {
             <div class="flex items-center justify-between gap-2">
               <div>
                 <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider">
-                  Raw User Agent (Lengkap)
+                  Raw User Agent (Full)
                 </h4>
                 <p class="text-[11px] text-gray-500">
-                  Ditampilkan utuh tanpa pemotongan karakter
+                  Displayed in full without character truncation
                 </p>
               </div>
 
@@ -1292,7 +1291,7 @@ onBeforeUnmount(() => {
                 <Check v-if="copiedKey === 'modal-ua'" class="w-3.5 h-3.5" />
                 <Copy v-else class="w-3.5 h-3.5" />
                 <span>{{
-                  copiedKey === "modal-ua" ? "Berhasil Disalin!" : "Copy User Agent"
+                  copiedKey === "modal-ua" ? "Copied!" : "Copy User Agent"
                 }}</span>
               </button>
             </div>
@@ -1301,7 +1300,7 @@ onBeforeUnmount(() => {
               class="p-3.5 rounded-xl bg-slate-900 text-slate-100 font-mono text-xs leading-relaxed break-all select-all border border-slate-800"
               style="word-break: break-all"
             >
-              {{ selectedLog.user_agent || "Tidak ada string User-Agent" }}
+              {{ selectedLog.user_agent || "No User-Agent string available" }}
             </div>
           </div>
 
@@ -1309,7 +1308,7 @@ onBeforeUnmount(() => {
           <div class="border border-gray-200 rounded-[14px] p-4 space-y-3">
             <div class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wider">
               <Server class="w-3.5 h-3.5 text-gray-600" />
-              <span>Metadata Request &amp; Endpoint</span>
+              <span>Request &amp; Endpoint Metadata</span>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
@@ -1328,7 +1327,7 @@ onBeforeUnmount(() => {
               </div>
 
               <div class="bg-gray-50 p-2.5 rounded-lg border border-gray-100">
-                <span class="text-gray-500 block mb-1">Status HTTP &amp; Durasi</span>
+                <span class="text-gray-500 block mb-1">HTTP Status &amp; Duration</span>
                 <div class="flex items-center gap-2">
                   <span
                     class="px-2 py-0.5 rounded font-mono font-bold text-[11px] border"
@@ -1370,7 +1369,7 @@ onBeforeUnmount(() => {
             @click="closeDetailModal"
             class="px-4 py-2 rounded-[10px] text-xs font-semibold bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors"
           >
-            Tutup
+            Close
           </button>
         </div>
       </div>

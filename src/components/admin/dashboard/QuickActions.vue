@@ -39,7 +39,7 @@ onMounted(() => {
           Quick Actions
         </h3>
         <p class="text-xs text-gray-500 mt-0.5">
-          Shortcut cepat sesuai hak akses Anda
+          Quick shortcuts based on your permissions
         </p>
       </div>
       <span
@@ -83,7 +83,7 @@ onMounted(() => {
             v-if="action.badgeKey && getBadgeValue(action.badgeKey) > 0"
             :class="action.badgeColor || 'bg-blue-600 text-white'"
             class="min-w-[22px] h-5 px-1.5 rounded-full text-[11px] font-bold inline-flex items-center justify-center shadow-sm shrink-0"
-            :title="`${getBadgeValue(action.badgeKey)} item membutuhkan perhatian`"
+            :title="`${getBadgeValue(action.badgeKey)} item(s) need attention`"
           >
             {{ getBadgeValue(action.badgeKey) }}
           </span>

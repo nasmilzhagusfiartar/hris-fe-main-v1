@@ -282,8 +282,8 @@ const handleCheckIn = async () => {
   if (isAlreadyCheckedIn.value) {
     showFeedback(
       "warning",
-      "Presensi Sudah Tercatat",
-      "Anda sudah melakukan check-in hari ini. Presensi harian hanya dapat dilakukan satu kali per hari."
+      "Attendance Already Recorded",
+      "You have already clocked in today. Daily attendance can only be recorded once per day."
     );
     return;
   }
@@ -305,7 +305,7 @@ const handleCheckIn = async () => {
 
     showFeedback(
       "success",
-      "Check-In Successful",
+      "Clock In Successful",
       "You have successfully clocked in! Have a productive workday."
     );
     resetForNextAction();
@@ -314,8 +314,8 @@ const handleCheckIn = async () => {
     console.error("Check in failed:", error);
     let errorMsg = "Failed to clock in. Please try again.";
     const rawMsg = (typeof attendanceStore.error === "string" ? attendanceStore.error : error.response?.data?.message) || error.message || "";
-    if (rawMsg.includes("sudah check in")) {
-      errorMsg = "Presensi Sudah Tercatat: Anda sudah melakukan check-in untuk hari ini. Presensi baru dapat dilakukan kembali besok.";
+    if (rawMsg.includes("sudah check in") || rawMsg.toLowerCase().includes("already checked in")) {
+      errorMsg = "Attendance Already Recorded: You have already clocked in today. You can clock in again tomorrow.";
     } else if (rawMsg) {
       errorMsg = rawMsg;
     }
@@ -327,8 +327,8 @@ const handleCheckOut = async () => {
   if (isCompleted.value) {
     showFeedback(
       "warning",
-      "Presensi Selesai",
-      "Anda sudah menyelesaikan presensi masuk dan keluar untuk hari ini."
+      "Attendance Completed",
+      "You have already completed your clock in and clock out for today."
     );
     return;
   }
@@ -403,9 +403,9 @@ onUnmounted(() => {
     >
       <Info class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
       <div>
-        <h4 class="font-bold text-sm">Mode Preview (Akun Non-Karyawan)</h4>
+        <h4 class="font-bold text-sm">Preview Mode (Non-Employee Account)</h4>
         <p class="text-xs text-amber-700 mt-1 leading-relaxed">
-          Anda saat ini login sebagai akun Administrator/Manager (<strong>{{ authStore.user?.name || authStore.user?.email }}</strong>). Fitur presensi harian ini diproteksi khusus untuk akun dengan profil karyawan (misalnya: <code class="bg-amber-100 px-1 py-0.5 rounded font-semibold text-amber-900">employee@gmail.com</code> / password: <code class="bg-amber-100 px-1 py-0.5 rounded font-semibold text-amber-900">password</code>).
+          You are currently signed in as an Administrator/Manager account (<strong>{{ authStore.user?.name || authStore.user?.email }}</strong>). Daily attendance is restricted to accounts with an employee profile (e.g., <code class="bg-amber-100 px-1 py-0.5 rounded font-semibold text-amber-900">employee@gmail.com</code>).
         </p>
       </div>
     </div>
@@ -713,20 +713,20 @@ onUnmounted(() => {
           </div>
 
           <h3 class="text-brand-dark text-2xl font-bold mb-2">
-            <template v-if="isCompleted">Presensi Hari Ini Selesai</template>
-            <template v-else-if="isCheckedIn">Siap untuk Clock Out?</template>
-            <template v-else>Siap untuk Clock In?</template>
+            <template v-if="isCompleted">Today's Attendance Completed</template>
+            <template v-else-if="isCheckedIn">Ready to Clock Out?</template>
+            <template v-else>Ready to Clock In?</template>
           </h3>
 
           <p class="text-brand-light text-base">
             <template v-if="isCompleted">
-              Anda telah menyelesaikan presensi masuk dan keluar hari ini. Terima kasih atas kerja keras Anda!
+              You have completed both clock in and clock out for today. Thank you for your hard work!
             </template>
             <template v-else-if="isCheckedIn">
-              Catat jam kepulangan kerja Anda beserta lokasi terkini.
+              Record your clock out time along with your current location.
             </template>
             <template v-else>
-              Catat kehadiran kerja Anda hari ini beserta lokasi terkini.
+              Record your attendance today along with your current location.
             </template>
           </p>
         </div>
@@ -737,7 +737,7 @@ onUnmounted(() => {
           class="w-full p-4 rounded-[12px] bg-green-50 border border-green-200 text-green-800 flex items-center justify-center gap-3 font-semibold text-base shadow-sm"
         >
           <UserCheck class="w-5 h-5 text-green-600" />
-          <span>Presensi Hari Ini Sudah Selesai</span>
+          <span>Today's Attendance Completed</span>
         </div>
 
         <!-- 2. Clocked In State -> Clock Out Button -->
@@ -769,10 +769,10 @@ onUnmounted(() => {
         <p class="text-brand-light text-sm mt-4">
           <Info class="w-4 h-4 inline mr-1" />
           <template v-if="isCompleted">
-            Satu hari kerja hanya memerlukan 1x presensi masuk dan 1x presensi keluar.
+            Each workday requires only one clock in and one clock out record.
           </template>
           <template v-else>
-            Pastikan koordinat lokasi sudah terdeteksi sebelum melakukan presensi.
+            Make sure your location coordinates are detected before clocking in or out.
           </template>
         </p>
       </div>

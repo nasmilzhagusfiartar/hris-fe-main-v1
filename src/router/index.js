@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
+import { LABELS } from '@/constants/labels'
 import AuthLayout from '@/layouts/Auth.vue'
 import AdminLayout from '@/layouts/Admin.vue'
 import Login from '@/views/auth/Login.vue'
@@ -160,7 +161,7 @@ router.beforeEach(async (to, from, next) => {
 
         if (to.meta.role && !userRoles.includes(to.meta.role.toLowerCase())) {
           const toast = useToastStore()
-          toast.error('Anda tidak memiliki akses ke halaman ini')
+          toast.error(LABELS.NO_ACCESS)
           return next({ name: 'admin.dashboard' })
         }
 
@@ -169,12 +170,12 @@ router.beforeEach(async (to, from, next) => {
           const hasPerm = to.meta.permission ? userPermissions.includes(to.meta.permission) : false
           if (!hasRole && !hasPerm) {
             const toast = useToastStore()
-            toast.error('Anda tidak memiliki akses ke halaman ini')
+            toast.error(LABELS.NO_ACCESS)
             return next({ name: 'admin.dashboard' })
           }
         } else if (to.meta.permission && !userPermissions.includes(to.meta.permission)) {
           const toast = useToastStore()
-          toast.error('Anda tidak memiliki akses ke halaman ini')
+          toast.error(LABELS.NO_ACCESS)
           return next({ name: 'admin.dashboard' })
         }
 

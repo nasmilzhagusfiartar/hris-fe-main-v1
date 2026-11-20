@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { LABELS } from "@/constants/labels";
 
 export const useToastStore = defineStore("toast", {
   state: () => ({
@@ -21,19 +22,19 @@ export const useToastStore = defineStore("toast", {
       return id;
     },
 
-    success(message, title = "Berhasil") {
+    success(message, title = LABELS.SUCCESS) {
       return this.addToast({ type: "success", title, message });
     },
 
-    error(message, title = "Gagal") {
+    error(message, title = LABELS.FAILED) {
       return this.addToast({ type: "error", title, message });
     },
 
-    warning(message, title = "Peringatan") {
+    warning(message, title = "Warning") {
       return this.addToast({ type: "warning", title, message });
     },
 
-    info(message, title = "Informasi") {
+    info(message, title = "Information") {
       return this.addToast({ type: "info", title, message });
     },
 

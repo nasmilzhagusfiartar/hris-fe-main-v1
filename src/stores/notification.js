@@ -37,7 +37,7 @@ export const useNotificationStore = defineStore("notification", {
         };
         return this.notifications;
       } catch (err) {
-        this.error = "Gagal memuat notifikasi.";
+        this.error = "Failed to load notifications.";
       } finally {
         this.loading = false;
       }
@@ -96,7 +96,7 @@ export const useNotificationStore = defineStore("notification", {
         }));
         this.unreadCount = 0;
       } catch (err) {
-        this.error = "Gagal menandai semua notifikasi.";
+        this.error = "Failed to mark all notifications as read.";
       }
     },
 

@@ -102,7 +102,7 @@ const handleSubmit = async () => {
     if (new Date(form.value.end_date) <= new Date(form.value.start_date)) {
       toast.error(
         "The End Date field must be a date after Start Date.",
-        "Validasi Tanggal Project"
+        "Project Date Validation"
       );
       return;
     }
@@ -114,10 +114,10 @@ const handleSubmit = async () => {
   await updateProject(id, payload);
 
   if (success.value) {
-    toast.success(success.value || "Project berhasil diperbarui!", "Berhasil");
+    toast.success(success.value || "Project updated successfully!", "Success");
     router.back();
   } else if (error.value) {
-    let errorMsg = "Gagal memperbarui project. Silakan periksa kembali isian form.";
+    let errorMsg = "Failed to update project. Please check your form inputs.";
     if (typeof error.value === "object" && error.value !== null) {
       const messages = Object.values(error.value).flat();
       if (messages.length > 0) {
@@ -126,7 +126,7 @@ const handleSubmit = async () => {
     } else if (typeof error.value === "string") {
       errorMsg = error.value;
     }
-    toast.error(errorMsg, "Validasi Gagal");
+    toast.error(errorMsg, "Validation Failed");
   }
 };
 

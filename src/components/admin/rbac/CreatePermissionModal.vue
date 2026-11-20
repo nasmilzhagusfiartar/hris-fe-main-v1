@@ -154,18 +154,18 @@ const handleSubmit = () => {
   const permName = generatedPermissionName.value;
 
   if (!permName) {
-    errorMessage.value = "Nama permission tidak boleh kosong.";
+    errorMessage.value = "Permission name is required.";
     return;
   }
 
   if (permName.length < 3) {
-    errorMessage.value = "Nama permission minimal 3 karakter.";
+    errorMessage.value = "Permission name must be at least 3 characters.";
     return;
   }
 
   if (!permName.includes("-")) {
     errorMessage.value =
-      "Nama permission harus menggunakan format modul-aksi (contoh: report-export).";
+      "Permission name must use the module-action format (e.g., report-export).";
     return;
   }
 
@@ -214,13 +214,13 @@ const handleSubmit = () => {
             </div>
             <div>
               <h3 class="text-brand-dark text-lg font-bold leading-tight">
-                {{ isEditMode ? "Edit Permission" : "Tambah Permission Baru" }}
+                {{ isEditMode ? "Edit Permission" : "Add New Permission" }}
               </h3>
               <p class="text-brand-light text-[13px] mt-1 leading-snug">
                 {{
                   isEditMode
-                    ? "Ubah konfigurasi permission yang sudah ada."
-                    : "Daftarkan permission baru untuk dipasang pada role."
+                    ? "Update the existing permission configuration."
+                    : "Register a new permission to assign to roles."
                 }}
               </p>
             </div>
@@ -241,14 +241,14 @@ const handleSubmit = () => {
           <div>
             <div class="flex items-center justify-between mb-2">
               <label class="text-brand-dark text-[13px] font-semibold">
-                Modul / Grup Fitur
+                Module / Feature Group
               </label>
               <button
                 type="button"
                 @click="isCustomModule = !isCustomModule"
                 class="text-[12px] text-[#0C51D9] font-medium hover:underline cursor-pointer transition-colors"
               >
-                {{ isCustomModule ? "Pilih modul yang ada" : "+ Modul baru" }}
+                {{ isCustomModule ? "Choose existing module" : "+ New module" }}
               </button>
             </div>
 
@@ -271,7 +271,7 @@ const handleSubmit = () => {
               <input
                 type="text"
                 v-model="customModule"
-                placeholder="Contoh: audit-log, recruitment, asset"
+                placeholder="e.g., audit-log, recruitment, asset"
                 class="w-full px-4 py-3 text-sm font-medium bg-white border border-[#DCDEDD] rounded-2xl focus:outline-none focus:border-[#0C51D9] focus:ring-2 focus:ring-[#0C51D9]/10 placeholder:text-gray-400 transition-all duration-200"
                 autofocus
               />
@@ -282,14 +282,14 @@ const handleSubmit = () => {
           <div>
             <div class="flex items-center justify-between mb-2">
               <label class="text-brand-dark text-[13px] font-semibold">
-                Aksi (Action)
+                Action
               </label>
               <button
                 type="button"
                 @click="isCustomAction = !isCustomAction"
                 class="text-[12px] text-[#0C51D9] font-medium hover:underline cursor-pointer transition-colors"
               >
-                {{ isCustomAction ? "Pilih aksi umum" : "+ Aksi custom" }}
+                {{ isCustomAction ? "Choose common action" : "+ Custom action" }}
               </button>
             </div>
 
@@ -312,7 +312,7 @@ const handleSubmit = () => {
               <input
                 type="text"
                 v-model="customAction"
-                placeholder="Contoh: download-pdf, verify, sync"
+                placeholder="e.g., download-pdf, verify, sync"
                 class="w-full px-4 py-3 text-sm font-medium bg-white border border-[#DCDEDD] rounded-2xl focus:outline-none focus:border-[#0C51D9] focus:ring-2 focus:ring-[#0C51D9]/10 placeholder:text-gray-400 transition-all duration-200"
               />
             </div>
@@ -324,7 +324,7 @@ const handleSubmit = () => {
           >
             <div class="min-w-0">
               <p class="text-[11px] font-semibold text-blue-800/60 uppercase tracking-wider mb-1">
-                Hasil Permission Key
+                Generated Permission Key
               </p>
               <p class="text-[15px] font-bold text-blue-900 font-mono truncate">
                 {{ generatedPermissionName || "—" }}
@@ -360,7 +360,7 @@ const handleSubmit = () => {
               :disabled="saving"
               class="px-6 py-3 rounded-2xl border border-[#DCDEDD] hover:bg-gray-50 text-sm font-semibold text-brand-dark transition-all duration-200 cursor-pointer disabled:opacity-50"
             >
-              Batal
+              Cancel
             </button>
             <button
               type="submit"
@@ -372,10 +372,10 @@ const handleSubmit = () => {
               <Pencil v-else class="w-4 h-4" />
               <span>{{
                 saving
-                  ? "Menyimpan..."
+                  ? "Saving..."
                   : isEditMode
-                  ? "Simpan Perubahan"
-                  : "Tambah Permission"
+                  ? "Save Changes"
+                  : "Add Permission"
               }}</span>
             </button>
           </div>

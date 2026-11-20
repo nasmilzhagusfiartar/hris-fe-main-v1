@@ -44,7 +44,7 @@ const handlePhotoSelect = (e: Event) => {
 
   if (file) {
     if (file.size > 2 * 1024 * 1024) {
-      alert("Ukuran foto profil maksimal 2MB (2048 KB).");
+      alert("Profile photo size must not exceed 2MB (2048 KB).");
       if (profilePhotoInput.value) {
         profilePhotoInput.value.value = "";
       }

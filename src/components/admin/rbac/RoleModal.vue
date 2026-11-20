@@ -38,11 +38,11 @@ watch(
 const handleSubmit = () => {
   const trimmed = roleName.value.trim().toLowerCase();
   if (!trimmed) {
-    errorMessage.value = "Nama role wajib diisi.";
+    errorMessage.value = "Role name is required.";
     return;
   }
   if (trimmed.length < 2) {
-    errorMessage.value = "Nama role minimal 2 karakter.";
+    errorMessage.value = "Role name must be at least 2 characters.";
     return;
   }
   errorMessage.value = "";
@@ -86,13 +86,13 @@ const handleSubmit = () => {
             </div>
             <div>
               <h3 class="text-brand-dark text-base font-bold leading-tight">
-                {{ isEdit ? "Ubah Nama Role" : "Tambah Role Baru" }}
+                {{ isEdit ? "Edit Role Name" : "Add New Role" }}
               </h3>
               <p class="text-brand-light text-xs mt-1 leading-snug">
                 {{
                   isEdit
-                    ? "Perbarui nama role kustom ini."
-                    : "Buat role baru untuk kebutuhan hak akses."
+                    ? "Update the name of this custom role."
+                    : "Create a new role for access control."
                 }}
               </p>
             </div>
@@ -111,12 +111,12 @@ const handleSubmit = () => {
         <form @submit.prevent="handleSubmit" class="space-y-5" style="padding: 22px 24px;">
           <div>
             <label class="block text-brand-dark text-sm font-semibold mb-2">
-              Nama Role <span class="text-red-500">*</span>
+              Role Name <span class="text-red-500">*</span>
             </label>
             <input
               type="text"
               v-model="roleName"
-              placeholder="Contoh: team-leader, quality-assurance, supervisor"
+              placeholder="e.g., team-leader, quality-assurance, supervisor"
               class="w-full px-4 py-3 text-sm font-medium bg-white border rounded-2xl focus:outline-none focus:border-[#0C51D9] focus:ring-2 focus:ring-[#0C51D9]/10 placeholder:text-gray-400 transition-all"
               :class="
                 errorMessage
@@ -129,7 +129,7 @@ const handleSubmit = () => {
               {{ errorMessage }}
             </p>
             <p v-else class="text-gray-400 text-xs mt-1.5">
-              Gunakan huruf kecil atau tanda strip (misal:
+              Use lowercase letters or hyphens (e.g.,
               <span class="font-mono text-gray-600 font-medium">supervisor</span>).
             </p>
           </div>
@@ -142,7 +142,7 @@ const handleSubmit = () => {
               :disabled="saving"
               class="px-6 py-3 rounded-2xl border border-[#DCDEDD] hover:bg-gray-50 text-sm font-semibold text-brand-dark transition-all duration-200 cursor-pointer disabled:opacity-50"
             >
-              Batal
+              Cancel
             </button>
             <button
               type="submit"
@@ -150,7 +150,7 @@ const handleSubmit = () => {
               class="btn-primary px-6 py-3 rounded-2xl border border-[#2151A0] blue-gradient blue-btn-shadow hover:brightness-110 focus:ring-2 focus:ring-[#0C51D9] text-white text-sm font-semibold transition-all duration-200 flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
               <Loader2 v-if="saving" class="w-4 h-4 animate-spin" />
-              <span>{{ saving ? "Menyimpan..." : isEdit ? "Perbarui" : "Buat Role" }}</span>
+              <span>{{ saving ? "Saving..." : isEdit ? "Update" : "Create Role" }}</span>
             </button>
           </div>
         </form>

@@ -36,7 +36,7 @@ const fetchSecurityStats = async () => {
   } catch (err) {
     error.value =
       err?.response?.data?.message ||
-      "Gagal memuat ringkasan statistik Cyber Threat Intelligence.";
+      "Failed to load Cyber Threat Intelligence summary statistics.";
   } finally {
     loading.value = false;
   }
@@ -58,8 +58,8 @@ onMounted(() => {
           Cyber Threat Intelligence Overview
         </h2>
         <p class="text-sm text-brand-light mt-1">
-          Pemantauan keamanan domain, sertifikat SSL, kebocoran email karyawan,
-          dan aktivitas autentikasi mencurigakan.
+          Monitoring domain security, SSL certificates, employee email breaches,
+          and suspicious authentication activity.
         </p>
       </div>
 
@@ -95,7 +95,7 @@ onMounted(() => {
         <p class="text-3xl font-extrabold text-brand-dark">
           {{ loading ? "..." : stats.suspicious_domains_count }}
         </p>
-        <p class="text-sm text-brand-light mt-1">Suspicious Domain Baru</p>
+        <p class="text-sm text-brand-light mt-1">New Suspicious Domains</p>
       </div>
 
       <!-- 2. Expiring SSL < 30 Days -->
@@ -111,13 +111,13 @@ onMounted(() => {
           <span
             class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700"
           >
-            &lt; 30 Hari
+            &lt; 30 Days
           </span>
         </div>
         <p class="text-3xl font-extrabold text-brand-dark">
           {{ loading ? "..." : stats.expiring_ssl_count }}
         </p>
-        <p class="text-sm text-brand-light mt-1">SSL Akan Expired &lt; 30 Hari</p>
+        <p class="text-sm text-brand-light mt-1">SSL Expiring &lt; 30 Days</p>
       </div>
 
       <!-- 3. Breached Employee Emails -->
@@ -140,7 +140,7 @@ onMounted(() => {
           {{ loading ? "..." : stats.breached_emails_count }}
         </p>
         <p class="text-sm text-brand-light mt-1">
-          Email Karyawan Terdampak Breach
+          Breached Employee Emails
         </p>
       </div>
 
@@ -157,13 +157,13 @@ onMounted(() => {
           <span
             class="px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700"
           >
-            24 Jam Terakhir
+            Last 24 Hours
           </span>
         </div>
         <p class="text-3xl font-extrabold text-brand-dark">
           {{ loading ? "..." : stats.failed_logins_24h_count }}
         </p>
-        <p class="text-sm text-brand-light mt-1">Percobaan Login Gagal</p>
+        <p class="text-sm text-brand-light mt-1">Failed Login Attempts</p>
       </div>
     </div>
 
@@ -177,17 +177,17 @@ onMounted(() => {
         <div class="flex items-center justify-between mb-4">
           <div>
             <h3 class="text-base font-bold text-brand-dark">
-              Temuan Domain Mencurigakan Terbaru
+              Recent Suspicious Domain Findings
             </h3>
             <p class="text-xs text-brand-light">
-              Hasil pemindaian dnstwist &amp; urlscan.io
+              dnstwist &amp; urlscan.io scan results
             </p>
           </div>
           <RouterLink
             :to="{ name: 'admin.cti.brand-protection' }"
             class="inline-flex items-center gap-1 text-xs font-semibold text-[#0C51D9] hover:underline"
           >
-            <span>Buka Brand Protection</span>
+            <span>Open Brand Protection</span>
             <ArrowRight class="w-3.5 h-3.5" />
           </RouterLink>
         </div>
@@ -196,7 +196,7 @@ onMounted(() => {
           v-if="!stats.recent_brand_threats?.length"
           class="py-8 text-center text-sm text-gray-500"
         >
-          Belum ada temuan domain tiruan terbaru.
+          No recent lookalike domain findings.
         </div>
 
         <div v-else class="space-y-2.5">
@@ -221,13 +221,13 @@ onMounted(() => {
               v-else-if="item.urlscan_status === 'done'"
               class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800"
             >
-              CLEAN (Skor {{ item.urlscan_score ?? 0 }})
+              CLEAN (Score {{ item.urlscan_score ?? 0 }})
             </span>
             <span
               v-else
               class="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-200 text-gray-700"
             >
-              Terdeteksi
+              Detected
             </span>
           </div>
         </div>
@@ -238,17 +238,17 @@ onMounted(() => {
         <div class="flex items-center justify-between mb-4">
           <div>
             <h3 class="text-base font-bold text-brand-dark">
-              Pemeriksaan Email Breach Terbaru
+              Recent Email Breach Checks
             </h3>
             <p class="text-xs text-brand-light">
-              Status kebocoran akun email perusahaan
+              Company email account breach status
             </p>
           </div>
           <RouterLink
             :to="{ name: 'admin.cti.audit-user' }"
             class="inline-flex items-center gap-1 text-xs font-semibold text-[#0C51D9] hover:underline"
           >
-            <span>Buka Audit User</span>
+            <span>Open Audit User</span>
             <ArrowRight class="w-3.5 h-3.5" />
           </RouterLink>
         </div>
@@ -257,7 +257,7 @@ onMounted(() => {
           v-if="!stats.recent_breaches?.length"
           class="py-8 text-center text-sm text-gray-500"
         >
-          Belum ada riwayat pemeriksaan kebocoran email.
+          No email breach check history available.
         </div>
 
         <div v-else class="space-y-2.5">
@@ -273,8 +273,8 @@ onMounted(() => {
               <p class="text-xs text-gray-500 truncate">
                 {{
                   item.is_breached
-                    ? `Terdeteksi pada ${item.breaches?.length || 1} insiden breach`
-                    : "Tidak ditemukan kebocoran data"
+                    ? `Detected in ${item.breaches?.length || 1} breach incident(s)`
+                    : "No data breaches found"
                 }}
               </p>
             </div>
@@ -283,14 +283,14 @@ onMounted(() => {
               class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 shrink-0"
             >
               <AlertTriangle class="w-3.5 h-3.5" />
-              BOCOR
+              BREACHED
             </span>
             <span
               v-else
               class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 shrink-0"
             >
               <CheckCircle2 class="w-3.5 h-3.5" />
-              AMAN
+              SAFE
             </span>
           </div>
         </div>

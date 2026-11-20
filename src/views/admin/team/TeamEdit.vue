@@ -88,10 +88,10 @@ const handleSubmit = async () => {
   await updateTeam(id, form.value);
 
   if (success.value) {
-    toast.success(success.value || "Tim berhasil diperbarui!", "Berhasil");
+    toast.success(success.value || "Team updated successfully!", "Success");
     router.back();
   } else if (error.value) {
-    let errorMsg = "Gagal memperbarui tim. Silakan periksa formulir kembali.";
+    let errorMsg = "Failed to update team. Please check the form again.";
     if (typeof error.value === "object" && error.value !== null) {
       const messages = Object.values(error.value).flat();
       if (messages.length > 0) {
@@ -100,7 +100,7 @@ const handleSubmit = async () => {
     } else if (typeof error.value === "string") {
       errorMsg = error.value;
     }
-    toast.error(errorMsg, "Gagal Memperbarui Tim");
+    toast.error(errorMsg, "Failed to Update Team");
   }
 };
 
@@ -110,8 +110,8 @@ const handleTeamIconSelect = (e) => {
   if (file) {
     if (file.size > 2 * 1024 * 1024) {
       toast.error(
-        "Ukuran icon tidak boleh lebih dari 2048 KB (2 MB).",
-        "Ukuran File Terlalu Besar"
+        "Icon size must not exceed 2048 KB (2 MB).",
+        "File Size Too Large"
       );
       if (teamIconInput.value) {
         teamIconInput.value.value = "";
