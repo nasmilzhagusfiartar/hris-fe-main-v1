@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useToastStore } from '@/stores/toast'
 import AuthLayout from '@/layouts/Auth.vue'
 import AdminLayout from '@/layouts/Admin.vue'
 import Login from '@/views/auth/Login.vue'
@@ -146,7 +147,7 @@ router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresAuth) {
     if (authStore.token) {
       try {
-        if (!authStore.user) {
+        if (!authStore.user || !Array.isArray(authStore.user.permissions)) {
           await authStore.checkAuth()
         }
 
@@ -158,6 +159,8 @@ router.beforeEach(async (to, from, next) => {
         )
 
         if (to.meta.role && !userRoles.includes(to.meta.role.toLowerCase())) {
+          const toast = useToastStore()
+          toast.error('Anda tidak memiliki akses ke halaman ini')
           return next({ name: 'admin.dashboard' })
         }
 
@@ -165,8 +168,14 @@ router.beforeEach(async (to, from, next) => {
           const hasRole = to.meta.roles.some(role => userRoles.includes(role.toLowerCase()))
           const hasPerm = to.meta.permission ? userPermissions.includes(to.meta.permission) : false
           if (!hasRole && !hasPerm) {
+            const toast = useToastStore()
+            toast.error('Anda tidak memiliki akses ke halaman ini')
             return next({ name: 'admin.dashboard' })
           }
+        } else if (to.meta.permission && !userPermissions.includes(to.meta.permission)) {
+          const toast = useToastStore()
+          toast.error('Anda tidak memiliki akses ke halaman ini')
+          return next({ name: 'admin.dashboard' })
         }
 
         next()

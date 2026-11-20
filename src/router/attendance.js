@@ -8,6 +8,7 @@ export default [
         name: 'admin.attendances',
         component: AttendanceList,
         meta: {
+            requiresAuth: true,
             roles: ['manager', 'admin', 'hr', 'finance'],
             permission: 'attendance-list',
         },
@@ -16,10 +17,18 @@ export default [
         path: 'attendance/my-attendances',
         name: 'employee.attendance.my-attendances',
         component: MyAttendance,
+        meta: {
+            requiresAuth: true,
+            permission: 'attendance-my-attendances',
+        },
     },
     {
         path: 'attendance/clock',
         name: 'employee.attendance.clock',
         component: ClockInOut,
+        meta: {
+            requiresAuth: true,
+            permission: 'attendance-check-in',
+        },
     },
 ];

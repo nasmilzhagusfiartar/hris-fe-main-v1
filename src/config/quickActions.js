@@ -1,0 +1,356 @@
+import {
+  UserPlusIcon,
+  UsersIcon,
+  BanknoteIcon,
+  FolderPlusIcon,
+  FolderIcon,
+  CalendarCheckIcon,
+  ShieldAlertIcon,
+  GlobeIcon,
+  LockIcon,
+  FileBarChart2Icon,
+  ClockIcon,
+  CalendarPlusIcon,
+  ReceiptIcon,
+  UserCogIcon,
+  FileSpreadsheetIcon,
+  ShieldCheckIcon,
+  UserXIcon,
+} from "lucide-vue-next";
+
+/**
+ * Single source of truth for Dashboard Quick Actions.
+ * Filtered purely by user permissions from authStore (no hardcoded role checks).
+ */
+export const quickActionsConfig = [
+  // =========================================================================
+  // 1. ADMIN SHORTCUTS (quick-action.admin.all)
+  // =========================================================================
+  {
+    key: "admin-add-employee",
+    label: "Tambah Karyawan",
+    ariaLabel: "Tambah karyawan baru",
+    icon: UserPlusIcon,
+    route: { name: "admin.employees.create" },
+    permission: "quick-action.admin.all",
+    primary: true,
+  },
+  {
+    key: "admin-create-team",
+    label: "Buat Tim",
+    ariaLabel: "Buat tim baru",
+    icon: UsersIcon,
+    route: { name: "admin.team.create" },
+    permission: "quick-action.admin.all",
+  },
+  {
+    key: "admin-create-project",
+    label: "Buat Project",
+    ariaLabel: "Buat proyek baru",
+    icon: FolderPlusIcon,
+    route: { name: "admin.projects.create" },
+    permission: "quick-action.admin.all",
+  },
+  {
+    key: "admin-process-payroll",
+    label: "Buat Payroll",
+    ariaLabel: "Proses dan buat penggajian bulanan",
+    icon: BanknoteIcon,
+    route: { name: "admin.payroll.create" },
+    permission: "quick-action.admin.all",
+    badgeKey: "pending_payrolls",
+    badgeColor: "bg-amber-500 text-white",
+  },
+  {
+    key: "admin-review-leave",
+    label: "Approval Cuti & Absensi",
+    ariaLabel: "Kelola absensi dan persetujuan cuti",
+    icon: CalendarCheckIcon,
+    route: { name: "admin.attendances" },
+    permission: "quick-action.admin.all",
+    badgeKey: "pending_leave_requests",
+    badgeColor: "bg-blue-600 text-white",
+  },
+  {
+    key: "admin-reports",
+    label: "Laporan Perusahaan",
+    ariaLabel: "Lihat laporan analitik perusahaan",
+    icon: FileBarChart2Icon,
+    route: { name: "admin.reports" },
+    permission: "quick-action.admin.all",
+  },
+  {
+    key: "admin-brand-protection",
+    label: "Brand Protection",
+    ariaLabel: "Buka halaman Brand Protection",
+    icon: GlobeIcon,
+    route: { name: "admin.cti.brand-protection", query: { tab: "typosquatting" } },
+    permission: "quick-action.admin.all",
+    badgeKey: "brand_threats_count",
+    badgeColor: "bg-red-600 text-white",
+  },
+  {
+    key: "admin-audit-user",
+    label: "Audit User",
+    ariaLabel: "Buka halaman Audit User",
+    icon: ShieldCheckIcon,
+    route: { name: "admin.cti.audit-user" },
+    permission: "quick-action.admin.all",
+  },
+
+  // =========================================================================
+  // 2. MANAGER SHORTCUTS (6 items)
+  // =========================================================================
+  {
+    key: "manager-team-view",
+    label: "Lihat Team Saya",
+    ariaLabel: "Lihat daftar tim saya",
+    icon: UsersIcon,
+    route: { name: "admin.teams" },
+    permission: "quick-action.manager.team-view",
+    primary: true,
+  },
+  {
+    key: "manager-leave-approval",
+    label: "Approval Cuti Team",
+    ariaLabel: "Persetujuan pengajuan cuti anggota tim",
+    icon: CalendarCheckIcon,
+    route: { name: "admin.attendances", query: { section: "leave-requests" } },
+    permission: "quick-action.manager.leave-approval",
+    badgeKey: "pending_leave_requests",
+    badgeColor: "bg-blue-600 text-white",
+  },
+  {
+    key: "manager-project-view",
+    label: "Lihat Project",
+    ariaLabel: "Lihat daftar proyek tim",
+    icon: FolderIcon,
+    route: { name: "admin.projects" },
+    permission: "quick-action.manager.project-view",
+  },
+  {
+    key: "manager-attendance-team",
+    label: "Absensi Team",
+    ariaLabel: "Pantau kehadiran anggota tim",
+    icon: ClockIcon,
+    route: { name: "admin.attendances" },
+    permission: "quick-action.manager.attendance-team",
+  },
+  {
+    key: "manager-report-team",
+    label: "Laporan Team",
+    ariaLabel: "Lihat laporan performa dan kehadiran tim",
+    icon: FileBarChart2Icon,
+    route: { name: "admin.reports" },
+    permission: "quick-action.manager.report-team",
+  },
+
+  // =========================================================================
+  // 3. HR SHORTCUTS (6 items: 5 HR + Cek Email Saya)
+  // =========================================================================
+  {
+    key: "hr-employee-create",
+    label: "Tambah Karyawan",
+    ariaLabel: "Tambah data karyawan baru",
+    icon: UserPlusIcon,
+    route: { name: "admin.employees.create" },
+    permission: "quick-action.hr.employee-create",
+    primary: true,
+  },
+  {
+    key: "hr-employee-list",
+    label: "Daftar Karyawan",
+    ariaLabel: "Lihat daftar seluruh karyawan",
+    icon: UsersIcon,
+    route: { name: "admin.employees" },
+    permission: "quick-action.hr.employee-list",
+  },
+  {
+    key: "hr-leave-approval",
+    label: "Approval Cuti",
+    ariaLabel: "Persetujuan cuti seluruh karyawan",
+    icon: CalendarCheckIcon,
+    route: { name: "admin.attendances", query: { section: "leave-requests" } },
+    permission: "quick-action.hr.leave-approval",
+    badgeKey: "pending_leave_requests",
+    badgeColor: "bg-blue-600 text-white",
+  },
+  {
+    key: "hr-attendance-recap",
+    label: "Rekap Absensi",
+    ariaLabel: "Lihat rekapitulasi absensi karyawan",
+    icon: ClockIcon,
+    route: { name: "admin.attendances" },
+    permission: "quick-action.hr.attendance-recap",
+  },
+  {
+    key: "hr-report-view",
+    label: "Laporan",
+    ariaLabel: "Lihat laporan HRIS",
+    icon: FileBarChart2Icon,
+    route: { name: "admin.reports" },
+    permission: "quick-action.hr.report-view",
+  },
+
+  // =========================================================================
+  // 4. FINANCE SHORTCUTS (6 items: 4 Payroll + Clock In/Out + Cek Email Saya)
+  // =========================================================================
+  {
+    key: "finance-payroll-create",
+    label: "Buat Payroll",
+    ariaLabel: "Generate payroll periode baru",
+    icon: BanknoteIcon,
+    route: { name: "admin.payroll.create" },
+    permission: "quick-action.finance.payroll-create",
+    badgeKey: "pending_payrolls",
+    badgeColor: "bg-amber-500 text-white",
+    primary: true,
+  },
+  {
+    key: "finance-payroll-list",
+    label: "Daftar Payroll",
+    ariaLabel: "Lihat daftar periode payroll",
+    icon: ReceiptIcon,
+    route: { name: "admin.payroll.dashboard" },
+    permission: "quick-action.finance.payroll-list",
+  },
+  {
+    key: "finance-payroll-export",
+    label: "Export Payroll",
+    ariaLabel: "Export data laporan payroll",
+    icon: FileSpreadsheetIcon,
+    route: { name: "admin.reports", query: { tab: "payroll" } },
+    permission: "quick-action.finance.payroll-export",
+  },
+  {
+    key: "finance-payroll-report",
+    label: "Laporan Payroll",
+    ariaLabel: "Lihat laporan analitik payroll",
+    icon: FileBarChart2Icon,
+    route: { name: "admin.reports", query: { tab: "payroll" } },
+    permission: "quick-action.finance.payroll-report",
+  },
+
+  // =========================================================================
+  // 5. EMPLOYEE / SELF-SERVICE SHORTCUTS
+  // =========================================================================
+  {
+    key: "self-clock-in-out",
+    label: "Clock In/Out",
+    ariaLabel: "Catat kehadiran masuk atau pulang",
+    icon: ClockIcon,
+    route: { name: "employee.attendance.clock" },
+    permission: "quick-action.self.clock-in-out",
+  },
+  {
+    key: "self-leave-create",
+    label: "Ajukan Cuti",
+    ariaLabel: "Ajukan permohonan cuti baru",
+    icon: CalendarPlusIcon,
+    route: {
+      name: "employee.attendance.my-attendances",
+      query: { action: "request-leave" },
+    },
+    permission: "quick-action.self.leave-create",
+    badgeKey: "my_pending_leaves",
+    badgeColor: "bg-amber-500 text-white",
+  },
+  {
+    key: "self-attendance-history",
+    label: "Riwayat Absensi",
+    ariaLabel: "Lihat riwayat kehadiran saya",
+    icon: CalendarCheckIcon,
+    route: { name: "employee.attendance.my-attendances" },
+    permission: "quick-action.self.attendance-history",
+  },
+  {
+    key: "self-payslips",
+    label: "Slip Gaji Saya",
+    ariaLabel: "Lihat daftar slip gaji saya",
+    icon: ReceiptIcon,
+    route: { name: "employee.payslips" },
+    permission: "quick-action.self.payslips",
+  },
+  {
+    key: "self-profile",
+    label: "Profil Saya",
+    ariaLabel: "Lihat dan kelola profil saya",
+    icon: UserCogIcon,
+    route: { name: "employee.profile" },
+    permission: "quick-action.self.profile",
+  },
+  {
+    key: "self-check-own-email",
+    label: "Cek Email Saya",
+    ariaLabel: "Periksa status kebocoran email akun saya",
+    icon: ShieldAlertIcon,
+    route: { name: "admin.cti.brand-protection", query: { tab: "email" } },
+    permission: "quick-action.self.check-own-email",
+  },
+
+  // =========================================================================
+  // 6. SECURITY SHORTCUTS (6 items)
+  // =========================================================================
+  {
+    key: "security-brand-scan",
+    label: "Scan Brand Protection",
+    ariaLabel: "Buka pemindai Typosquatting Brand Protection",
+    icon: GlobeIcon,
+    route: { name: "admin.cti.brand-protection", query: { tab: "typosquatting" } },
+    permission: "quick-action.security.brand-scan",
+    badgeKey: "brand_threats_count",
+    badgeColor: "bg-red-600 text-white",
+    primary: true,
+  },
+  {
+    key: "security-suspicious-domain",
+    label: "Suspicious Domain",
+    ariaLabel: "Pantau daftar domain dan subdomain mencurigakan",
+    icon: GlobeIcon,
+    route: { name: "admin.cti.brand-protection", query: { tab: "domain" } },
+    permission: "quick-action.security.suspicious-domain",
+  },
+  {
+    key: "security-ssl-monitor",
+    label: "SSL Monitor",
+    ariaLabel: "Pantau masa berlaku sertifikat SSL domain",
+    icon: LockIcon,
+    route: { name: "admin.cti.brand-protection", query: { tab: "ssl" } },
+    permission: "quick-action.security.ssl-monitor",
+    badgeKey: "expiring_ssl_count",
+    badgeColor: "bg-amber-500 text-white",
+  },
+  {
+    key: "security-breach-check-all",
+    label: "Cek Semua Email Karyawan",
+    ariaLabel: "Periksa kebocoran email seluruh karyawan",
+    icon: ShieldAlertIcon,
+    route: { name: "admin.cti.brand-protection", query: { tab: "email" } },
+    permission: "quick-action.security.breach-check-all",
+    badgeKey: "breached_emails_count",
+    badgeColor: "bg-red-600 text-white",
+  },
+  {
+    key: "security-audit-user",
+    label: "Audit User",
+    ariaLabel: "Lihat log aktivitas dan sesi pengguna",
+    icon: ShieldCheckIcon,
+    route: { name: "admin.cti.audit-user" },
+    permission: "quick-action.security.audit-user",
+  },
+  {
+    key: "security-failed-logins",
+    label: "Login Gagal 24 Jam",
+    ariaLabel: "Pantau percobaan login gagal 24 jam terakhir",
+    icon: UserXIcon,
+    route: {
+      name: "admin.cti.audit-user",
+      query: { activity_type: "failed_login" },
+    },
+    permission: "quick-action.security.failed-logins",
+    badgeKey: "failed_logins_24h_count",
+    badgeColor: "bg-rose-600 text-white",
+  },
+];
+
+export default quickActionsConfig;

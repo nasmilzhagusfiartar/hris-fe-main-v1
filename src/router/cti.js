@@ -11,7 +11,7 @@ export default [
         component: () => import('@/views/admin/cti/BrandProtection.vue'),
         meta: {
           requiresAuth: true,
-          roles: ['manager', 'admin', 'hr'],
+          roles: ['admin', 'security', 'manager', 'hr', 'finance', 'employee'],
           permission: 'cti-menu',
         },
       },
@@ -19,6 +19,11 @@ export default [
         path: 'audit-user',
         name: 'admin.cti.audit-user',
         component: () => import('@/views/admin/cti/AuditUser.vue'),
+        meta: {
+          requiresAuth: true,
+          roles: ['admin', 'security'],
+          permission: 'audit-log.view',
+        },
       },
     ],
   },

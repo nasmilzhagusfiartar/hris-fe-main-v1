@@ -109,6 +109,19 @@ export const useCtiStore = defineStore("cti", {
       }
     },
 
+    async getLatestBrandScan(domain) {
+      try {
+        const response = await axiosInstance.get('/cti/brand-scans/latest', {
+          params: domain ? { domain } : {},
+        });
+        this.currentBrandScan = response.data.data;
+        return response.data.data;
+      } catch (error) {
+        this.error = handleError(error);
+        throw error;
+      }
+    },
+
     async triggerUrlscan(resultId) {
       this.loadingUrlscan[resultId] = true;
       this.error = null;

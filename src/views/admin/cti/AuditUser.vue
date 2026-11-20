@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount } from "vue";
+import { useRoute } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import { axiosInstance } from "@/plugins/axios";
 import { getImageUrl, handleImageError } from "@/helpers/imageHelper";
@@ -34,6 +35,7 @@ import {
   User as UserIcon,
 } from "lucide-vue-next";
 
+const route = useRoute();
 const authStore = useAuthStore();
 
 // Audit Logs State
@@ -57,7 +59,9 @@ const rawUserAgent = ref(navigator.userAgent);
 
 // Filter & Pagination Controls
 const searchQuery = ref("");
-const activityFilter = ref("all");
+const activityFilter = ref(
+  typeof route.query.activity_type === "string" ? route.query.activity_type : "all"
+);
 const startDate = ref("");
 const endDate = ref("");
 const perPage = ref(15);

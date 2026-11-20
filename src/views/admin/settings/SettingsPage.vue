@@ -1,28 +1,49 @@
 <script setup>
-import { ref, onMounted, reactive } from "vue";
+import { ref, computed, onMounted, reactive } from "vue";
 import { storeToRefs } from "pinia";
 import {
-  Settings as SettingsIcon,
   Bell,
   ShieldCheck,
   Building,
 } from "lucide-vue-next";
 import { useSettingsStore } from "@/stores/settings";
+import { useAuthStore } from "@/stores/auth";
+import { can } from "@/helpers/permissionHelper";
 import Input from "@/components/common/form/Input.vue";
 import Select from "@/components/common/form/Select.vue";
 import TextArea from "@/components/common/form/TextArea.vue";
 import Alert from "@/components/common/Alert.vue";
 
 const settingsStore = useSettingsStore();
+const authStore = useAuthStore();
 const { company, notifications, loading, error, success } = storeToRefs(settingsStore);
 
-const activeTab = ref("general");
+const userRoles = computed(() =>
+  (authStore.user?.roles || []).map((r) =>
+    typeof r === "string" ? r.toLowerCase() : (r?.name || "").toLowerCase()
+  )
+);
 
-const tabs = [
-  { key: "general", label: "General", icon: Building },
-  { key: "notifications", label: "Notifications", icon: Bell },
-  { key: "security", label: "Security", icon: ShieldCheck },
-];
+const canEditCompany = computed(() => {
+  if (userRoles.value.includes("employee") && !userRoles.value.some((r) => ["admin", "hr", "manager"].includes(r))) {
+    return false;
+  }
+  return can("setting-edit") || userRoles.value.some((r) => ["admin", "hr", "manager"].includes(r));
+});
+
+const tabs = computed(() => {
+  const list = [];
+  if (canEditCompany.value) {
+    list.push({ key: "general", label: "General", icon: Building });
+  }
+  list.push(
+    { key: "notifications", label: "Notifications", icon: Bell },
+    { key: "security", label: "Security", icon: ShieldCheck }
+  );
+  return list;
+});
+
+const activeTab = ref("general");
 
 const timezoneOptions = [
   { value: "Asia/Jakarta", label: "WIB - Asia/Jakarta" },
@@ -38,19 +59,30 @@ const passwordForm = reactive({
 });
 
 onMounted(async () => {
+  if (!canEditCompany.value) {
+    activeTab.value = "notifications";
+  }
   await settingsStore.fetchSettings();
   Object.assign(companyForm, company.value);
 });
 
 const saveCompanySettings = async () => {
-  await settingsStore.updateCompanySettings(companyForm);
+  try {
+    await settingsStore.updateCompanySettings(companyForm);
+  } catch (e) {
+    // Error handled in store
+  }
 };
 
 const toggleNotification = async (key) => {
-  await settingsStore.updateNotificationSettings({
-    ...notifications.value,
-    [key]: !notifications.value[key],
-  });
+  try {
+    await settingsStore.updateNotificationSettings({
+      ...notifications.value,
+      [key]: !notifications.value[key],
+    });
+  } catch (e) {
+    // Error handled in store
+  }
 };
 
 const submitPasswordChange = async () => {
@@ -60,7 +92,7 @@ const submitPasswordChange = async () => {
     passwordForm.new_password = "";
     passwordForm.new_password_confirmation = "";
   } catch (e) {
-    // error already reflected via settingsStore.error
+    // Error already reflected via settingsStore.error
   }
 };
 </script>
@@ -70,12 +102,22 @@ const submitPasswordChange = async () => {
     <div class="mb-6">
       <h1 class="text-brand-dark text-2xl font-bold">Settings</h1>
       <p class="text-brand-light text-sm mt-1">
-        Kelola informasi perusahaan, preferensi notifikasi, dan keamanan akun.
+        {{
+          canEditCompany
+            ? "Kelola informasi perusahaan, preferensi notifikasi, dan keamanan akun."
+            : "Kelola preferensi notifikasi dan keamanan akun Anda."
+        }}
       </p>
     </div>
 
-    <Alert v-if="success" type="success" title="Berhasil" :message="success" />
-    <Alert v-if="error && typeof error === 'string'" type="danger" title="Gagal" :message="error" />
+    <Alert v-if="success" type="success" title="Berhasil" :message="success" :show="!!success" />
+    <Alert
+      v-if="error && typeof error === 'string'"
+      type="danger"
+      title="Gagal memuat atau menyimpan pengaturan"
+      :message="error"
+      :show="!!error"
+    />
 
     <!-- Tab Navigation -->
     <div class="bg-white border border-[#DCDEDD] rounded-[16px] p-6 mb-6">
@@ -83,6 +125,7 @@ const submitPasswordChange = async () => {
         <button
           v-for="tab in tabs"
           :key="tab.key"
+          type="button"
           @click="activeTab = tab.key"
           :class="
             activeTab === tab.key
@@ -96,8 +139,12 @@ const submitPasswordChange = async () => {
       </div>
     </div>
 
-    <!-- General Tab -->
-    <form v-if="activeTab === 'general'" @submit.prevent="saveCompanySettings" class="bg-white border border-[#DCDEDD] rounded-[16px] p-6">
+    <!-- General Tab (Admin / HR / Manager only) -->
+    <form
+      v-if="activeTab === 'general' && canEditCompany"
+      @submit.prevent="saveCompanySettings"
+      class="bg-white border border-[#DCDEDD] rounded-[16px] p-6"
+    >
       <div class="flex items-center gap-3 mb-6">
         <div class="w-12 h-12 bg-blue-50 rounded-[12px] flex items-center justify-center">
           <Building class="w-6 h-6 text-blue-600" />
@@ -122,6 +169,7 @@ const submitPasswordChange = async () => {
           id="work_days"
           type="number"
           min="1"
+          max="7"
           step="1"
           label="Work Days per Week"
           v-model="companyForm.work_days_per_week"

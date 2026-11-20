@@ -1,11 +1,13 @@
 <template>
   <div class="p-6 max-w-7xl mx-auto space-y-8">
     <div class="flex items-center justify-between border-b border-gray-200 pb-4">
-      <h2 class="text-3xl font-bold text-gray-900">Brand Protection</h2>
+      <h2 class="text-3xl font-bold text-gray-900">
+        {{ hasFullBrandProtectionAccess ? "Brand Protection" : "Email Breach" }}
+      </h2>
     </div>
 
-    <!-- TABS -->
-    <div class="flex flex-wrap gap-4 mb-6">
+    <!-- TABS (Only shown for Admin & Security with full Brand Protection access) -->
+    <div v-if="hasFullBrandProtectionAccess" class="flex flex-wrap gap-4 mb-6">
       <button 
         @click="currentTab = 'domain'" 
         :class="currentTab === 'domain' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'" 
@@ -39,7 +41,7 @@
     </div>
 
     <!-- TAB 1: DOMAIN INTELLIGENCE -->
-    <div v-show="currentTab === 'domain'" class="space-y-10">
+    <div v-if="hasFullBrandProtectionAccess" v-show="currentTab === 'domain'" class="space-y-10">
       
       <!-- Owned Domains -->
       <div>
@@ -125,7 +127,7 @@
     </div>
 
     <!-- TAB 2: SSL MONITOR -->
-    <div v-show="currentTab === 'ssl'">
+    <div v-if="hasFullBrandProtectionAccess" v-show="currentTab === 'ssl'">
       <h3 class="text-xl font-bold text-gray-900 mb-4">SSL Certificate Monitor (VirusTotal Sync)</h3>
       <div class="bg-white border border-gray-300 rounded-lg shadow-sm overflow-hidden">
         <table class="w-full text-left border-collapse">
@@ -164,7 +166,7 @@
     </div>
 
     <!-- TAB 3: DNS MONITOR -->
-    <div v-show="currentTab === 'dns'" class="space-y-8">
+    <div v-if="hasFullBrandProtectionAccess" v-show="currentTab === 'dns'" class="space-y-8">
       <div v-for="(dns, i) in dnsMonitorData" :key="i" class="bg-white border border-gray-300 rounded-lg shadow-sm overflow-hidden">
         <div class="bg-gray-100 border-b border-gray-300 px-6 py-4 flex items-center justify-between">
           <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
@@ -191,7 +193,7 @@
     </div>
 
     <!-- TAB 4: EMAIL BREACH -->
-    <div v-show="currentTab === 'email'" class="space-y-8">
+    <div v-show="currentTab === 'email' || !hasFullBrandProtectionAccess" class="space-y-8">
       <!-- Section Pengecekan Email -->
       <div class="bg-white border border-gray-300 rounded-2xl shadow-sm p-6 sm:p-8 space-y-6">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-100 pb-4">
@@ -201,11 +203,15 @@
               Identity & Access Breach
             </h3>
             <p class="text-gray-500 text-sm mt-1">
-              Periksa kebocoran data (Data Breach) pada email perusahaan atau lakukan pengecekan massal seluruh karyawan.
+              {{
+                canCheckAnyEmail
+                  ? "Periksa kebocoran data (Data Breach) pada email perusahaan atau lakukan pengecekan massal seluruh karyawan."
+                  : "Periksa status kebocoran data (Data Breach) untuk alamat email akun Anda sendiri."
+              }}
             </p>
           </div>
           <button 
-            v-if="can('cti-breach-check')"
+            v-if="canCheckAnyEmail"
             @click="handleCheckAllEmployees"
             :disabled="loadingCheckAll"
             class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 transition-colors shadow-sm disabled:opacity-50"
@@ -222,12 +228,12 @@
               v-model="breachEmailInput" 
               @keyup.enter="handleCheckSingleEmail"
               type="email" 
+              :readonly="!canCheckAnyEmail"
               placeholder="Masukkan email (contoh: karyawan@herointiputra.com)" 
-              class="w-full border border-gray-300 rounded-xl py-3 px-4 text-base focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+              class="w-full border border-gray-300 rounded-xl py-3 px-4 text-base focus:ring-blue-500 focus:border-blue-500 shadow-sm read-only:bg-gray-100 read-only:text-gray-700"
             >
           </div>
           <button 
-            v-if="can('cti-breach-check')"
             @click="handleCheckSingleEmail"
             :disabled="!breachEmailInput || loadingBreachCheck"
             class="w-full sm:w-auto bg-blue-600 text-white font-bold rounded-xl px-6 py-3 text-base hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2 shadow-sm"
@@ -292,7 +298,7 @@
             <h4 class="text-lg font-bold text-gray-900">Riwayat Pengecekan Email</h4>
             <p class="text-xs text-gray-500 mt-0.5">Daftar seluruh riwayat audit kebocoran email yang pernah dilakukan.</p>
           </div>
-          <div class="w-full md:w-72">
+          <div v-if="canCheckAnyEmail" class="w-full md:w-72">
             <SearchInput
               v-model="breachSearchQuery"
               placeholder="Cari email..."
@@ -372,7 +378,7 @@
     </div>
 
     <!-- TAB 5: TYPOSQUATTING -->
-    <div v-show="currentTab === 'typosquatting'" class="space-y-6">
+    <div v-if="hasFullBrandProtectionAccess" v-show="currentTab === 'typosquatting'" class="space-y-6">
       <div class="bg-white border border-gray-300 rounded-2xl shadow-sm p-6 sm:p-8 space-y-6">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 pb-4">
           <div>
@@ -400,7 +406,6 @@
           </div>
           <div class="sm:pt-5 w-full sm:w-auto">
             <button 
-              v-if="can('cti-brand-scan')"
               @click="startBrandScan"
               :disabled="isScanningBrand || !selectedBrandDomain"
               class="w-full sm:w-auto bg-blue-600 text-white font-bold rounded-xl px-8 py-3 text-base hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2 shadow-sm"
@@ -409,6 +414,13 @@
               <span>{{ isScanningBrand ? 'Memproses Scan...' : 'Jalankan Scan' }}</span>
             </button>
           </div>
+        </div>
+
+        <!-- Loading Riwayat Scan Terakhir -->
+        <div v-if="loadingLatestBrandScan && !isScanningBrand"
+          class="bg-gray-50 border border-gray-200 rounded-xl p-5 flex items-center gap-3 text-gray-600">
+          <RefreshCwIcon class="w-5 h-5 text-blue-600 animate-spin flex-shrink-0" />
+          <span class="text-sm font-medium">Memuat riwayat scan terakhir untuk <strong class="text-gray-900">{{ selectedBrandDomain }}</strong>...</span>
         </div>
 
         <!-- Progress Indicator saat pending / running -->
@@ -434,6 +446,18 @@
             </p>
           </div>
         </div>
+      </div>
+
+      <!-- Empty State jika domain belum pernah di-scan sama sekali -->
+      <div v-if="!loadingLatestBrandScan && !isScanningBrand && !brandScanStatus"
+        class="bg-white border border-dashed border-gray-300 rounded-2xl shadow-sm p-12 text-center space-y-3">
+        <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto border border-blue-100">
+          <GlobeIcon class="w-7 h-7" />
+        </div>
+        <h4 class="text-lg font-bold text-gray-900">Belum Ada Riwayat Scan untuk {{ selectedBrandDomain }}</h4>
+        <p class="text-sm text-gray-500 max-w-md mx-auto">
+          Klik tombol <strong class="text-gray-800">Jalankan Scan</strong> di atas untuk mulai memindai potensi domain tiruan (typosquatting) pada <span class="font-mono font-semibold text-gray-800">{{ selectedBrandDomain }}</span>.
+        </p>
       </div>
 
       <!-- Hasil Scan -->
@@ -550,13 +574,12 @@
                   </td>
                   <td class="p-4 text-center">
                     <button 
-                      v-if="can('cti-urlscan')"
                       @click="runUrlscan(res)"
                       :disabled="res.urlscan_status === 'pending' || loadingUrlscanMap[res.id]"
                       class="px-3 py-1.5 text-xs font-bold rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition-colors disabled:opacity-50 shadow-2xs inline-flex items-center gap-1.5"
                     >
                       <RefreshCwIcon class="w-3.5 h-3.5" :class="{'animate-spin': res.urlscan_status === 'pending' || loadingUrlscanMap[res.id]}" />
-                      <span>Scan urlscan</span>
+                      <span>{{ res.urlscan_status === 'done' ? 'Re-scan urlscan' : 'Scan urlscan' }}</span>
                     </button>
                   </td>
                 </tr>
@@ -724,7 +747,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { 
   EyeIcon, ExternalLinkIcon, XIcon, ShieldAlertIcon, FlameIcon, 
   GlobeIcon, LockIcon, RefreshCwIcon, SearchIcon, 
@@ -734,10 +758,35 @@ import { debounce } from 'lodash';
 import { storeToRefs } from 'pinia';
 import ctiService from '@/services/ctiService';
 import { useCtiStore } from '@/stores/cti';
+import { useAuthStore } from '@/stores/auth';
 import { useToastStore } from '@/stores/toast';
 import { can } from '@/helpers/permissionHelper';
 import Pagination from '@/components/admin/team/Pagination.vue';
 import SearchInput from '@/components/common/SearchInput.vue';
+
+const route = useRoute();
+const authStore = useAuthStore();
+
+const userRoles = computed(() =>
+  (authStore.user?.roles || []).map((r) =>
+    typeof r === 'string' ? r.toLowerCase() : (r?.name || '').toLowerCase()
+  )
+);
+
+const hasFullBrandProtectionAccess = computed(() => {
+  return (
+    can('cti.brand-protection.view') ||
+    userRoles.value.includes('admin') ||
+    userRoles.value.includes('security')
+  );
+});
+
+const canCheckAnyEmail = computed(() => {
+  return (
+    can('cti.email-breach.check-any') ||
+    hasFullBrandProtectionAccess.value
+  );
+});
 
 const tabs = [
   { id: 'domain', name: 'Domain Intelligence' },
@@ -747,7 +796,7 @@ const tabs = [
   { id: 'typosquatting', name: 'Typosquatting' },
 ];
 
-const currentTab = ref('domain');
+const currentTab = ref(hasFullBrandProtectionAccess.value ? 'domain' : 'email');
 const filterCategory = ref('');
 
 // CTI Store & Toast
@@ -799,7 +848,6 @@ const breachServerOptions = ref({
 });
 
 const fetchBreachHistory = async () => {
-  if (!can('cti-breach-check')) return;
   try {
     await ctiStore.fetchBreachChecks({
       page: breachServerOptions.value.page,
@@ -858,6 +906,7 @@ const domainsList = ['herointiputra.com', 'hip.co.id', 'toyscity.id'];
 const selectedBrandDomain = ref(domainsList[0]);
 const brandScanStatus = ref(null);
 const isScanningBrand = ref(false);
+const loadingLatestBrandScan = ref(false);
 let brandScanPollInterval = null;
 
 const urlscanIntervals = {};
@@ -870,6 +919,88 @@ const openScreenshotModal = (url, domain) => {
   previewScreenshotUrl.value = url;
   previewScreenshotDomain.value = domain;
 };
+
+const startUrlscanPolling = (result) => {
+  if (!result || !result.id) return;
+  const resultId = result.id;
+
+  if (urlscanIntervals[resultId]) {
+    clearInterval(urlscanIntervals[resultId]);
+    delete urlscanIntervals[resultId];
+  }
+
+  urlscanAttempts.value[resultId] = 0;
+  urlscanIntervals[resultId] = setInterval(async () => {
+    urlscanAttempts.value[resultId] = (urlscanAttempts.value[resultId] || 0) + 1;
+
+    // Maksimal 24 kali percobaan (~2 menit dengan polling interval 5 detik)
+    if (urlscanAttempts.value[resultId] >= 24) {
+      clearInterval(urlscanIntervals[resultId]);
+      delete urlscanIntervals[resultId];
+      result.urlscan_status = 'timeout';
+      toast.warning(`Pemeriksaan urlscan untuk ${result.domain} timeout setelah 2 menit.`);
+      return;
+    }
+
+    try {
+      const resData = await ctiStore.getUrlscanResult(resultId);
+      if (resData) {
+        Object.assign(result, resData);
+        if (resData.urlscan_status === 'done' || resData.urlscan_status === 'failed') {
+          clearInterval(urlscanIntervals[resultId]);
+          delete urlscanIntervals[resultId];
+          if (resData.urlscan_status === 'done') {
+            toast.success(`Urlscan selesai untuk ${result.domain}`);
+          } else {
+            toast.error(`Urlscan gagal untuk ${result.domain}`);
+          }
+        }
+      }
+    } catch (e) {
+      // Abaikan error jaringan sementara, polling berlanjut hingga timeout
+    }
+  }, 5000);
+};
+
+const loadLatestBrandScan = async (domain) => {
+  if (!domain) return;
+
+  if (brandScanPollInterval) {
+    clearInterval(brandScanPollInterval);
+    brandScanPollInterval = null;
+  }
+
+  loadingLatestBrandScan.value = true;
+  try {
+    const latest = await ctiStore.getLatestBrandScan(domain);
+    brandScanStatus.value = latest || null;
+
+    if (latest && (latest.status === 'pending' || latest.status === 'running')) {
+      isScanningBrand.value = true;
+      pollBrandScan(latest.id);
+    } else {
+      isScanningBrand.value = false;
+      // Jika ada item hasil scan yang urlscan-nya masih pending, lanjutkan polling-nya
+      if (latest?.results && Array.isArray(latest.results)) {
+        latest.results.forEach((res) => {
+          if (res.urlscan_status === 'pending' && res.urlscan_uuid) {
+            startUrlscanPolling(res);
+          }
+        });
+      }
+    }
+  } catch (err) {
+    console.error('Failed to load latest brand scan:', err);
+  } finally {
+    loadingLatestBrandScan.value = false;
+  }
+};
+
+watch(selectedBrandDomain, (newDomain) => {
+  if (newDomain) {
+    loadLatestBrandScan(newDomain);
+  }
+});
 
 const startBrandScan = async () => {
   if (!selectedBrandDomain.value || isScanningBrand.value) return;
@@ -931,47 +1062,11 @@ const runUrlscan = async (result) => {
   if (!result || !result.id) return;
   const resultId = result.id;
 
-  if (urlscanIntervals[resultId]) {
-    clearInterval(urlscanIntervals[resultId]);
-    delete urlscanIntervals[resultId];
-  }
-
   try {
     const updated = await ctiStore.triggerUrlscan(resultId);
     result.urlscan_status = updated.urlscan_status || 'pending';
     toast.success(`Urlscan untuk domain ${result.domain} berhasil dimulai.`);
-
-    urlscanAttempts.value[resultId] = 0;
-    urlscanIntervals[resultId] = setInterval(async () => {
-      urlscanAttempts.value[resultId] = (urlscanAttempts.value[resultId] || 0) + 1;
-
-      // Maksimal 24 kali percobaan (~2 menit dengan polling interval 5 detik)
-      if (urlscanAttempts.value[resultId] >= 24) {
-        clearInterval(urlscanIntervals[resultId]);
-        delete urlscanIntervals[resultId];
-        result.urlscan_status = 'timeout';
-        toast.warning(`Pemeriksaan urlscan untuk ${result.domain} timeout setelah 2 menit.`);
-        return;
-      }
-
-      try {
-        const resData = await ctiStore.getUrlscanResult(resultId);
-        if (resData) {
-          Object.assign(result, resData);
-          if (resData.urlscan_status === 'done' || resData.urlscan_status === 'failed') {
-            clearInterval(urlscanIntervals[resultId]);
-            delete urlscanIntervals[resultId];
-            if (resData.urlscan_status === 'done') {
-              toast.success(`Urlscan selesai untuk ${result.domain}`);
-            } else {
-              toast.error(`Urlscan gagal untuk ${result.domain}`);
-            }
-          }
-        }
-      } catch (e) {
-        // Abaikan error jaringan sementara, polling berlanjut hingga timeout
-      }
-    }, 5000);
+    startUrlscanPolling(result);
   } catch (err) {
     toast.error(typeof err === 'string' ? err : (err?.response?.data?.message || 'Gagal memulai urlscan.'));
   }
@@ -1148,10 +1243,38 @@ const triggerAutomatedCrawl = () => {
 };
 
 onMounted(() => {
-  triggerAutomatedCrawl();
-  crawlInterval = setInterval(triggerAutomatedCrawl, 3600000);
+  if (!hasFullBrandProtectionAccess.value) {
+    currentTab.value = 'email';
+  } else if (
+    typeof route.query.tab === 'string' &&
+    ['domain', 'ssl', 'dns', 'email', 'typosquatting'].includes(route.query.tab)
+  ) {
+    currentTab.value = route.query.tab;
+  }
+  if (!canCheckAnyEmail.value && authStore.user?.email) {
+    breachEmailInput.value = authStore.user.email;
+  }
+
+  if (hasFullBrandProtectionAccess.value) {
+    triggerAutomatedCrawl();
+    crawlInterval = setInterval(triggerAutomatedCrawl, 3600000);
+    loadLatestBrandScan(selectedBrandDomain.value);
+  }
   fetchBreachHistory();
 });
+
+watch(
+  () => route.query.tab,
+  (newTab) => {
+    if (
+      hasFullBrandProtectionAccess.value &&
+      typeof newTab === 'string' &&
+      ['domain', 'ssl', 'dns', 'email', 'typosquatting'].includes(newTab)
+    ) {
+      currentTab.value = newTab;
+    }
+  }
+);
 
 onUnmounted(() => {
   if (crawlInterval) clearInterval(crawlInterval);

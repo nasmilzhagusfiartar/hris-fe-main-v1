@@ -29,18 +29,37 @@ const authStore = useAuthStore();
 // Role-based helpers
 const userRoles = computed(() => {
   return (authStore.user?.roles || []).map((r) =>
-    typeof r === "string" ? r : r.name
+    typeof r === "string" ? r.toLowerCase() : (r?.name || "").toLowerCase()
   );
 });
 
+const isAdmin = computed(() => userRoles.value.includes("admin"));
+const isSecurity = computed(() => userRoles.value.includes("security"));
 const isEmployee = computed(() => userRoles.value.includes("employee"));
 const isManager = computed(() => userRoles.value.includes("manager"));
 const isHr = computed(() => userRoles.value.includes("hr"));
 const isFinance = computed(() => userRoles.value.includes("finance"));
 
+const hasFullCtiAccess = computed(() => {
+  return (
+    isAdmin.value ||
+    isSecurity.value ||
+    can("cti.brand-protection.view")
+  );
+});
+
+const hasAuditLogAccess = computed(() => {
+  return (
+    isAdmin.value ||
+    isSecurity.value ||
+    can("audit-log.view")
+  );
+});
+
 // Section access helpers
 const hasManagementAccess = computed(() => {
-  if (isManager.value || isHr.value || isFinance.value) return true;
+  if (isSecurity.value && !isAdmin.value) return false;
+  if (isAdmin.value || isManager.value || isHr.value || isFinance.value) return true;
   return canOneOf([
     "team-menu",
     "employee-menu",
@@ -51,7 +70,7 @@ const hasManagementAccess = computed(() => {
 });
 
 const hasSelfServiceAccess = computed(() => {
-  if (isEmployee.value) return true;
+  if (isEmployee.value || isSecurity.value) return true;
   return canOneOf([
     "attendance-my-attendances",
     "attendance-check-in",
@@ -63,16 +82,34 @@ const hasSelfServiceAccess = computed(() => {
 });
 
 const hasCtiAccess = computed(() => {
-  // CTI is available for managers, HR, and admins
-  return isManager.value || isHr.value || !isEmployee.value;
+  return (
+    hasFullCtiAccess.value ||
+    can("cti.email-breach.check-any") ||
+    can("cti.email-breach.check-own") ||
+    can("cti-menu") ||
+    userRoles.value.length > 0
+  );
 });
 
 const hasOthersAccess = computed(() => {
-  return isManager.value || isHr.value || !isEmployee.value;
+  return (
+    can("report-menu") ||
+    can("report-view") ||
+    can("setting-menu") ||
+    can("setting-view") ||
+    isAdmin.value ||
+    isSecurity.value ||
+    isManager.value ||
+    isHr.value ||
+    isFinance.value ||
+    isEmployee.value
+  );
 });
 
 // Portal title
 const portalSubtitle = computed(() => {
+  if (isAdmin.value) return "Admin Portal";
+  if (isSecurity.value) return "Security Portal";
   if (isEmployee.value) return "Employee Portal";
   if (isHr.value) return "HR Portal";
   if (isFinance.value) return "Finance Portal";
@@ -507,11 +544,12 @@ const portalSubtitle = computed(() => {
                   $route.name === 'admin.cti.brand-protection',
               }"
             >
-              Brand Protection
+              {{ hasFullCtiAccess ? "Brand Protection" : "Email Breach" }}
             </span>
           </RouterLink>
 
           <RouterLink
+            v-if="hasAuditLogAccess"
             :to="{ name: 'admin.cti.audit-user' }"
             class="nav-link border border-[#DCDEDD] rounded-[20px] hover:border-[#0C51D9] hover:border-2 focus:bg-white transition-all duration-300"
             :class="{
@@ -542,6 +580,7 @@ const portalSubtitle = computed(() => {
         <h3 class="section-title">OTHERS</h3>
         <div class="space-y-2">
           <RouterLink
+            v-if="(can('report-menu') || can('report-view') || isAdmin || isManager || isHr || isFinance) && !isEmployee && !isSecurity"
             :to="{ name: 'admin.reports' }"
             class="nav-link border border-[#DCDEDD] rounded-[20px] hover:border-[#0C51D9] hover:border-2 focus:bg-white transition-all duration-300"
             :class="{
@@ -566,6 +605,7 @@ const portalSubtitle = computed(() => {
           </RouterLink>
 
           <RouterLink
+            v-if="can('setting-menu') || can('setting-view') || isManager || isHr || isFinance || isEmployee"
             :to="{ name: 'admin.settings' }"
             class="nav-link border border-[#DCDEDD] rounded-[20px] hover:border-[#0C51D9] hover:border-2 focus:bg-white transition-all duration-300"
             :class="{

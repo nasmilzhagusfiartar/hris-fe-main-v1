@@ -5,5 +5,9 @@ export default [
         path: 'settings',
         name: 'admin.settings',
         component: SettingsPage,
+        meta: {
+            requiresAuth: true,
+            permission: 'setting-view',
+        },
     },
 ];

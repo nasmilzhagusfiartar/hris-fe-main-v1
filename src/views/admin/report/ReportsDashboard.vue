@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
+import { useRoute } from "vue-router";
 import VueApexCharts from "vue3-apexcharts";
 import {
   Users,
@@ -29,7 +30,13 @@ const {
   error,
 } = storeToRefs(reportStore);
 
-const activeTab = ref("overview");
+const route = useRoute();
+const activeTab = ref(
+  typeof route.query.tab === "string" &&
+    ["overview", "attendance", "payroll", "employees"].includes(route.query.tab)
+    ? route.query.tab
+    : "overview"
+);
 const period = ref("last_6_months");
 const exporting = ref(false);
 
@@ -360,26 +367,82 @@ const exportPdf = async () => {
     </div>
 
     <!-- Attendance Tab -->
-    <div v-if="activeTab === 'attendance'" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div class="bg-white border border-[#DCDEDD] rounded-[16px] p-6 lg:col-span-2">
-        <h3 class="text-brand-dark text-lg font-bold mb-4">Attendance Trend</h3>
-        <VueApexCharts
-          v-if="!loading"
-          type="line"
-          height="280"
-          :options="attendanceTrendOptions"
-          :series="attendanceTrendSeries"
-        />
+    <div v-if="activeTab === 'attendance'" class="space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white border border-[#DCDEDD] rounded-[16px] p-6 lg:col-span-2">
+          <h3 class="text-brand-dark text-lg font-bold mb-4">Attendance Trend</h3>
+          <VueApexCharts
+            v-if="!loading && attendanceReport?.trend"
+            type="line"
+            height="280"
+            :options="attendanceTrendOptions"
+            :series="attendanceTrendSeries"
+          />
+          <p v-else-if="loading" class="text-sm text-gray-500 py-8 text-center">Memuat grafik kehadiran...</p>
+        </div>
+        <div class="bg-white border border-[#DCDEDD] rounded-[16px] p-6 lg:col-span-2">
+          <h3 class="text-brand-dark text-lg font-bold mb-4">Attendance Rate by Department</h3>
+          <VueApexCharts
+            v-if="!loading && attendanceReport?.by_department?.length"
+            type="bar"
+            height="280"
+            :options="attendanceByDeptOptions"
+            :series="attendanceByDeptSeries"
+          />
+          <p v-else-if="!loading" class="text-sm text-gray-500 py-8 text-center">Belum ada data kehadiran per departemen.</p>
+        </div>
       </div>
-      <div class="bg-white border border-[#DCDEDD] rounded-[16px] p-6 lg:col-span-2">
-        <h3 class="text-brand-dark text-lg font-bold mb-4">Attendance Rate by Department</h3>
-        <VueApexCharts
-          v-if="!loading"
-          type="bar"
-          height="280"
-          :options="attendanceByDeptOptions"
-          :series="attendanceByDeptSeries"
-        />
+
+      <!-- Employee Attendance Summary Table -->
+      <div class="bg-white border border-[#DCDEDD] rounded-[16px] p-6">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h3 class="text-brand-dark text-lg font-bold">Ringkasan Kehadiran per Karyawan</h3>
+            <p class="text-brand-light text-xs mt-0.5">Rekapitulasi hadir, terlambat, izin/cuti, sakit, dan alpa</p>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr class="bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-600 uppercase">
+                <th class="py-3 px-4">Karyawan</th>
+                <th class="py-3 px-4">Tim / Departemen</th>
+                <th class="py-3 px-4 text-center">Hadir</th>
+                <th class="py-3 px-4 text-center">Telat</th>
+                <th class="py-3 px-4 text-center">Izin / Cuti</th>
+                <th class="py-3 px-4 text-center">Sakit</th>
+                <th class="py-3 px-4 text-center">Alpa</th>
+                <th class="py-3 px-4 text-right">Rate</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              <tr v-if="!attendanceReport?.employees_summary?.length">
+                <td colspan="8" class="py-8 text-center text-gray-500">Tidak ada data ringkasan kehadiran karyawan.</td>
+              </tr>
+              <tr
+                v-for="emp in attendanceReport?.employees_summary || []"
+                :key="emp.employee_id"
+                class="hover:bg-blue-50/30 transition-colors"
+              >
+                <td class="py-3 px-4">
+                  <p class="font-semibold text-gray-900">{{ emp.name }}</p>
+                  <p class="text-xs text-gray-500">{{ emp.employee_code }} • {{ emp.job_title }}</p>
+                </td>
+                <td class="py-3 px-4">
+                  <p class="font-medium text-gray-800">{{ emp.team_name }}</p>
+                  <p class="text-xs text-gray-500">{{ emp.department }}</p>
+                </td>
+                <td class="py-3 px-4 text-center font-semibold text-emerald-700">{{ emp.present }}</td>
+                <td class="py-3 px-4 text-center font-semibold text-amber-600">{{ emp.late }}</td>
+                <td class="py-3 px-4 text-center font-semibold text-blue-600">{{ emp.permission }}</td>
+                <td class="py-3 px-4 text-center font-semibold text-purple-600">{{ emp.sick }}</td>
+                <td class="py-3 px-4 text-center font-semibold text-red-600">{{ emp.absent }}</td>
+                <td class="py-3 px-4 text-right font-bold text-gray-900">{{ emp.attendance_rate }}%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 

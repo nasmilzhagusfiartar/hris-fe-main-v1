@@ -5,7 +5,6 @@ import {
   BellIcon,
   SettingsIcon,
   ChevronDownIcon,
-  MessageCircleIcon,
   ArrowLeft,
   UserIcon,
 } from "lucide-vue-next";
@@ -123,17 +122,10 @@ watch(() => route.params.id, () => {
             <!-- Action Buttons -->
             <div class="flex items-center gap-3">
               <button
-                class="w-14 h-14 rounded-full border border-[#DCDEDD] flex items-center justify-center hover:border-[#0C51D9] hover:border-2 transition-all duration-200"
-              >
-                <BellIcon class="w-5 h-5 text-gray-600" />
-              </button>
-              <button
-                class="w-14 h-14 rounded-full border border-[#DCDEDD] flex items-center justify-center hover:border-[#0C51D9] hover:border-2 transition-all duration-200"
-              >
-                <MessageCircleIcon class="w-5 h-5 text-gray-600" />
-              </button>
-              <button
-                class="w-14 h-14 rounded-full border border-[#DCDEDD] flex items-center justify-center hover:border-[#0C51D9] hover:border-2 transition-all duration-200"
+                type="button"
+                @click="router.push({ name: 'admin.settings' })"
+                aria-label="Pengaturan"
+                class="w-12 h-12 rounded-full border border-[#DCDEDD] flex items-center justify-center hover:border-[#0C51D9] hover:border-2 transition-all duration-200 cursor-pointer"
               >
                 <SettingsIcon class="w-5 h-5 text-gray-600" />
               </button>
