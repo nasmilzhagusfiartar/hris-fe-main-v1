@@ -355,7 +355,9 @@
     "viewAllEmployees": "Lihat Semua Karyawan",
     "addAnotherEmployee": "Tambah Karyawan Lainnya",
     "totalEmployees": "Total Karyawan",
-    "addedThisMonthLabel": "Ditambahkan Bulan Ini"
+    "addedThisMonthLabel": "Ditambahkan Bulan Ini",
+    "endDate": "Tanggal Efektif Berhenti",
+    "inactiveStatusWarning": "Mengubah status menjadi Resigned / Nonaktif akan menonaktifkan akun karyawan dan mencabut akses login."
   },
   "store": {
     "searchPlaceholder": "Cari toko berdasarkan nama, kode, kota, atau alamat...",

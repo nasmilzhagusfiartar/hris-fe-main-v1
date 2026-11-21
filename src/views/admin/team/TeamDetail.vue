@@ -162,7 +162,7 @@ const handleDeleteTeam = async () => {
 
 const openAddMemberModal = () => {
   showAddMemberModal.value = true;
-  fetchEmployees({ limit: 12 });
+  fetchEmployees({ limit: 12, status: "active" });
 };
 
 const closeAddMemberModal = () => {
@@ -185,7 +185,7 @@ const handleAddMember = async (employee) => {
 
 const openAssignLeadModal = () => {
   showAssignLeadModal.value = true;
-  fetchEmployees({ limit: 12 });
+  fetchEmployees({ limit: 12, status: "active" });
 };
 
 const closeAssignLeadModal = () => {
@@ -293,6 +293,7 @@ watch(
   debounce(() => {
     fetchEmployees({
       limit: 12,
+      status: "active",
       search: searchMember.value,
     });
   }, 300)
@@ -303,6 +304,7 @@ watch(
   debounce(() => {
     fetchEmployees({
       limit: 12,
+      status: "active",
       search: searchLead.value,
     });
   }, 300)

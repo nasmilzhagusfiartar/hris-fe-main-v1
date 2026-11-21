@@ -307,6 +307,29 @@ watch(
             </Select>
           </div>
 
+          <!-- Conditional Effective End Date & Deactivation Warning when status is Resigned/Inactive -->
+          <div
+            v-if="['resigned', 'inactive', 'terminated'].includes(String(form.status || '').toLowerCase())"
+            class="mb-4 p-4 rounded-[14px] bg-amber-50 border border-amber-300 space-y-3"
+          >
+            <p class="text-xs font-semibold text-amber-900">
+              {{ t("employee.inactiveStatusWarning") }}
+            </p>
+            <Input
+              id="end_date"
+              name="end_date"
+              type="date"
+              v-model="form.end_date"
+              :label="`${t('employee.endDate')} *`"
+              :error="errors?.end_date?.join(', ')"
+              required
+            >
+              <template #icon>
+                <Calendar class="h-5 w-5 text-amber-600" />
+              </template>
+            </Input>
+          </div>
+
           <div class="mb-4">
             <Select
               id="employment_type"

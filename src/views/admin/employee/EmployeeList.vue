@@ -47,7 +47,7 @@ const filters = ref({
   store_id: "",
   vendor_name: "",
   type: "",
-  status: "",
+  status: "active",
 });
 
 const fetchData = async () => {

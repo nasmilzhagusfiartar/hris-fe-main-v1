@@ -355,7 +355,9 @@
     "viewAllEmployees": "View All Employees",
     "addAnotherEmployee": "Add Another Employee",
     "totalEmployees": "Total Employees",
-    "addedThisMonthLabel": "Added This Month"
+    "addedThisMonthLabel": "Added This Month",
+    "endDate": "Effective End Date",
+    "inactiveStatusWarning": "Setting status to Resigned / Inactive will deactivate this employee's account and revoke login access."
   },
   "store": {
     "searchPlaceholder": "Search store by name, code, city, or address...",

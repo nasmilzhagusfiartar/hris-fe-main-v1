@@ -56,6 +56,7 @@ const step2Data = ref({
   vendor_name: "",
   work_location: "",
   start_date: "",
+  end_date: "",
   monthly_salary: "",
   skill_level: "",
   bank_name: "",
@@ -118,6 +119,7 @@ const loadEmployeeData = async () => {
       step2Data.value.work_location =
         employee.job_information?.work_location || "";
       step2Data.value.start_date = employee.job_information?.start_date || "";
+      step2Data.value.end_date = employee.job_information?.end_date || "";
       step2Data.value.monthly_salary =
         employee.job_information?.monthly_salary || "";
       step2Data.value.skill_level = employee.job_information?.skill_level || "";
@@ -155,6 +157,23 @@ const loadEmployeeData = async () => {
 
 // Form submission
 const handleSubmit = async () => {
+  const isInactiveStatus = ["resigned", "inactive", "terminated"].includes(
+    String(step2Data.value.status || "").toLowerCase()
+  );
+
+  if (isInactiveStatus) {
+    if (!step2Data.value.end_date) {
+      alert("Effective end date is required when setting employee status to Resigned / Inactive.");
+      return;
+    }
+    const confirmed = confirm(
+      "Changing this employee's status to Resigned / Inactive will immediately deactivate their user account and block them from logging in. Continue?"
+    );
+    if (!confirmed) {
+      return;
+    }
+  }
+
   try {
     const formData = new FormData();
 
@@ -203,6 +222,9 @@ const handleSubmit = async () => {
     }
     formData.append("work_location", step2Data.value.work_location);
     formData.append("start_date", step2Data.value.start_date);
+    if (step2Data.value.end_date) {
+      formData.append("end_date", step2Data.value.end_date);
+    }
     formData.append(
       "monthly_salary",
       normalizeRupiah(step2Data.value.monthly_salary)
