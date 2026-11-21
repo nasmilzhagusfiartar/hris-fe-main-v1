@@ -8,6 +8,7 @@ const EXACT_MAP = {
   "Login Successful": "apiMessages.loginSuccess",
   "Unauthorized": "apiMessages.unauthorized",
   "Invalid credentials": "apiMessages.unauthorized",
+  "Your account has been deactivated. Please contact HR.": "apiMessages.accountDeactivated",
   "Invalid verification code.": "apiMessages.invalidMfaCode",
   "Invalid recovery code.": "apiMessages.invalidRecoveryCode",
   "MFA enabled successfully": "apiMessages.mfaEnabled",
