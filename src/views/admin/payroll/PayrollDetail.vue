@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, computed, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { usePayrollStore } from "@/stores/payroll";
 import {
@@ -13,6 +14,8 @@ import {
   Send,
   CheckCircle,
   X,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-vue-next";
 import { debounce } from "lodash";
 import Pagination from "@/components/admin/payroll/Pagination.vue";
@@ -20,9 +23,53 @@ import SearchInput from "@/components/common/SearchInput.vue";
 import { formatRupiah, formatRupiahCompact } from "@/utils/formatUtils";
 import { getImageUrl, handleImageError } from "@/helpers/imageHelper";
 
+const { t, locale } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const payrollStore = usePayrollStore();
+
+const expandedRowId = ref(null);
+const dateLocale = computed(() => (locale.value === "id" ? "id-ID" : "en-US"));
+
+const toggleRowBreakdown = (id) => {
+  expandedRowId.value = expandedRowId.value === id ? null : id;
+};
+
+const formattedPeriodRange = computed(() => {
+  if (payroll.value?.period_start && payroll.value?.period_end) {
+    const start = new Date(payroll.value.period_start);
+    const end = new Date(payroll.value.period_end);
+    const sameYear = start.getFullYear() === end.getFullYear();
+    const s = start.toLocaleDateString(dateLocale.value, {
+      day: "numeric",
+      month: "short",
+      ...(sameYear ? {} : { year: "numeric" }),
+    });
+    const e = end.toLocaleDateString(dateLocale.value, {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+    return `${s} – ${e}`;
+  }
+  if (payroll.value?.salary_month) {
+    return new Date(payroll.value.salary_month).toLocaleDateString(dateLocale.value, {
+      month: "long",
+      year: "numeric",
+    });
+  }
+  return "-";
+});
+
+const formattedPayDate = computed(() => {
+  const raw = payroll.value?.payment_date || payroll.value?.pay_date || payroll.value?.created_at;
+  if (!raw) return "-";
+  return new Date(raw).toLocaleDateString(dateLocale.value, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+});
 
 const payroll = ref(null);
 const payrollStatistics = ref(null);
@@ -95,14 +142,19 @@ const fetchPayrollDetails = async (page = 1) => {
         position: detail.employee?.job_information?.job_title || "N/A",
         department: detail.employee?.job_information?.team?.name || "N/A",
         profile_photo: detail.employee?.user?.profile_photo || null,
-        total_work_days: 22, // Default working days
+        total_work_days: detail.working_days > 0 ? detail.working_days : 22,
         attended_days: detail.attended_days || 0,
+        present_days: detail.present_days ?? Math.max(0, (detail.attended_days || 0) - (detail.late_days || 0)),
+        late_days: detail.late_days || 0,
         sick_days: detail.sick_days || 0,
+        permission_days: detail.permission_days || 0,
+        leave_days: detail.leave_days || 0,
         absent_days: detail.absent_days || 0,
         basic_salary: parseFloat(detail.original_salary) || 0,
         deductions:
-          parseFloat(detail.original_salary) -
-          parseFloat(detail.final_salary) || 0,
+          detail.deduction_amount !== undefined && detail.deduction_amount !== null
+            ? parseFloat(detail.deduction_amount)
+            : Math.max(0, parseFloat(detail.original_salary) - parseFloat(detail.final_salary)) || 0,
         net_salary: parseFloat(detail.final_salary) || 0,
         status: payroll.value?.status === "paid" ? "paid" : "pending",
         notes: detail.notes,
@@ -282,27 +334,20 @@ const handleMarkAsPaid = async () => {
         </div>
       </div>
 
-      <!-- Processing Date Card -->
+      <!-- Period & Pay Date Card -->
       <div
         class="bg-white border border-[#DCDEDD] rounded-[20px] hover:border-[#0C51D9] hover:border-2 transition-all duration-300 p-6">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-brand-dark text-sm font-medium">Processed On</p>
-            <p class="text-brand-dark text-2xl font-extrabold leading-tight my-2">
-              {{
-                loading
-                  ? "..."
-                  : new Date(payroll?.created_at).toLocaleDateString("id-ID", {
-                    month: "short",
-                    day: "numeric",
-                  })
-              }}
+            <p class="text-brand-dark text-sm font-medium">{{ t("payroll.periodRange") }}</p>
+            <p class="text-brand-dark text-lg font-extrabold leading-tight my-2">
+              {{ loading ? "..." : formattedPeriodRange }}
             </p>
-            <p class="text-brand-light text-sm font-medium">
-              {{ new Date(payroll?.created_at).getFullYear() }}
+            <p class="text-brand-light text-xs font-medium">
+              {{ t("payroll.payDate") }}: {{ loading ? "..." : formattedPayDate }}
             </p>
           </div>
-          <div class="w-14 h-14 bg-orange-50 rounded-[16px] flex items-center justify-center">
+          <div class="w-14 h-14 bg-orange-50 rounded-[16px] flex items-center justify-center flex-shrink-0">
             <CalendarCheck class="w-7 h-7 text-orange-600" />
           </div>
         </div>
@@ -377,8 +422,11 @@ const handleMarkAsPaid = async () => {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="emp in filteredEmployees" :key="emp.id"
-              class="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-200">
+            <template v-for="emp in filteredEmployees" :key="emp.id">
+            <tr
+              @click="toggleRowBreakdown(emp.id)"
+              :title="`${t('payroll.breakdown.present')}: ${emp.present_days} | ${t('payroll.breakdown.late')}: ${emp.late_days} | ${t('payroll.breakdown.sick')}: ${emp.sick_days} | ${t('payroll.breakdown.permission')}: ${emp.permission_days} | ${t('payroll.breakdown.leave')}: ${emp.leave_days} | ${t('payroll.breakdown.absent')}: ${emp.absent_days} | ${t('payroll.breakdown.workingDays')}: ${emp.total_work_days}`"
+              class="border-b border-gray-100 hover:bg-blue-50/40 transition-colors duration-200 cursor-pointer">
               <td class="py-4 px-4">
                 <div class="flex items-center gap-3">
                   <img
@@ -409,7 +457,7 @@ const handleMarkAsPaid = async () => {
                 </div>
               </td>
               <td class="py-4 px-4 text-center">
-                <div class="flex items-center justify-center gap-2">
+                <div class="flex items-center justify-center gap-1.5">
                   <span :class="[
                     'text-sm font-semibold',
                     getAttendancePercentage(
@@ -432,6 +480,8 @@ const handleMarkAsPaid = async () => {
                     }}%
                   </span>
                   <span class="text-xs text-brand-light">({{ emp.attended_days }}/{{ emp.total_work_days }})</span>
+                  <ChevronUp v-if="expandedRowId === emp.id" class="w-3.5 h-3.5 text-gray-400" />
+                  <ChevronDown v-else class="w-3.5 h-3.5 text-gray-400" />
                 </div>
               </td>
               <td class="py-4 px-4 text-right">
@@ -455,6 +505,35 @@ const handleMarkAsPaid = async () => {
                 </span>
               </td>
             </tr>
+            <tr v-if="expandedRowId === emp.id" class="bg-blue-50/30 border-b border-gray-200">
+              <td colspan="8" class="px-6 py-3">
+                <div class="flex flex-wrap items-center gap-3 text-xs">
+                  <span class="font-semibold text-brand-dark">{{ t("payroll.breakdown.title") }}:</span>
+                  <span class="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    {{ t("payroll.breakdown.present") }}: <strong>{{ emp.present_days }}</strong>
+                  </span>
+                  <span class="px-2.5 py-1 rounded-md bg-amber-50 text-amber-700 border border-amber-200">
+                    {{ t("payroll.breakdown.late") }}: <strong>{{ emp.late_days }}</strong>
+                  </span>
+                  <span class="px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 border border-blue-200">
+                    {{ t("payroll.breakdown.sick") }}: <strong>{{ emp.sick_days }}</strong>
+                  </span>
+                  <span class="px-2.5 py-1 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200">
+                    {{ t("payroll.breakdown.permission") }}: <strong>{{ emp.permission_days }}</strong>
+                  </span>
+                  <span class="px-2.5 py-1 rounded-md bg-purple-50 text-purple-700 border border-purple-200">
+                    {{ t("payroll.breakdown.leave") }}: <strong>{{ emp.leave_days }}</strong>
+                  </span>
+                  <span class="px-2.5 py-1 rounded-md bg-red-50 text-red-700 border border-red-200">
+                    {{ t("payroll.breakdown.absent") }}: <strong>{{ emp.absent_days }}</strong>
+                  </span>
+                  <span class="px-2.5 py-1 rounded-md bg-gray-100 text-gray-700 border border-gray-200">
+                    {{ t("payroll.breakdown.workingDays") }}: <strong>{{ emp.total_work_days }}</strong>
+                  </span>
+                </div>
+              </td>
+            </tr>
+            </template>
           </tbody>
         </table>
       </div>

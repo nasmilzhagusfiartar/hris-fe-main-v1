@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, watch, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { usePayrollStore } from "@/stores/payroll";
 import { storeToRefs } from "pinia";
 import { useRouter } from "vue-router";
@@ -17,7 +18,9 @@ import {
 } from "lucide-vue-next";
 import Pagination from "@/components/admin/team/Pagination.vue";
 
+const { t, locale } = useI18n();
 const router = useRouter();
+const dateLocale = computed(() => (locale.value === "id" ? "id-ID" : "en-US"));
 const payrollStore = usePayrollStore();
 const { payslips, meta, loading } = storeToRefs(payrollStore);
 const { fetchMyPayslips, downloadPayslip } = payrollStore;
@@ -90,9 +93,40 @@ const formatCurrency = (value) => {
 };
 
 const formatDate = (date) => {
-  return new Date(date).toLocaleDateString("id-ID", {
+  if (!date) return "-";
+  return new Date(date).toLocaleDateString(dateLocale.value, {
     year: "numeric",
     month: "long",
+  });
+};
+
+const formatPeriodRange = (slip) => {
+  if (slip?.period_start && slip?.period_end) {
+    const start = new Date(slip.period_start);
+    const end = new Date(slip.period_end);
+    const sameYear = start.getFullYear() === end.getFullYear();
+    const s = start.toLocaleDateString(dateLocale.value, {
+      day: "numeric",
+      month: "short",
+      ...(sameYear ? {} : { year: "numeric" }),
+    });
+    const e = end.toLocaleDateString(dateLocale.value, {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+    return `${s} – ${e}`;
+  }
+  return formatDate(slip?.period);
+};
+
+const formatPayDate = (slip) => {
+  const raw = slip?.payment_date || slip?.pay_date;
+  if (!raw) return "-";
+  return new Date(raw).toLocaleDateString(dateLocale.value, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
   });
 };
 
@@ -233,10 +267,13 @@ const totalDeductions = computed(() => {
           </div>
 
           <div class="mb-4">
-            <div class="flex items-center gap-2 mb-2">
+            <div class="flex items-center gap-2 mb-1">
               <Calendar class="w-4 h-4 text-gray-400" />
-              <p class="text-brand-dark font-bold">{{ formatDate(payslip.period) }}</p>
+              <p class="text-brand-dark font-bold text-sm">{{ formatPeriodRange(payslip) }}</p>
             </div>
+            <p class="text-xs text-gray-500 mb-2">
+              {{ t("payroll.payDate") }}: {{ formatPayDate(payslip) }}
+            </p>
             <div class="flex items-center gap-2">
               <DollarSign class="w-4 h-4 text-gray-400" />
               <p class="text-brand-dark text-xl font-extrabold">

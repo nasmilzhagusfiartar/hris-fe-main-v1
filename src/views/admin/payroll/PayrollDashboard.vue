@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { usePayrollStore } from "@/stores/payroll";
 import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
@@ -21,6 +22,7 @@ import Alert from "@/components/common/Alert.vue";
 import ContextActions from "@/components/common/ContextActions.vue";
 import { formatRupiah, formatRupiahCompact } from "@/utils/formatUtils";
 
+const { t, locale } = useI18n();
 const router = useRouter();
 const payrollStore = usePayrollStore();
 const { payrolls, statistics, loading, success } = storeToRefs(payrollStore);
@@ -30,18 +32,41 @@ onMounted(async () => {
   await payrollStore.fetchPayrolls({ page: 1, row_per_page: 10 });
 });
 
+const dateLocale = computed(() => (locale.value === "id" ? "id-ID" : "en-US"));
 
 const formatDate = (date) => {
-  return new Date(date).toLocaleDateString("id-ID", {
+  if (!date) return "-";
+  return new Date(date).toLocaleDateString(dateLocale.value, {
     year: "numeric",
     month: "long",
   });
 };
 
+const formatPeriodRange = (payroll) => {
+  if (payroll?.period_start && payroll?.period_end) {
+    const start = new Date(payroll.period_start);
+    const end = new Date(payroll.period_end);
+    const sameYear = start.getFullYear() === end.getFullYear();
+    const startStr = start.toLocaleDateString(dateLocale.value, {
+      day: "numeric",
+      month: "short",
+      ...(sameYear ? {} : { year: "numeric" }),
+    });
+    const endStr = end.toLocaleDateString(dateLocale.value, {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+    return `${startStr} – ${endStr}`;
+  }
+  return formatDate(payroll?.period || payroll?.salary_month);
+};
+
 const formatProcessedDate = (date) => {
-  return new Date(date).toLocaleDateString("id-ID", {
+  if (!date) return "-";
+  return new Date(date).toLocaleDateString(dateLocale.value, {
     year: "numeric",
-    month: "long",
+    month: "short",
     day: "numeric",
   });
 };
@@ -245,19 +270,22 @@ const viewDetails = (id) => {
             <Calendar class="w-8 h-8 text-white relative z-10" />
           </div>
           <div class="flex-1">
-            <div class="flex items-center gap-2 mb-1">
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
               <p class="text-brand-dark text-lg font-bold">
-                {{ formatDate(payroll.period) }}
+                {{ formatPeriodRange(payroll) }}
               </p>
+              <span class="text-xs font-medium text-gray-500">
+                ({{ formatDate(payroll.period || payroll.salary_month) }})
+              </span>
             </div>
             <div class="flex items-center gap-2">
               <Users class="w-4 h-4 text-gray-600" />
               <p class="text-brand-dark text-sm font-normal">
-                {{ payroll.employee_count || 0 }} employees • All departments
+                {{ payroll.employee_count || 0 }} {{ t("payroll.employeesLabel") }}
               </p>
             </div>
             <p class="text-brand-light text-xs font-normal mt-1">
-              Processed on {{ formatProcessedDate(payroll.created_at) }}
+              {{ t("payroll.payDate") }}: {{ formatProcessedDate(payroll.payment_date || payroll.pay_date || payroll.created_at) }}
             </p>
           </div>
           <div class="flex flex-col justify-center items-center">

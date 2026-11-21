@@ -54,12 +54,47 @@ const timezoneOptions = [
   { value: "Asia/Jayapura", label: "WIT - Asia/Jayapura" },
 ];
 
-const companyForm = reactive({ ...company.value });
+const defaultWorkDaysByLocation = () => ({
+  office: [1, 2, 3, 4, 5],
+  hybrid: [1, 2, 3, 4, 5],
+  remote: [1, 2, 3, 4, 5],
+  store: [1, 2, 3, 4, 5, 6],
+});
+
+const dayOptions = [
+  { value: 1, key: "mon" },
+  { value: 2, key: "tue" },
+  { value: 3, key: "wed" },
+  { value: 4, key: "thu" },
+  { value: 5, key: "fri" },
+  { value: 6, key: "sat" },
+  { value: 7, key: "sun" },
+];
+
+const locationKeys = ["office", "hybrid", "remote", "store"];
+
+const companyForm = reactive({
+  ...company.value,
+  payroll_cutoff_day: company.value?.payroll_cutoff_day ?? 15,
+  payroll_pay_day: company.value?.payroll_pay_day ?? 28,
+  work_days_by_location: defaultWorkDaysByLocation(),
+});
 const passwordForm = reactive({
   current_password: "",
   new_password: "",
   new_password_confirmation: "",
 });
+
+const toggleWorkDay = (location, dayNum) => {
+  const current = companyForm.work_days_by_location[location] || [];
+  if (current.includes(dayNum)) {
+    if (current.length > 1) {
+      companyForm.work_days_by_location[location] = current.filter((d) => d !== dayNum);
+    }
+  } else {
+    companyForm.work_days_by_location[location] = [...current, dayNum].sort((a, b) => a - b);
+  }
+};
 
 onMounted(async () => {
   if (!canEditCompany.value) {
@@ -67,6 +102,12 @@ onMounted(async () => {
   }
   await settingsStore.fetchSettings();
   Object.assign(companyForm, company.value);
+  companyForm.payroll_cutoff_day = company.value?.payroll_cutoff_day ?? 15;
+  companyForm.payroll_pay_day = company.value?.payroll_pay_day ?? 28;
+  companyForm.work_days_by_location = {
+    ...defaultWorkDaysByLocation(),
+    ...(company.value?.work_days_by_location || {}),
+  };
 });
 
 const saveCompanySettings = async () => {
@@ -184,6 +225,60 @@ const submitPasswordChange = async () => {
           label="Work Days per Week"
           v-model="companyForm.work_days_per_week"
         />
+        <Input
+          id="payroll_cutoff_day"
+          type="number"
+          min="1"
+          max="28"
+          step="1"
+          :label="t('settings.payrollCutoffDay')"
+          v-model="companyForm.payroll_cutoff_day"
+        />
+        <Input
+          id="payroll_pay_day"
+          type="number"
+          min="1"
+          max="31"
+          step="1"
+          :label="t('settings.payrollPayDay')"
+          v-model="companyForm.payroll_pay_day"
+        />
+      </div>
+
+      <!-- Working Days per Work Location -->
+      <div class="mt-6 pt-5 border-t border-gray-200">
+        <h4 class="text-brand-dark text-sm font-bold mb-1">
+          {{ t("settings.workDaysByLocationTitle") }}
+        </h4>
+        <p class="text-brand-light text-xs mb-4">
+          {{ t("settings.workDaysByLocationSub") }}
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div
+            v-for="loc in locationKeys"
+            :key="loc"
+            class="p-4 border border-[#DCDEDD] rounded-[12px] bg-gray-50/50"
+          >
+            <p class="text-xs font-bold uppercase tracking-wider text-gray-700 mb-2.5">
+              {{ t(`enums.${loc}`) }}
+            </p>
+            <div class="flex flex-wrap gap-1.5">
+              <button
+                v-for="day in dayOptions"
+                :key="day.value"
+                type="button"
+                @click="toggleWorkDay(loc, day.value)"
+                :class="
+                  (companyForm.work_days_by_location[loc] || []).includes(day.value)
+                    ? 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#0C51D9] text-white cursor-pointer'
+                    : 'px-2.5 py-1 rounded-lg text-xs font-medium bg-white border border-[#DCDEDD] text-gray-600 hover:border-[#0C51D9] cursor-pointer'
+                "
+              >
+                {{ t(`settings.days.${day.key}`) }}
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="mt-5">

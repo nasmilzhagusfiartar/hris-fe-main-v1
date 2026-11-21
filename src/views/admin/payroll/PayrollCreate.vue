@@ -1,6 +1,8 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
+import { useI18n } from "vue-i18n";
 import { usePayrollStore } from "@/stores/payroll";
+import { useSettingsStore } from "@/stores/settings";
 import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import {
@@ -11,12 +13,53 @@ import {
   AlertCircle,
 } from "lucide-vue-next";
 
+const { t, locale } = useI18n();
 const router = useRouter();
 const payrollStore = usePayrollStore();
+const settingsStore = useSettingsStore();
 const { loading, error } = storeToRefs(payrollStore);
+const { company } = storeToRefs(settingsStore);
 
 const form = ref({
   salary_month: new Date().toISOString().slice(0, 7),
+});
+
+onMounted(() => {
+  settingsStore.fetchSettings().catch(() => {});
+});
+
+const dateLocale = computed(() => (locale.value === "id" ? "id-ID" : "en-US"));
+
+const periodPreview = computed(() => {
+  if (!form.value.salary_month) return { range: "-", payDate: "-" };
+  const [y, m] = form.value.salary_month.split("-").map(Number);
+  const cutoff = Number(company.value?.payroll_cutoff_day || 15);
+  const payDay = Number(company.value?.payroll_pay_day || 28);
+
+  const endDate = new Date(y, m - 1, Math.min(cutoff, new Date(y, m, 0).getDate()));
+  const prevMonthLast = new Date(y, m - 1, 0).getDate();
+  const prevCutoff = new Date(y, m - 2, Math.min(cutoff, prevMonthLast));
+  const startDate = new Date(prevCutoff.getFullYear(), prevCutoff.getMonth(), prevCutoff.getDate() + 1);
+  const payDateObj = new Date(y, m - 1, Math.min(payDay, new Date(y, m, 0).getDate()));
+
+  const sameYear = startDate.getFullYear() === endDate.getFullYear();
+  const startStr = startDate.toLocaleDateString(dateLocale.value, {
+    day: "numeric",
+    month: "short",
+    ...(sameYear ? {} : { year: "numeric" }),
+  });
+  const endStr = endDate.toLocaleDateString(dateLocale.value, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+  const payStr = payDateObj.toLocaleDateString(dateLocale.value, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
+  return { range: `${startStr} – ${endStr}`, payDate: payStr };
 });
 
 const handleSubmit = async () => {
@@ -116,13 +159,23 @@ const formatMonth = (month) => {
 
         <div class="space-y-4">
           <div
-            class="flex justify-between items-center py-2 bg-blue-50 px-3 rounded-[8px] mb-4"
+            class="flex justify-between items-center py-2 bg-blue-50 px-3 rounded-[8px]"
           >
-            <span class="text-blue-700 text-base font-semibold"
-              >Selected Month:</span
+            <span class="text-blue-700 text-sm font-semibold"
+              >{{ t("payroll.periodRange") }}:</span
             >
-            <span class="text-blue-700 text-base font-bold">{{
-              formatMonth(form.salary_month)
+            <span class="text-blue-700 text-sm font-bold">{{
+              periodPreview.range
+            }}</span>
+          </div>
+          <div
+            class="flex justify-between items-center py-2 bg-emerald-50 px-3 rounded-[8px] mb-4"
+          >
+            <span class="text-emerald-700 text-sm font-semibold"
+              >{{ t("payroll.payDate") }}:</span
+            >
+            <span class="text-emerald-700 text-sm font-bold">{{
+              periodPreview.payDate
             }}</span>
           </div>
 

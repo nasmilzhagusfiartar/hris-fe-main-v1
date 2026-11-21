@@ -393,6 +393,19 @@
     "phoneNumber": "Nomor Telepon",
     "timezone": "Zona Waktu",
     "workDaysPerWeek": "Hari Kerja per Minggu",
+    "payrollCutoffDay": "Tanggal Tutup Buku Payroll (1–28)",
+    "payrollPayDay": "Tanggal Gajian Payroll (1–31)",
+    "workDaysByLocationTitle": "Hari Kerja per Lokasi Kerja",
+    "workDaysByLocationSub": "Digunakan untuk menghitung hari kerja payroll dan potongan ketidakhadiran sesuai lokasi kerja karyawan.",
+    "days": {
+      "mon": "Sen",
+      "tue": "Sel",
+      "wed": "Rab",
+      "thu": "Kam",
+      "fri": "Jum",
+      "sat": "Sab",
+      "sun": "Min"
+    },
     "companyAddress": "Alamat Perusahaan",
     "companyAddressPlaceholder": "Masukkan alamat lengkap perusahaan",
     "notificationPrefs": "Preferensi Notifikasi",
@@ -545,7 +558,21 @@
     "thisMonth": "Bulan ini",
     "monthlyPeriods": "Periode Payroll Bulanan",
     "noPeriods": "Belum ada periode Payroll",
-    "noPeriodsSub": "Buat periode Payroll pertama Anda untuk mulai mengelola penggajian karyawan."
+    "noPeriodsSub": "Buat periode Payroll pertama Anda untuk mulai mengelola penggajian karyawan.",
+    "periodRange": "Periode Payroll",
+    "payDate": "Tanggal Bayar",
+    "employeesLabel": "karyawan • Semua departemen",
+    "breakdown": {
+      "title": "Rincian Kehadiran & Potongan",
+      "present": "Hadir",
+      "late": "Telat",
+      "sick": "Sakit",
+      "permission": "Izin",
+      "leave": "Cuti",
+      "absent": "Tidak Hadir",
+      "workingDays": "Hari Kerja",
+      "absenceDeduction": "Potongan Ketidakhadiran"
+    }
   },
   "cti": {
     "auditTitle": "Audit Log & Aktivitas Sesi Pengguna",

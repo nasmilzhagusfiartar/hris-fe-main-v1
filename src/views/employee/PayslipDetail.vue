@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { usePayrollStore } from "@/stores/payroll";
 import { useAuthStore } from "@/stores/auth";
@@ -17,8 +18,10 @@ import {
   FileText,
 } from "lucide-vue-next";
 
+const { t, locale } = useI18n();
 const route = useRoute();
 const router = useRouter();
+const dateLocale = computed(() => (locale.value === "id" ? "id-ID" : "en-US"));
 const payrollStore = usePayrollStore();
 const authStore = useAuthStore();
 
@@ -62,15 +65,34 @@ const formatCurrency = (value) => {
 };
 
 const formatDate = (date) => {
-  return new Date(date).toLocaleDateString("id-ID", {
+  if (!date) return "-";
+  return new Date(date).toLocaleDateString(dateLocale.value, {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
 };
 
-const formatPeriod = (date) => {
-  return new Date(date).toLocaleDateString("id-ID", {
+const formatPeriod = (slip) => {
+  if (slip?.period_start && slip?.period_end) {
+    const start = new Date(slip.period_start);
+    const end = new Date(slip.period_end);
+    const sameYear = start.getFullYear() === end.getFullYear();
+    const s = start.toLocaleDateString(dateLocale.value, {
+      day: "numeric",
+      month: "short",
+      ...(sameYear ? {} : { year: "numeric" }),
+    });
+    const e = end.toLocaleDateString(dateLocale.value, {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+    return `${s} – ${e}`;
+  }
+  const date = typeof slip === "string" ? slip : slip?.period;
+  if (!date) return "-";
+  return new Date(date).toLocaleDateString(dateLocale.value, {
     year: "numeric",
     month: "long",
   });
@@ -121,8 +143,11 @@ const formatPeriod = (date) => {
               <h1 class="text-3xl font-extrabold text-brand-dark mb-2">
                 Payslip
               </h1>
-              <p class="text-gray-600">
-                {{ formatPeriod(payslip.period) }}
+              <p class="text-gray-600 font-medium">
+                {{ formatPeriod(payslip) }}
+              </p>
+              <p class="text-xs text-gray-500 mt-1">
+                {{ t("payroll.payDate") }}: {{ formatDate(payslip.payment_date || payslip.pay_date || payslip.created_at) }}
               </p>
             </div>
             <div class="text-right">
@@ -280,6 +305,17 @@ const formatPeriod = (date) => {
                 </span>
               </div>
               <div
+                v-if="payslip.deduction_amount > 0 || payslip.absent_days > 0"
+                class="flex items-center justify-between"
+              >
+                <span class="text-sm text-red-700">
+                  {{ t("payroll.breakdown.absenceDeduction") }} ({{ payslip.absent_days || 0 }}/{{ payslip.working_days || 0 }})
+                </span>
+                <span class="font-semibold text-red-900">
+                  {{ formatCurrency(payslip.deduction_amount ?? payslip.total_deductions ?? 0) }}
+                </span>
+              </div>
+              <div
                 v-if="payslip.other_deductions > 0"
                 class="flex items-center justify-between"
               >
@@ -293,9 +329,46 @@ const formatPeriod = (date) => {
               >
                 <span class="text-sm font-bold text-red-900">Total Deductions</span>
                 <span class="text-lg font-extrabold text-red-900">
-                  {{ formatCurrency(payslip.total_deductions) }}
+                  {{ formatCurrency(payslip.deduction_amount ?? payslip.total_deductions ?? 0) }}
                 </span>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Attendance Breakdown -->
+        <div v-if="payslip.working_days > 0" class="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-[16px]">
+          <p class="text-xs font-bold uppercase tracking-wider text-gray-600 mb-3">
+            {{ t("payroll.breakdown.title") }}
+          </p>
+          <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 text-center text-xs">
+            <div class="bg-white rounded-lg p-2 border border-gray-200">
+              <p class="text-gray-500">{{ t("payroll.breakdown.workingDays") }}</p>
+              <p class="font-bold text-brand-dark text-sm">{{ payslip.working_days }}</p>
+            </div>
+            <div class="bg-emerald-50 rounded-lg p-2 border border-emerald-200">
+              <p class="text-emerald-700">{{ t("payroll.breakdown.present") }}</p>
+              <p class="font-bold text-emerald-800 text-sm">{{ payslip.present_days ?? payslip.attended_days ?? 0 }}</p>
+            </div>
+            <div class="bg-amber-50 rounded-lg p-2 border border-amber-200">
+              <p class="text-amber-700">{{ t("payroll.breakdown.late") }}</p>
+              <p class="font-bold text-amber-800 text-sm">{{ payslip.late_days ?? 0 }}</p>
+            </div>
+            <div class="bg-blue-50 rounded-lg p-2 border border-blue-200">
+              <p class="text-blue-700">{{ t("payroll.breakdown.sick") }}</p>
+              <p class="font-bold text-blue-800 text-sm">{{ payslip.sick_days ?? 0 }}</p>
+            </div>
+            <div class="bg-indigo-50 rounded-lg p-2 border border-indigo-200">
+              <p class="text-indigo-700">{{ t("payroll.breakdown.permission") }}</p>
+              <p class="font-bold text-indigo-800 text-sm">{{ payslip.permission_days ?? 0 }}</p>
+            </div>
+            <div class="bg-purple-50 rounded-lg p-2 border border-purple-200">
+              <p class="text-purple-700">{{ t("payroll.breakdown.leave") }}</p>
+              <p class="font-bold text-purple-800 text-sm">{{ payslip.leave_days ?? 0 }}</p>
+            </div>
+            <div class="bg-red-50 rounded-lg p-2 border border-red-200">
+              <p class="text-red-700">{{ t("payroll.breakdown.absent") }}</p>
+              <p class="font-bold text-red-800 text-sm">{{ payslip.absent_days ?? 0 }}</p>
             </div>
           </div>
         </div>

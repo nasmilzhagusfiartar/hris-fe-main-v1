@@ -393,6 +393,19 @@
     "phoneNumber": "Phone Number",
     "timezone": "Timezone",
     "workDaysPerWeek": "Work Days per Week",
+    "payrollCutoffDay": "Payroll Cut-off Day (1–28)",
+    "payrollPayDay": "Payroll Pay Day (1–31)",
+    "workDaysByLocationTitle": "Working Days by Work Location",
+    "workDaysByLocationSub": "Used to calculate payroll working days and absence deductions per employee work location.",
+    "days": {
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat",
+      "sun": "Sun"
+    },
     "companyAddress": "Company Address",
     "companyAddressPlaceholder": "Enter full company address",
     "notificationPrefs": "Notification Preferences",
@@ -545,7 +558,21 @@
     "thisMonth": "This month",
     "monthlyPeriods": "Monthly Payroll Periods",
     "noPeriods": "No payroll periods yet",
-    "noPeriodsSub": "Create your first payroll period to start managing employee disbursements."
+    "noPeriodsSub": "Create your first payroll period to start managing employee disbursements.",
+    "periodRange": "Payroll Period",
+    "payDate": "Pay Date",
+    "employeesLabel": "employees • All departments",
+    "breakdown": {
+      "title": "Attendance & Deduction Breakdown",
+      "present": "Present",
+      "late": "Late",
+      "sick": "Sick",
+      "permission": "Permission",
+      "leave": "Leave",
+      "absent": "Absent",
+      "workingDays": "Working Days",
+      "absenceDeduction": "Absence Deduction"
+    }
   },
   "cti": {
     "auditTitle": "User Audit & Session Activity Logs",
