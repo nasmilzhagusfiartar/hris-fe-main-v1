@@ -51,10 +51,7 @@ export const useTaskStore = defineStore("task", {
             this.error = null;
 
             try {
-                const response = await axiosInstance.post(`project-tasks/${id}`, {
-                    ...payload,
-                    _method: 'PUT',
-                });
+                const response = await axiosInstance.put(`project-tasks/${id}`, payload);
 
                 // Update task in local state
                 const taskIndex = this.tasks.findIndex(t => t.id === id);
@@ -95,10 +92,9 @@ export const useTaskStore = defineStore("task", {
                 if (!task) return;
 
                 // Use existing updateTask endpoint
-                const response = await axiosInstance.post(`project-tasks/${taskId}`, {
+                const response = await axiosInstance.put(`project-tasks/${taskId}`, {
                     ...task,
                     status: newStatus,
-                    _method: 'PUT',
                 });
 
                 // Update task status in local state

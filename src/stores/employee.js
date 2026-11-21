@@ -83,11 +83,7 @@ export const useEmployeeStore = defineStore("employee", {
             this.loading = true;
 
             try {
-                const response = await axiosInstance.post('employees', payload, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    }
-                });
+                const response = await axiosInstance.post('employees', payload);
 
                 this.success = response.data.message;
             } catch (error) {
@@ -105,11 +101,7 @@ export const useEmployeeStore = defineStore("employee", {
                 // Add _method PUT for Laravel to handle multipart form data
                 payload.append('_method', 'PUT');
 
-                const response = await axiosInstance.post(`employees/${id}`, payload, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    }
-                });
+                const response = await axiosInstance.post(`employees/${id}`, payload);
 
                 this.success = response.data.message;
             } catch (error) {

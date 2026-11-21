@@ -44,17 +44,14 @@ export const useSettingsStore = defineStore("settings", {
             }
         },
 
-        // POST /settings/company (uses _method spoofing, same convention as /me update)
+        // PUT /settings/company
         async updateCompanySettings(payload) {
             this.loading = true;
             this.error = null;
             this.success = null;
 
             try {
-                const response = await axiosInstance.post('/settings/company', {
-                    ...payload,
-                    _method: 'PUT',
-                });
+                const response = await axiosInstance.put('/settings/company', payload);
 
                 this.company = response.data.data;
                 this.success = response.data.message || 'Company settings updated successfully';
@@ -68,17 +65,14 @@ export const useSettingsStore = defineStore("settings", {
             }
         },
 
-        // POST /settings/notifications
+        // PUT /settings/notifications
         async updateNotificationSettings(payload) {
             this.loading = true;
             this.error = null;
             this.success = null;
 
             try {
-                const response = await axiosInstance.post('/settings/notifications', {
-                    ...payload,
-                    _method: 'PUT',
-                });
+                const response = await axiosInstance.put('/settings/notifications', payload);
 
                 this.notifications = response.data.data;
                 this.success = response.data.message || 'Notification preferences updated';

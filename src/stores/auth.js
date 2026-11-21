@@ -1,5 +1,6 @@
 import { handleError } from "@/helpers/errorHelper";
 import { axiosInstance } from "@/plugins/axios";
+import { toFormData } from "@/utils/formDataHelper";
 import Cookies from "js-cookie";
 import { defineStore } from "pinia";
 import router from "@/router";
@@ -183,10 +184,8 @@ export const useAuthStore = defineStore("auth", {
             this.success = null;
 
             try {
-                const response = await axiosInstance.post('/me', {
-                    ...payload,
-                    _method: 'PUT',
-                });
+                const body = toFormData(payload, { _method: 'PUT' });
+                const response = await axiosInstance.post('/me', body);
 
                 this.success = response.data.message || 'Profile updated successfully';
                 await this.checkAuth();
