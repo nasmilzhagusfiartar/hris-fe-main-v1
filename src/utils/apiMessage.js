@@ -43,6 +43,7 @@ const EXACT_MAP = {
   "You don't have permission to access global HRIS statistics.": "common.noAccess",
   "Network error occurred": "apiMessages.networkError",
   "An unexpected error occurred": "apiMessages.unexpectedError",
+  "An unexpected error occurred. Please try again.": "apiMessages.unexpectedErrorRetry",
 };
 
 const PATTERN_MAP = [

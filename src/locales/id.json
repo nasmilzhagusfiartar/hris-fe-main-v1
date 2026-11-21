@@ -588,6 +588,7 @@
     "notificationPrefsUpdated": "Preferensi notifikasi berhasil diperbarui.",
     "passwordUpdated": "Password berhasil diperbarui.",
     "networkError": "Terjadi gangguan jaringan. Periksa koneksi Anda.",
-    "unexpectedError": "Terjadi kesalahan yang tidak terduga."
+    "unexpectedError": "Terjadi kesalahan yang tidak terduga.",
+    "unexpectedErrorRetry": "Terjadi kesalahan pada server. Silakan coba lagi."
   }
 }
