@@ -70,7 +70,9 @@ const canEditTeam = computed(() => can("team-edit"));
 const canDeleteTeam = computed(() => can("team-delete"));
 
 const membersList = computed(() =>
-  Array.isArray(team.value?.members) ? team.value.members : []
+  Array.isArray(team.value?.members)
+    ? team.value.members.filter((m) => Boolean(m?.employee?.id && m?.employee?.user))
+    : []
 );
 
 const membersCount = computed(
