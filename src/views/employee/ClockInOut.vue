@@ -10,7 +10,6 @@ import {
   LogOut,
   Info,
   Globe,
-  Building,
   Loader2,
   AlertCircle,
   UserCheck,
@@ -603,28 +602,13 @@ onUnmounted(() => {
           <button
             @click="getCurrentLocation"
             :disabled="isGettingLocation"
-            class="w-full border border-[#DCDEDD] rounded-[8px] hover:border-[#0C51D9] hover:border-2 hover:bg-gray-50 transition-all duration-300 px-4 py-2 flex items-center justify-center gap-2 mb-3 disabled:opacity-50"
+            class="w-full border border-[#DCDEDD] rounded-[8px] hover:border-[#0C51D9] hover:border-2 hover:bg-gray-50 transition-all duration-300 px-4 py-2 flex items-center justify-center gap-2 disabled:opacity-50"
           >
             <MapPin class="w-4 h-4 text-gray-600" />
             <span class="text-brand-dark text-sm font-semibold">
               {{ isGettingLocation ? "Getting Location..." : currentLocation ? "Refresh Location" : "Get Current Location" }}
             </span>
           </button>
-
-          <!-- Office Location Reference -->
-          <div class="p-4 bg-blue-50 rounded-[12px] border border-[#DCDEDD]">
-            <div class="flex items-center gap-3">
-              <Building class="w-5 h-5 text-blue-600" />
-              <div>
-                <p class="text-brand-dark text-base font-semibold">
-                  Jakarta Office
-                </p>
-                <p class="text-brand-light text-sm">
-                  Jl. Sudirman No. 123, Jakarta
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
 
         <!-- Webcam Section -->

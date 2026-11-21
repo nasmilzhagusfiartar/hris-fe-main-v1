@@ -6,6 +6,7 @@ export const useEmployeeStore = defineStore("employee", {
     state: () => ({
         employees: [],
         latestEmployees: [],
+        lastCreatedEmployee: null,
         statistics: {
             total: 0,
             added_this_month: 0,
@@ -85,7 +86,9 @@ export const useEmployeeStore = defineStore("employee", {
             try {
                 const response = await axiosInstance.post('employees', payload);
 
+                this.lastCreatedEmployee = response.data.data || null;
                 this.success = response.data.message;
+                return response.data.data;
             } catch (error) {
                 this.error = handleError(error);
                 throw error;

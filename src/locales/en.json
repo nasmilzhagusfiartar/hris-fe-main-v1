@@ -346,7 +346,16 @@
     "allStores": "All Stores",
     "vendorName": "Vendor / Brand Name",
     "vendorNamePlaceholder": "e.g. Mattel Indonesia, Hasbro",
-    "filterVendor": "Filter vendor..."
+    "filterVendor": "Filter vendor...",
+    "addedSuccessTitle": "Employee Added Successfully!",
+    "addedSuccessSub": "The new employee has been saved to the system.",
+    "newEmployeeSummary": "New Employee Summary",
+    "employeeCode": "Employee Code",
+    "jobTitle": "Job Title",
+    "viewAllEmployees": "View All Employees",
+    "addAnotherEmployee": "Add Another Employee",
+    "totalEmployees": "Total Employees",
+    "addedThisMonthLabel": "Added This Month"
   },
   "store": {
     "searchPlaceholder": "Search store by name, code, city, or address...",

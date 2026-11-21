@@ -346,7 +346,16 @@
     "allStores": "Semua Toko",
     "vendorName": "Nama Vendor / Brand",
     "vendorNamePlaceholder": "mis. Mattel Indonesia, Hasbro",
-    "filterVendor": "Filter vendor..."
+    "filterVendor": "Filter vendor...",
+    "addedSuccessTitle": "Karyawan Berhasil Ditambahkan!",
+    "addedSuccessSub": "Data karyawan baru telah berhasil disimpan ke dalam sistem.",
+    "newEmployeeSummary": "Ringkasan Karyawan Baru",
+    "employeeCode": "Kode Karyawan",
+    "jobTitle": "Jabatan",
+    "viewAllEmployees": "Lihat Semua Karyawan",
+    "addAnotherEmployee": "Tambah Karyawan Lainnya",
+    "totalEmployees": "Total Karyawan",
+    "addedThisMonthLabel": "Ditambahkan Bulan Ini"
   },
   "store": {
     "searchPlaceholder": "Cari toko berdasarkan nama, kode, kota, atau alamat...",

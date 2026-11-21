@@ -94,11 +94,13 @@ const viewDetails = (id) => {
       <!-- Total Payroll Amount Card (spans 2 rows on the left) -->
       <div class="main-card lg:row-span-2 rounded-[20px] border border-[#0B1042] relative overflow-hidden p-5">
         <div class="flex flex-col justify-center h-full relative z-10">
-          <!-- Trending Badge -->
-          <div class="flex items-center gap-2 mb-3">
+          <!-- Trending Badge (only when real salary_change is non-zero) -->
+          <div v-if="!loading && statistics.salary_change" class="flex items-center gap-2 mb-3">
             <div class="flex items-center gap-1 px-3 py-1 bg-white/20 rounded-full backdrop-blur-sm">
               <TrendingUp class="w-3 h-3 text-white" />
-              <span class="text-brand-white text-xs font-semibold">+5.2% this month</span>
+              <span class="text-brand-white text-xs font-semibold">
+                {{ statistics.salary_change > 0 ? '+' : '' }}{{ statistics.salary_change }}% {{ t("payroll.thisMonth") }}
+              </span>
             </div>
           </div>
 
