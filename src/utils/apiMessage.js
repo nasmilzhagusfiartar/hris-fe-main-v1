@@ -45,6 +45,11 @@ const EXACT_MAP = {
   "Network error occurred": "apiMessages.networkError",
   "An unexpected error occurred": "apiMessages.unexpectedError",
   "An unexpected error occurred. Please try again.": "apiMessages.unexpectedErrorRetry",
+  "Domain could not be resolved. It may be unregistered or inactive, so it cannot be scanned.": "apiMessages.urlscanUnresolvable",
+  "Domain was rejected by the scan service.": "apiMessages.urlscanRejected",
+  "Scan limit reached. Please try again later.": "apiMessages.urlscanRateLimited",
+  "Scan service is not configured correctly.": "apiMessages.urlscanMisconfigured",
+  "Scan service is temporarily unavailable. Please try again later.": "apiMessages.urlscanUnavailable",
 };
 
 const PATTERN_MAP = [
@@ -67,6 +72,11 @@ const PATTERN_MAP = [
     regex: /^User does not have the right (roles|permissions)\.?$/i,
     key: "common.noAccess",
     params: () => ({}),
+  },
+  {
+    regex: /^Scan limit reached\. Please try again in (\d+) seconds?\.?$/i,
+    key: "apiMessages.urlscanRateLimitedSeconds",
+    params: (m) => ({ seconds: m[1] }),
   },
 ];
 

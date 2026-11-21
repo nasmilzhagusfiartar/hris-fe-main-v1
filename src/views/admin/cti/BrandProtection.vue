@@ -545,18 +545,49 @@
                     <!-- Status Pending -->
                     <div v-if="res.urlscan_status === 'pending'" class="flex items-center gap-2 text-xs font-medium text-amber-700 bg-amber-50 px-2.5 py-1.5 rounded-lg border border-amber-200">
                       <RefreshCwIcon class="w-3.5 h-3.5 animate-spin" />
-                      <span>Scanning urlscan... ({{ urlscanAttempts[res.id] || 1 }}/24)</span>
+                      <span>{{ t('cti.urlscanPending') }} ({{ urlscanAttempts[res.id] || 1 }}/24)</span>
+                    </div>
+
+                    <!-- Status Unresolvable -->
+                    <div v-else-if="res.urlscan_status === 'unresolvable'" class="space-y-1">
+                      <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-md border border-slate-300">
+                        {{ t('cti.urlscanUnresolvable') }}
+                      </span>
+                      <p class="text-[11px] text-slate-500 leading-snug max-w-xs">
+                        {{ translateApiMessage(res.urlscan_error) || t('apiMessages.urlscanUnresolvable') }}
+                      </p>
+                    </div>
+
+                    <!-- Status Rejected -->
+                    <div v-else-if="res.urlscan_status === 'rejected'" class="space-y-1">
+                      <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-orange-800 bg-orange-50 px-2.5 py-1 rounded-md border border-orange-200">
+                        {{ t('cti.urlscanRejected') }}
+                      </span>
+                      <p class="text-[11px] text-orange-700/90 leading-snug max-w-xs">
+                        {{ translateApiMessage(res.urlscan_error) || t('apiMessages.urlscanRejected') }}
+                      </p>
+                    </div>
+
+                    <!-- Status Rate Limited -->
+                    <div v-else-if="res.urlscan_status === 'rate_limited'" class="space-y-1">
+                      <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-800 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">
+                        <ClockIcon class="w-3.5 h-3.5" />
+                        {{ t('cti.urlscanRateLimited') }}
+                      </span>
+                      <p class="text-[11px] text-amber-700 leading-snug max-w-xs">
+                        {{ translateApiMessage(res.urlscan_error) || t('apiMessages.urlscanRateLimited') }}
+                      </p>
                     </div>
 
                     <!-- Status Timeout -->
                     <div v-else-if="res.urlscan_status === 'timeout'" class="flex items-center gap-2 text-xs font-bold text-amber-800 bg-amber-100 px-2.5 py-1 rounded-md border border-amber-300">
                       <ClockIcon class="w-3.5 h-3.5" />
-                      <span>Timeout</span>
+                      <span>{{ t('cti.urlscanTimeout') }}</span>
                     </div>
 
                     <!-- Status Failed -->
                     <div v-else-if="res.urlscan_status === 'failed'" class="text-xs font-bold text-red-800 bg-red-100 px-2.5 py-1 rounded-md inline-block">
-                      Failed
+                      {{ t('cti.urlscanFailed') }}
                     </div>
 
                     <!-- Status Done -->
@@ -592,20 +623,43 @@
                       </div>
                     </div>
 
+                    <!-- No DNS Record (not scannable) -->
+                    <div v-else-if="!isDomainResolvable(res)" class="space-y-1">
+                      <span class="inline-flex items-center text-xs font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200">
+                        {{ t('cti.urlscanUnresolvable') }}
+                      </span>
+                    </div>
+
                     <!-- Empty Status -->
                     <div v-else class="text-xs text-gray-400 italic">
-                      Not scanned yet
+                      {{ t('cti.urlscanNotScanned') }}
                     </div>
                   </td>
                   <td class="p-4 text-center">
-                    <button 
+                    <button
+                      v-if="isDomainResolvable(res)"
                       @click="runUrlscan(res)"
-                      :disabled="res.urlscan_status === 'pending' || loadingUrlscanMap[res.id]"
-                      class="px-3 py-1.5 text-xs font-bold rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition-colors disabled:opacity-50 shadow-2xs inline-flex items-center gap-1.5"
+                      :disabled="res.urlscan_status === 'pending' || loadingUrlscanMap[res.id] || isUrlscanCooldownActive(res)"
+                      :title="isUrlscanCooldownActive(res) ? t('cti.urlscanCooldownHint') : ''"
+                      class="px-3 py-1.5 text-xs font-bold rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-2xs inline-flex items-center gap-1.5"
                     >
                       <RefreshCwIcon class="w-3.5 h-3.5" :class="{'animate-spin': res.urlscan_status === 'pending' || loadingUrlscanMap[res.id]}" />
-                      <span>{{ res.urlscan_status === 'done' ? 'Re-scan urlscan' : 'Scan urlscan' }}</span>
+                      <span>
+                        {{
+                          res.urlscan_status === 'pending' || loadingUrlscanMap[res.id]
+                            ? t('cti.urlscanScanningBtn')
+                            : res.urlscan_status === 'done'
+                              ? t('cti.urlscanRescanBtn')
+                              : t('cti.urlscanScanBtn')
+                        }}
+                      </span>
                     </button>
+                    <span
+                      v-else
+                      class="inline-flex items-center px-2.5 py-1 text-xs font-medium text-slate-500 bg-slate-100 rounded-md border border-slate-200"
+                    >
+                      {{ t('cti.urlscanNoDns') }}
+                    </span>
                   </td>
                 </tr>
               </tbody>
@@ -774,6 +828,8 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
+import { useI18n } from 'vue-i18n';
+import { translateApiMessage } from '@/utils/apiMessage';
 import { 
   EyeIcon, ExternalLinkIcon, XIcon, ShieldAlertIcon, FlameIcon, 
   GlobeIcon, LockIcon, RefreshCwIcon, SearchIcon, 
@@ -791,6 +847,7 @@ import Pagination from '@/components/admin/team/Pagination.vue';
 import SearchInput from '@/components/common/SearchInput.vue';
 
 const route = useRoute();
+const { t } = useI18n();
 const authStore = useAuthStore();
 
 const userRoles = computed(() =>
@@ -1087,17 +1144,66 @@ const pollBrandScan = (scanId) => {
   }, 5000);
 };
 
+const isDomainResolvable = (res) => {
+  if (!res) return false;
+  if (typeof res.is_resolvable === 'boolean') return res.is_resolvable;
+  return Array.isArray(res.dns_a) && res.dns_a.length > 0;
+};
+
+const isUrlscanCooldownActive = (res) => {
+  if (!res) return false;
+  if (typeof res.urlscan_cooldown_active === 'boolean') return res.urlscan_cooldown_active;
+  if (!['unresolvable', 'rejected'].includes(res.urlscan_status) || !res.urlscan_checked_at) {
+    return false;
+  }
+  const checkedAtMs = Date.parse(res.urlscan_checked_at);
+  if (Number.isNaN(checkedAtMs)) return false;
+  return Date.now() - checkedAtMs < 24 * 60 * 60 * 1000;
+};
+
 const runUrlscan = async (result) => {
-  if (!result || !result.id) return;
+  if (!result || !result.id || !isDomainResolvable(result)) return;
   const resultId = result.id;
 
   try {
     const updated = await ctiStore.triggerUrlscan(resultId);
-    result.urlscan_status = updated.urlscan_status || 'pending';
-    toast.success(`Urlscan for domain ${result.domain} started successfully.`);
+    Object.assign(result, updated, {
+      urlscan_status: updated?.urlscan_status || 'pending',
+    });
+    toast.success(t('cti.urlscanStarted', { domain: result.domain }));
     startUrlscanPolling(result);
   } catch (err) {
-    toast.error(typeof err === 'string' ? err : (err?.response?.data?.message || 'Failed to start urlscan.'));
+    const status = err?.response?.status;
+    const rawMessage = err?.response?.data?.message || (typeof err === 'string' ? err : '');
+    const friendlyMessage = translateApiMessage(rawMessage) || t('apiMessages.unexpectedErrorRetry');
+    const payloadData = err?.response?.data?.data;
+
+    if (status === 422) {
+      if (payloadData && typeof payloadData === 'object') {
+        Object.assign(result, payloadData);
+      } else {
+        result.urlscan_status = 'unresolvable';
+        result.urlscan_error = rawMessage;
+      }
+      toast.info(friendlyMessage);
+      return;
+    }
+
+    if (status === 429) {
+      if (!result.urlscan_status || result.urlscan_status === 'rate_limited') {
+        result.urlscan_status = 'rate_limited';
+        result.urlscan_error = rawMessage;
+      }
+      toast.warning(friendlyMessage);
+      return;
+    }
+
+    if (status === 503) {
+      toast.warning(friendlyMessage);
+      return;
+    }
+
+    toast.error(friendlyMessage);
   }
 };
 

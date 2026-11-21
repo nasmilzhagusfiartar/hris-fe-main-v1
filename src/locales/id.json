@@ -621,7 +621,20 @@
     "auditTitle": "Audit Log & Aktivitas Sesi Pengguna",
     "auditSubtitle": "Pemantauan baca-saja atas sesi aktif, perangkat, IP Address, dan riwayat aktivitas pengguna HIP HRIS.",
     "yourCurrentSession": "Sesi Anda Saat Ini",
-    "printReport": "Cetak Laporan"
+    "printReport": "Cetak Laporan",
+    "urlscanUnresolvable": "Tidak Dapat Di-resolve",
+    "urlscanRejected": "Ditolak",
+    "urlscanRateLimited": "Batas Tercapai",
+    "urlscanPending": "Memindai urlscan...",
+    "urlscanTimeout": "Waktu Habis",
+    "urlscanFailed": "Gagal",
+    "urlscanNotScanned": "Belum dipindai",
+    "urlscanNoDns": "Tidak ada DNS",
+    "urlscanScanBtn": "Scan urlscan",
+    "urlscanRescanBtn": "Scan ulang urlscan",
+    "urlscanScanningBtn": "Memindai...",
+    "urlscanCooldownHint": "Domain ini baru saja tidak dapat dipindai. Coba lagi setelah 24 jam.",
+    "urlscanStarted": "Pemindaian urlscan untuk domain {domain} berhasil dimulai."
   },
   "apiMessages": {
     "loginSuccess": "Login berhasil.",
@@ -660,6 +673,12 @@
     "passwordUpdated": "Password berhasil diperbarui.",
     "networkError": "Terjadi gangguan jaringan. Periksa koneksi Anda.",
     "unexpectedError": "Terjadi kesalahan yang tidak terduga.",
-    "unexpectedErrorRetry": "Terjadi kesalahan pada server. Silakan coba lagi."
+    "unexpectedErrorRetry": "Terjadi kesalahan pada server. Silakan coba lagi.",
+    "urlscanUnresolvable": "Domain tidak dapat di-resolve. Kemungkinan domain belum terdaftar atau tidak aktif sehingga tidak dapat dipindai.",
+    "urlscanRejected": "Domain ditolak oleh layanan pemindaian.",
+    "urlscanRateLimited": "Batas pemindaian tercapai. Silakan coba lagi nanti.",
+    "urlscanRateLimitedSeconds": "Batas pemindaian tercapai. Silakan coba lagi dalam {seconds} detik.",
+    "urlscanMisconfigured": "Layanan pemindaian belum dikonfigurasi dengan benar.",
+    "urlscanUnavailable": "Layanan pemindaian sedang tidak tersedia. Silakan coba lagi nanti."
   }
 }

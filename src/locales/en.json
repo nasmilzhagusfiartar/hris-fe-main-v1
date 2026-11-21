@@ -621,7 +621,20 @@
     "auditTitle": "User Audit & Session Activity Logs",
     "auditSubtitle": "Read-only monitoring of active sessions, devices, IP Address, and HIP HRIS user activity history.",
     "yourCurrentSession": "Your Current Session",
-    "printReport": "Print Report"
+    "printReport": "Print Report",
+    "urlscanUnresolvable": "Unresolvable",
+    "urlscanRejected": "Rejected",
+    "urlscanRateLimited": "Rate limited",
+    "urlscanPending": "Scanning urlscan...",
+    "urlscanTimeout": "Timeout",
+    "urlscanFailed": "Failed",
+    "urlscanNotScanned": "Not scanned yet",
+    "urlscanNoDns": "No DNS record",
+    "urlscanScanBtn": "Scan urlscan",
+    "urlscanRescanBtn": "Re-scan urlscan",
+    "urlscanScanningBtn": "Scanning...",
+    "urlscanCooldownHint": "This domain could not be scanned recently. Retry available after 24 hours.",
+    "urlscanStarted": "Urlscan for domain {domain} started successfully."
   },
   "apiMessages": {
     "loginSuccess": "Login successful.",
@@ -660,6 +673,12 @@
     "passwordUpdated": "Password updated successfully.",
     "networkError": "Network error occurred. Please check your connection.",
     "unexpectedError": "An unexpected error occurred.",
-    "unexpectedErrorRetry": "An unexpected error occurred. Please try again."
+    "unexpectedErrorRetry": "An unexpected error occurred. Please try again.",
+    "urlscanUnresolvable": "Domain could not be resolved. It may be unregistered or inactive, so it cannot be scanned.",
+    "urlscanRejected": "Domain was rejected by the scan service.",
+    "urlscanRateLimited": "Scan limit reached. Please try again later.",
+    "urlscanRateLimitedSeconds": "Scan limit reached. Please try again in {seconds} seconds.",
+    "urlscanMisconfigured": "Scan service is not configured correctly.",
+    "urlscanUnavailable": "Scan service is temporarily unavailable. Please try again later."
   }
 }
