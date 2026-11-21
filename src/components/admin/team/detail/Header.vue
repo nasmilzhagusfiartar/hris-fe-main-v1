@@ -1,8 +1,10 @@
 <script setup>
 import { Building, Calendar, Edit, Share, Users } from "lucide-vue-next";
-import { RouterLink } from "vue-router";
-import _ from "lodash";
+import { RouterLink, useRoute } from "vue-router";
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { formatToClientTimezone } from "@/helpers/format";
+import { can } from "@/helpers/permissionHelper";
 import { getImageUrl, handleImageError } from "@/helpers/imageHelper";
 
 const props = defineProps({
@@ -11,6 +13,17 @@ const props = defineProps({
     required: true,
   },
 });
+
+const { t } = useI18n();
+const route = useRoute();
+const teamId = computed(() => props.team?.id || route.params.id);
+const departmentLabel = computed(() => {
+  const dept = props.team?.department;
+  if (!dept) return "-";
+  const key = `enums.${dept}`;
+  return t(key) !== key ? t(key) : String(dept).replace(/_/g, " ");
+});
+const canEditTeam = computed(() => can("team-edit"));
 </script>
 <template>
   <div class="bg-white border border-[#DCDEDD] rounded-[20px] mb-6 p-6">
@@ -42,28 +55,29 @@ const props = defineProps({
             >Verified</span
           >
         </div>
-        <div class="flex items-center gap-6 text-base text-gray-600">
+        <div class="flex items-center gap-6 text-base text-gray-600 flex-wrap">
           <div class="flex items-center gap-2">
             <Users class="w-4 h-4"></Users>
-            <span>{{ team.members_count }} members</span>
+            <span>{{ team.members_count ?? 0 }} {{ t("team.membersUnit") }}</span>
           </div>
           <div class="flex items-center gap-2">
             <Building class="w-4 h-4"></Building>
-            <span>{{ _.capitalize(team.department) }}</span>
+            <span>{{ departmentLabel }}</span>
           </div>
           <div class="flex items-center gap-2">
             <Calendar class="w-4 h-4"></Calendar>
-            <span>{{ formatToClientTimezone(team.created_at) }}</span>
+            <span>{{ team.created_at ? formatToClientTimezone(team.created_at) : "-" }}</span>
           </div>
         </div>
       </div>
       <div class="flex gap-3">
         <RouterLink
-          :to="{ name: 'admin.team.edit', params: { id: team.id } }"
+          v-if="teamId && canEditTeam"
+          :to="{ name: 'admin.team.edit', params: { id: teamId } }"
           class="btn-primary rounded-[8px] border border-[#2151A0] hover:brightness-110 focus:ring-2 focus:ring-[#0C51D9] transition-all duration-300 blue-gradient blue-btn-shadow px-6 py-3 flex items-center gap-2"
         >
           <Edit class="w-4 h-4 text-white" />
-          <span class="text-brand-white text-sm font-semibold">Edit Team</span>
+          <span class="text-brand-white text-sm font-semibold">{{ t("team.editTeam") }}</span>
         </RouterLink>
         <button
           class="bg-white border border-[#DCDEDD] text-brand-dark py-3 px-6 rounded-[8px] font-medium hover:bg-gray-50 transition-colors flex items-center gap-2"

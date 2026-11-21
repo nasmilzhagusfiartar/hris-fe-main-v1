@@ -101,7 +101,7 @@ const taskGrowthSeries = ref([
 ]);
 
 const updateCharts = () => {
-  if (teamChartData.value.months.length > 0) {
+  if (Array.isArray(teamChartData.value?.months) && teamChartData.value.months.length > 0) {
     // Update member growth chart
     memberGrowthOptions.value.xaxis.categories = teamChartData.value.months;
     memberGrowthSeries.value = [

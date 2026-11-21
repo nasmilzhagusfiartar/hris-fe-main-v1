@@ -1,4 +1,5 @@
 <script setup>
+import { onMounted, onUnmounted } from "vue";
 import { X, AlertTriangle } from "lucide-vue-next";
 
 const props = defineProps({
@@ -41,6 +42,15 @@ const handleConfirm = () => {
 const handleCancel = () => {
   emit("cancel");
 };
+
+const handleKeydown = (e) => {
+  if (e.key === "Escape" && props.show && !props.loading) {
+    handleCancel();
+  }
+};
+
+onMounted(() => window.addEventListener("keydown", handleKeydown));
+onUnmounted(() => window.removeEventListener("keydown", handleKeydown));
 </script>
 
 <template>

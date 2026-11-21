@@ -1,6 +1,6 @@
 <script setup>
-import { onMounted, ref, watch, computed } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { onMounted, onUnmounted, ref, watch, computed } from "vue";
+import { useRoute, useRouter, onBeforeRouteLeave } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useTeamStore } from "@/stores/team";
 import { useEmployeeStore } from "@/stores/employee";
@@ -252,8 +252,40 @@ const confirmRemoveMember = async () => {
   memberToRemove.value = null;
 };
 
+const closeAllModals = () => {
+  showDeleteModal.value = false;
+  showAddMemberModal.value = false;
+  showAssignLeadModal.value = false;
+  showRemoveMemberModal.value = false;
+  memberToRemove.value = null;
+  searchMember.value = "";
+  searchLead.value = "";
+  document.body.style.overflow = "";
+};
+
+const handleKeydown = (e) => {
+  if (e.key === "Escape") {
+    if (showAddMemberModal.value) closeAddMemberModal();
+    if (showAssignLeadModal.value) closeAssignLeadModal();
+  }
+};
+
+watch([showAddMemberModal, showAssignLeadModal, showDeleteModal, showRemoveMemberModal], (states) => {
+  document.body.style.overflow = states.some(Boolean) ? "hidden" : "";
+});
+
+onBeforeRouteLeave(() => {
+  closeAllModals();
+});
+
 onMounted(async () => {
+  window.addEventListener("keydown", handleKeydown);
   await handleFetchTeam();
+});
+
+onUnmounted(() => {
+  window.removeEventListener("keydown", handleKeydown);
+  document.body.style.overflow = "";
 });
 
 watch(
@@ -420,8 +452,8 @@ watch(
           </div>
         </div>
         <RouterLink
-          v-if="canEditTeam"
-          :to="{ name: 'admin.teams.edit', params: { id } }"
+          v-if="canEditTeam && id"
+          :to="{ name: 'admin.team.edit', params: { id } }"
           class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0C51D9] hover:underline"
         >
           <Edit class="w-3.5 h-3.5" />
@@ -496,8 +528,8 @@ watch(
       <p class="text-sm font-semibold text-gray-700 mb-1">{{ t("team.noResponsibilitiesTitle") }}</p>
       <p class="text-xs text-gray-500 mb-4">{{ t("team.noResponsibilitiesSub") }}</p>
       <RouterLink
-        v-if="canEditTeam"
-        :to="{ name: 'admin.teams.edit', params: { id } }"
+        v-if="canEditTeam && id"
+        :to="{ name: 'admin.team.edit', params: { id } }"
         class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#0C51D9] text-white text-xs font-semibold hover:bg-blue-700"
       >
         <Edit class="w-3.5 h-3.5" />
