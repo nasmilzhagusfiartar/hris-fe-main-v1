@@ -18,6 +18,7 @@ import {
 import { useStoreStore } from "@/stores/store";
 import { useToastStore } from "@/stores/toast";
 import { can } from "@/helpers/permissionHelper";
+import { translateApiMessage } from "@/utils/apiMessage";
 import Pagination from "@/components/admin/team/Pagination.vue";
 
 const { t } = useI18n();
@@ -120,8 +121,10 @@ const handleSubmit = async () => {
   } catch (err) {
     if (err?.response?.status === 422 && err?.response?.data?.errors) {
       formErrors.value = err.response.data.errors;
+      const firstError = Object.values(err.response.data.errors).flat()[0];
+      toast.error(translateApiMessage(firstError) || t("store.saveFailed"));
     } else {
-      toast.error(err?.response?.data?.message || t("store.saveFailed"));
+      toast.error(translateApiMessage(err?.response?.data?.message) || t("store.saveFailed"));
     }
   } finally {
     saving.value = false;
@@ -137,7 +140,7 @@ const handleDelete = async (item) => {
     toast.success(t("store.deletedSuccess"));
     await loadStores();
   } catch (err) {
-    toast.error(err?.response?.data?.message || t("store.deleteFailed"));
+    toast.error(translateApiMessage(err?.response?.data?.message) || t("store.deleteFailed"));
   }
 };
 
@@ -418,16 +421,20 @@ onMounted(loadStores);
               :placeholder="t('store.addressPlaceholder')"
               class="w-full px-3.5 py-2.5 text-sm border border-[#DCDEDD] rounded-xl focus:outline-none focus:border-[#0C51D9]"
             ></textarea>
+            <p v-if="formErrors.address" class="text-xs text-red-600 mt-1">{{ formErrors.address[0] }}</p>
           </div>
 
-          <label class="inline-flex items-center gap-2.5 cursor-pointer select-none">
-            <input
-              v-model="form.is_active"
-              type="checkbox"
-              class="w-4 h-4 rounded border-gray-300 text-[#0C51D9] focus:ring-[#0C51D9]"
-            />
-            <span class="text-sm font-medium text-gray-700">{{ t("store.isActiveLabel") }}</span>
-          </label>
+          <div>
+            <label class="inline-flex items-center gap-2.5 cursor-pointer select-none">
+              <input
+                v-model="form.is_active"
+                type="checkbox"
+                class="w-4 h-4 rounded border-gray-300 text-[#0C51D9] focus:ring-[#0C51D9]"
+              />
+              <span class="text-sm font-medium text-gray-700">{{ t("store.isActiveLabel") }}</span>
+            </label>
+            <p v-if="formErrors.is_active" class="text-xs text-red-600 mt-1">{{ formErrors.is_active[0] }}</p>
+          </div>
 
           <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-gray-100">
             <button

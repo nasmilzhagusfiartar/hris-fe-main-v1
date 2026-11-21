@@ -53,7 +53,9 @@ export const useStoreStore = defineStore("store", {
       this.error = null;
       this.success = null;
       try {
-        const response = await axiosInstance.post("/stores", payload);
+        const response = await axiosInstance.post("/stores", payload, {
+          headers: { "Content-Type": "application/json" },
+        });
         this.success = response.data.message;
         return response.data.data;
       } catch (error) {
@@ -69,7 +71,9 @@ export const useStoreStore = defineStore("store", {
       this.error = null;
       this.success = null;
       try {
-        const response = await axiosInstance.put(`/stores/${id}`, payload);
+        const response = await axiosInstance.put(`/stores/${id}`, payload, {
+          headers: { "Content-Type": "application/json" },
+        });
         this.success = response.data.message;
         return response.data.data;
       } catch (error) {
